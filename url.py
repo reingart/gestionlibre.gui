@@ -2,7 +2,7 @@
 
 # syntax: {"controller": {"function": "controllers.name.function"}, ... }
 
-# function call: url.address[c][f](a, b, c=1)
+# function call: url.address[a][c][f](a, b, c=1)
 
 def get_function(url):
     vars = {}

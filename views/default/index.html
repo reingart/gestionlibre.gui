@@ -1,0 +1,22 @@
+{{ extend "layout.html" }}
+{{=H3("The message")}}
+{{ =message }}
+{{=H3("The links")}}
+
+{{ n = 0 }}
+
+<table bgcolor="#EEEEEE" width="100%">
+
+{{ for link in links: }}
+  {{  n += 1.0 }}
+  {{ if n % 2 == 0:}}
+    {{ bgcolor = "rgb(200, 220, 200)" }}
+    {{ fontcolor = "white" }}
+  {{ else: }}
+    {{ bgcolor = "white" }}
+    {{ fontcolor = "black" }}
+  {{ pass }}
+<tr bgcolor="{{=bgcolor}}"><td>{{ =link}}</td></tr>
+{{ pass }}
+
+</table>

@@ -2,11 +2,33 @@
 # -*- coding: utf-8 -*-
 
 # desktop app prototype for GestionLibre.
-# Alan Etkin <spametki@gmail.com>
 
-__author__ = "Mariano Reingart (reingart@gmail.com)"
-__copyright__ = "Copyright (C) 2011 Mariano Reingart"
-__license__ = "LGPL 3.0"
+"""
+    This project is a Python open source migration of
+    Sistemas Ágiles ERP software GesPyme and others.
+
+    Copyright (C) 2011 Sistemas Ágiles
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+    NOTE: Many of the app modules and functions were taken from
+    the original project Visual BASIC source code.
+"""
+
+__author__ = "Alan Etkin <spametki@gmail.com>"
+__copyright__ = "Copyright (C) 2011 Sistemas Ágiles"
+__license__ = "AGPLv3"
 
 import sys
 
@@ -21,14 +43,6 @@ sys.path.append(WEB2PY_FOLDER)
 
 import gluon
 from gluon import *
-
-# from gluon.tools import *
-# from gluon.dal import DAL, Field
-# from gluon.sqlhtml import SQLFORM
-# from gluon.sqlhtml import SQLTABLE
-# from gluon.html import INPUT, FORM, TABLE, TR, TD, DIV
-# from gluon.validators import IS_NOT_EMPTY, IS_EXPR, IS_NOT_IN_DB, IS_IN_SET
-# from gluon.storage import Storage
 
 # import wxPython:
 import wx
@@ -83,14 +97,6 @@ def on_form_submit(evt):
         db.commit()
     elif form.errors:
         print "errors", form.errors
-        
-    # refresh the form and table (show web2py errors)
-    # table = SQLTABLE(db(db.person).select())
-    # div = DIV(form, table)
-
-    # display the updated div
-    # html.SetPage(div.xml())
-
 
 # wx auto if __name ... code
 
@@ -109,8 +115,6 @@ if __name__ == "__main__":
     xml = gui.action("gestionlibre/default/index")
     config.html_frame.window.SetPage(xml)
 
-    config.html_frame.window.action = action
-
     GestionLibre.SetTopWindow(config.starting_frame)
 
     config.starting_frame.Show()
@@ -118,22 +122,4 @@ if __name__ == "__main__":
 
     # add the html window
     GestionLibre.MainLoop()
-
-
-# create the wxPython GUI application instance:
-# app = wx.App(False)
-
-# config.start_window = wx.Frame(None, title="GestiónLibre testing frame")
-
-# create the html window
-# gui.show("gestionlibre/default/index", config.start_window, style= wx.html.HW_DEFAULT_STYLE | wx.TAB_TRAVERSAL)
-
-# connect the FORM event with the HTML browser
-# html.Bind(EVT_FORM_SUBMIT, on_form_submit)
-
-# show the main window
-# config.start_window.Show()
-
-# start the wx main-loop to interact with the user
-# app.MainLoop()
 

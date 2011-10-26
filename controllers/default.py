@@ -11,7 +11,7 @@ import gluon
 ## - call exposes all registered services (none by default)
 #########################################################################  
 
-def index(args = [], vars = {}):
+def index(evt, args = [], vars = {}):
     """
     example action using the internationalization operator T and flash
     rendered by views/default/index.html or views/generic.html
@@ -33,8 +33,7 @@ def index(args = [], vars = {}):
     A(B("Movements list"), _href=URL(a="gestionlibre", c='operations',f='movements_list')),
     A(B("New operation (movements form)"), _href=URL(a="gestionlibre", c='operations',f='movements_start')),
     A(B("Current accounts payments"), _href=URL(a="gestionlibre", c='financials',f='current_accounts_type')),
-    A(B("Administrative interface"), _href=URL('admin','default','index')),
-    A(B("h3 header"), _href=URL(a="gestionlibre", c='default',f='new_function'))] ])
+    A(B("Administrative interface"), _href=URL('admin','default','index'))] ])
 
     # response.flash = T('Welcome to web2py and GestionLibre')
     return dict(message='Prototype app', links = links)
