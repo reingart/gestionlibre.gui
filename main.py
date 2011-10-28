@@ -1,13 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# desktop app prototype for GestionLibre.
+# Desktop app prototype for GestionLibre.
 
 """
-    This project is a Python open source migration of
-    Sistemas Ágiles ERP software GesPyme and others.
+    This is a Python open source project for migration of modules
+    and functions from GestionPyme and other ERP products from Sistemas
+    Ágiles.
 
-    Copyright (C) 2011 Sistemas Ágiles
+    Copyright (C) 2011 Sistemas Ágiles.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -21,27 +22,20 @@
 
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-    NOTE: Many of the app modules and functions were taken from
-    the original project Visual BASIC source code.
 """
 
 __author__ = "Alan Etkin <spametki@gmail.com>"
 __copyright__ = "Copyright (C) 2011 Sistemas Ágiles"
 __license__ = "AGPLv3"
 
+# constants and common memmory storage
+import config
+
 import sys
 
-WEB2PY_FOLDER = r""
-GUI2PY_FOLDER = r""
-
-# import gui2py support -wxHTML FORM handling- (change the path!)
-sys.path.append(GUI2PY_FOLDER)
-
-# import web2py (change the path!)
-sys.path.append(WEB2PY_FOLDER)
-
 import gluon
+import gluon.shell
+import gluon.tools
 from gluon import *
 
 # import wxPython:
@@ -50,58 +44,94 @@ import wx
 # gui2py
 from gui2py.form import EVT_FORM_SUBMIT
 
-
 # app modules
-import config
 import gui
 
 db = config.db
 
+config.env = gluon.shell.env(config.APP_NAME, dir=config.WEB2PY_FOLDER)
+
+
+# TODO: Authenticate with wx widgets.
+# A series of hack imports (with shell) and bindings are needed
+# for using auth and crud.
+
+# auth (buggy: has redirection and form submission problems)
+config.auth = gluon.tools.Auth(db=db, hmac_key=config.HMAC_KEY)
+
 # import all the table definitions and options in web app's model
 # model module
 
+# custom auth_user definition is required to prevent the "auth_user not
+# found" error
 import applications.gestionlibre.modules.db_gestionlibre as db_gestionlibre
 
 # define the database tables
+# web2py = False forces db.define_table("auth_user"..)
+db_gestionlibre.define_tables(db, web2py = False)
 
-db_gestionlibre.define_tables(db)
+# define the auth tables (this goes after app tables definition)
+config.auth.settings.hmac_key = 'sha512:3f00b793-28b8-4b3c-8ffb-081b57fac54a'   # before define_tables()
+config.auth.define_tables()                           # creates all needed tables
 
+# crud (buggy: form submission and database transactions problems)
+config.crud = gluon.tools.Crud(config.env, db=db)
 
 # import wx auto generated classes
 from gestion_libre_wx import MyHTMLFrame, MyDialog, MyFrame
 
-
-def custom_post_login(arg):
-    contacts_per_user = len(db(db.contact_user.user_id == auth.user_id).select())
-    if contacts_per_user < 1:
-        redirect(URL(a="gestionlibre", c="registration", f="post_register_specify_firm"))
-
-def custom_post_register(arg):
-    redirect(URL(a="gestionlibre", c="registration", f="post_register_specify_firm"))
-
-def on_form_submit(evt):
-    "Handle submit button user action"
-    global form
-    print "Submitting to %s via %s with args %s"% (evt.form.action, \
-    evt.form.method, evt.args)
-    if form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
-        print "accepted!"
-
-        # insert the record in the table (if dbio=True this is done by web2py):
-        db.person.insert(name=form.vars.name,
-                         sex=form.vars.sex,
-                         active=form.vars.active,
-                         bio=form.vars.bio,
-                        )
-        # don't forget to commit, we aren't inside a web2py controller!
-        db.commit()
-    elif form.errors:
-        print "errors", form.errors
-
 # wx auto if __name ... code
-
 def action(url):
     gui.action(url)
+
+import controllers.default, controllers.operations, controllers.crm
+
+config.address = {
+    "default":{
+        "index": {"action": controllers.default.index},
+        "new_function": {"action": controllers.default.new_function},
+        "user": {"action": controllers.default.user},
+        },
+    "operations":{
+        # extended format:
+        # "movements_list": {"action": controllers.operations.movements_list, "window": None, "replace": False, "parent": html_frame},
+
+        "movements_list": {"action": controllers.operations.movements_list},
+        "movements_select": {"action": controllers.operations.movements_select},
+        "movements_detail": {"action": controllers.operations.movements_detail},
+        "movements_start": {"action": controllers.operations.movements_start},
+        "movements_header": {"action": controllers.operations.movements_header},
+        "movements_price_list": {"action": controllers.operations.movements_price_list},
+        "movements_add_item": {"action": controllers.operations.movements_add_item},
+        "movements_add_payment_method": {"action": controllers.operations.movements_add_payment_method},
+        "movements_articles": {"action": controllers.operations.movements_articles},
+        "movements_add_check": {"action": controllers.operations.movements_add_check},
+        "movements_add_tax": {"action": controllers.operations.movements_add_tax},
+        "movements_current_account_concept": {"action": controllers.operations.movements_current_account_concept},
+        "movements_current_account_quotas": {"action": controllers.operations.movements_current_account_quotas},
+        "movements_current_account_data": {"action": controllers.operations.movements_current_account_data},
+        "movements_add_discount_surcharge": {"action": controllers.operations.movements_add_discount_surcharge},
+        "movements_process": {"action": controllers.operations.movements_process},
+        "movements_option_update_stock": {"action": controllers.operations.movements_option_update_stock},
+        "movements_option_update_taxes": {"action": controllers.operations.movements_option_update_taxes},
+        "movements_select_warehouse": {"action": controllers.operations.movements_select_warehouse},
+        "movements_modify_item": {"action": controllers.operations.movements_modify_item},
+        },
+    "crm":
+        {
+            "customer_current_account_status": {"action": controllers.crm.customer_current_account_status},
+            },
+}
+
+config.menu = MENU([
+    ('Index', False, URL('gestionlibre','default','index'), []),
+    ('Setup', False, None, [
+        ('Populate tables', False, URL('gestionlibre','migration','importcsvdir'), []),
+        ('Set options', False, URL('gestionlibre','setup','options'), []),
+        ('Initialize', False, URL('gestionlibre','setup','initialize'), []),
+        ]),
+    ])
+
 
 
 if __name__ == "__main__":
@@ -119,6 +149,8 @@ if __name__ == "__main__":
 
     config.starting_frame.Show()
     config.html_frame.Show()
+
+    # gui-based user authentication
 
     # add the html window
     GestionLibre.MainLoop()

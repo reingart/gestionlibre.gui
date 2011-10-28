@@ -71,7 +71,7 @@ def user(evt, args=[], vars={"_next": "gestionlibre/default/index"}):
                 )
 
         elif args[0] == "logout":
-            config.auth.logout()
+                config.auth.logout()
 
         elif args[0] == "register":
             session.form = SQLFORM.factory(Field("first_name", requires=IS_NOT_EMPTY()),

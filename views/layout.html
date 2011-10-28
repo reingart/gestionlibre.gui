@@ -1,8 +1,13 @@
 <html>
 <body bgcolor="#EEEEEE">
+{{try:}}
+{{ user_mail = db.auth_user[config.auth.user_id].email }}
+{{except (AttributeError, KeyError, ValueError), e:}}
+{{ user_mail = "not logged in" }}
+{{pass}}
+{{ =DIV(SPAN("Active user: " + user_mail), SPAN(" | "), SPAN(A("Register", _href="gestionlibre/default/user/register?_next=gestionlibre/default/index")), SPAN(" | "), SPAN(A("Login", _href="gestionlibre/default/user/login?_next=gestionlibre/default/index")), SPAN(" | "), SPAN(A("Logout", _href="gestionlibre/default/user/logout?_next=gestionlibre/default/index")))}}
 {{=menu}}
 <h1>GestionLibre</h1>
 {{ include }}
 </body>
 </html>
- 

@@ -1065,7 +1065,6 @@ def on_movements_start_submit(evt):
         
         config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="movements_header"))
 
-
 def movements_start(evt, args=[], vars={}):
     """ Initial operation form """
 
@@ -1980,9 +1979,6 @@ def movements_add_tax(evt, args=[], vars={}):
     config.html_frame.window.Bind(EVT_FORM_SUBMIT, movements_add_tax)
     return dict(form = session.form)
 
-
-# def on_movements_articles_submit(evt):
-    
 
 # self-submitted form (stores post form query in config.py)
 def movements_articles(evt, args=[], vars={}):

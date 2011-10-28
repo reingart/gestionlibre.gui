@@ -7,9 +7,21 @@
 def get_function(url):
     vars = {}
     args = []
-    if url.startswith("/"):
-        url = url[1:]
-    tmp_args = url.split("/")
+
+    get_pos = url.find("?")
+
+    if  get_pos >= 0:
+        url_address = url[:get_pos]
+        get_vars = url[get_pos +1:]
+    else:
+        get_vars = ""
+        url_address = url
+    
+    if url_address.startswith("/"):
+        url_address = url_address[1:]
+        
+    tmp_args = url_address.split("/")
+
     for i, arg in enumerate(tmp_args):
         if i == 0:
             a = arg
@@ -19,18 +31,20 @@ def get_function(url):
             # nevermind the extension
             f = arg.split(".")[0]
         elif i > 2:
-            if "?" in arg:
-                tmp_index = arg.find("?")
-                if tmp_index != 0:
-                    args.append(arg[:tmp_index])
-                    arg = arg[tmp_index:]
-                tmp_vars = arg.replace("?", "")
-                kv_str = tmp_vars.split("&")
-                for kv in kv_str:
-                    tmp_kv = kv.split("=")
-                    vars[tmp_kv[0]] = tmp_kv[1]
-            else:
-                args.append(arg)
+            args.append(arg)
 
-    print "Link: ", a, c, f, args, vars
+    if get_vars != "":
+        """
+        tmp_index = arg.find("?")
+        if tmp_index != 0:
+            args.append(arg[:tmp_index])
+            arg = arg[tmp_index:]
+        tmp_vars = arg.replace("?", "")
+        """
+        kv_str = get_vars.split("&")
+        for kv in kv_str:
+            tmp_kv = kv.split("=")
+            if len(tmp_kv) > 1:
+                vars[tmp_kv[0]] = tmp_kv[1]
+                
     return a, c, f, args, vars
