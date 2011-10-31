@@ -21,7 +21,6 @@ replace the normal response, session, ... in web2py views with
 config.session, config.response, config.session, ...
 """
 
-
 # method overriding for handling click on links
 class NewHtmlWindow(wx.html.HtmlWindow):
     def OnLinkClicked(self, link):
@@ -30,16 +29,16 @@ class NewHtmlWindow(wx.html.HtmlWindow):
             xml = action(link)
             config.html_frame.window.SetPage(xml)
         else:
-            if not (link.Href.startswith("/gestionlibre/") or link.Href.startswith("gestionlibre/")):
+            
+            if not (link.Href.startswith("/%s" % config.APP_NAME) or \
+            link.Href.startswith(config.APP_NAME)):
                 wx.html.HtmlWindow.OnLinkClicked(self, link)
             else:
                 xml = action(link.Href)
-
                 config.html_frame.window.SetPage(xml)
 
 def action(url):
     url_data = get_function(url)
-    print "The URL (action)", url
     # arguments: evt (form submission), controller, function
     try:
         action_data = config.address[url_data[1]][url_data[2]]["action"](None, url_data[3], url_data[4])
@@ -56,7 +55,12 @@ def action(url):
                     config._auth_source = "/".join((new_url_data[0], new_url_data[1], new_url_data[2], new_url_data[3][0]))
 
                 return action(config._auth_source)
-                
+
+            else:
+                # just redirect the action to the
+                # specified url
+                return action(e.headers["Location"])
+
             #     authenticate with wx widget and
             #     redirect to last action (config._auth_next)
             # else
@@ -92,9 +96,6 @@ def action(url):
         if filename in (os.listdir(path)):
             absolute_path = os.path.join(path, filename)
             xml = gluon.template.render(filename=absolute_path, path=config.TEMPLATES_FOLDER, context = config.context)
-            # print "template HTML"
-            # print xml
-            # TODO: do the extend / includes parsing
 
     except OSError, e:
         print e

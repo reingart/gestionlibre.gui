@@ -2,6 +2,14 @@
 <h1>Current account report</h1>
 {{=query_form}}
 {{if operations is not None:}}
+{{=HR()}}
+
+{{if customer is not None:}}
+<h3>Customer: {{ =customer.description }}</h3>
+{{pass}}
+
 {{=operations}}
 Total debt: {{=total_debt}}
 {{pass}}
+
+{{ session.total_debt = session.q = session.customer_id = session.subcustomer_id = None }}

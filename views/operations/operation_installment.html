@@ -4,7 +4,7 @@
 {{if installment:}}
 {{=HR()}}
 <h3>Installment</h3>
-{{=crud.read(db.installment, installment)}}
+{{=SQLFORM(db.installment, session.installment_id, readonly=True)}}
 {{=HR()}}
 <h3>Total: {{=total}}</h3>
 {{pass}}

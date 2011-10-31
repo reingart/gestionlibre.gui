@@ -1,3 +1,0 @@
-{{ extend 'layout.html' }}
-{{=A("New option", _href=URL(f="option"))}}
-{{ =options }}

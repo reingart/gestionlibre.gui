@@ -2,4 +2,5 @@
 <h1>Update installment</h1>
 {{=form}}
 {{=HR()}}
-{{=LOAD(URL(c="fees", f="list_quotas.load"), ajax = True)}}
+{{=H3('Quotas')}}
+

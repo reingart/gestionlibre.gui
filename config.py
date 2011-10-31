@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-SQLITE_DB_FOLDER = r"" 
+SQLITE_DB_FOLDER = r"/home/user/web2py/applications/gestionlibre/databases/"
 SQLITE_DB_FILE = r'sqlite://storage.sqlite'
 HMAC_KEY = "sha512:3f00b793-28b8-4b3c-8ffb-081b57fac54a"
-TEMPLATES_FOLDER = r""
-WEB2PY_FOLDER = r""
-GUI2PY_FOLDER = r""
+TEMPLATES_FOLDER = r"/home/user/gestionlibre_desktop/views/"
+WEB2PY_FOLDER = r"/home/user/web2py"
+GUI2PY_FOLDER = r"/home/user/gui2py-hg"
 APP_NAME = "gestionlibre"
 
 import sys

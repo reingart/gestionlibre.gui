@@ -1,11 +1,26 @@
 <html>
 <body bgcolor="#EEEEEE">
+
 {{try:}}
-{{ user_mail = db.auth_user[config.auth.user_id].email }}
+  {{ user = config.auth.user }}
+  {{ if user is None:}}
+    {{ user = None }}
+    {{ user_mail = "not logged in" }}
+    {{ firm = None }}
+  {{ else: }}
+    {{ user_mail = user.email }}
+    {{ contact = db(db.contact_user.user_id == config.auth.user_id).select().first().contact_id }}
+    {{ firm = db(db.contact.contact_id == contact).select().first().description }}
+  {{pass}}
 {{except (AttributeError, KeyError, ValueError), e:}}
-{{ user_mail = "not logged in" }}
+  {{ print str(e) }}
+  {{ user = None }}
+  {{ user_mail = "not logged in" }}
+  {{ firm = None }}
 {{pass}}
-{{ =DIV(SPAN("Active user: " + user_mail), SPAN(" | "), SPAN(A("Register", _href="gestionlibre/default/user/register?_next=gestionlibre/default/index")), SPAN(" | "), SPAN(A("Login", _href="gestionlibre/default/user/login?_next=gestionlibre/default/index")), SPAN(" | "), SPAN(A("Logout", _href="gestionlibre/default/user/logout?_next=gestionlibre/default/index")))}}
+
+
+{{ =DIV(SPAN("Active user: " + user_mail), SPAN(" | "), SPAN(A("Register", _href="gestionlibre/default/user/register?_next=gestionlibre/default/index")), SPAN(" | "), SPAN(A("Specify firm (" + str(firm) + ")", _href="gestionlibre/registration/post_register_specify_firm")), SPAN(" | "), SPAN(A("Login", _href="gestionlibre/default/user/login?_next=gestionlibre/default/index")), SPAN(" | "), SPAN(A("Logout", _href="gestionlibre/default/user/logout?_next=gestionlibre/default/index")))}}
 {{=menu}}
 <h1>GestionLibre</h1>
 {{ include }}

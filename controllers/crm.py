@@ -1,20 +1,29 @@
 # -*- coding: utf-8 -*-
 # intente algo como
 
-import applications.gestionlibre.modules.crm
-crm = applications.gestionlibre.modules.crm
+import gluon
+from gluon import *
 import datetime
 import config
+
 db = config.db
 session = config.session
+request = config.request
+
+import applications.gestionlibre.modules.operations as operations
+import applications.gestionlibre.modules.crm as crm
+
+import datetime
+
+from gui2py.form import EVT_FORM_SUBMIT
 
 
 def index(): return dict(message="hello from crm.py")
 
 
-def customer_panel():
+def customer_panel(evt, args=[], vars={}):
     """ Customer on-line panel. Show info/stats/links to actions"""
-    contact_user = db(db.contact_user.user_id == auth.user_id).select().first()
+    contact_user = db(db.contact_user.user_id == config.auth.user_id).select().first()
     if contact_user is None:
         return dict(customer_orders = None, message="No tax id selected", customer = None)
     try:
@@ -50,41 +59,53 @@ def customer_panel():
     return dict(customer_orders = customer_orders, message="Customer panel", customer = customer)
 
 
-def current_account_report():
+def current_account_report(evt, args=[], vars={}):
     """ Performs a query of operations and
     returns the current account data
     """
     # 
-    total_debt = 0
-    
+    session.total_debt = session.get("total_debt", 0.00)
+
     operations = None
+    
     # customer / subcustomer selection form
-    query_form = SQLFORM.factory(Field('customer', 'reference customer', \
+    session.form = SQLFORM.factory(Field('customer', 'reference customer', \
     requires=IS_IN_DB(db, db.customer, "%(legal_name)s")), Field('subcustomer', \
     'reference subcustomer', requires=IS_EMPTY_OR(IS_IN_DB(db, db.subcustomer, "%(legal_name)s"))))
-    if query_form.accepts(request.vars, session, keepvalues=True, formname="query_form"):
-        q = ((db.operation.customer_id == request.vars.customer) | \
-            (db.operation.subcustomer_id == request.vars.subcustomer))
-        q &= (db.operation.document_id == db.document.document_id)
-        q &= ((db.document.receipts == True) | (db.document.invoices == True))
 
-        the_set = db(q)
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            q = ((db.operation.customer_id == session.form.vars.customer) | \
+                (db.operation.subcustomer_id == session.form.vars.subcustomer))
+            q &= (db.operation.document_id == db.document.document_id)
+            q &= ((db.document.receipts == True) | (db.document.invoices == True))
 
-        # a naive current account total debt
-        # TODO: complete and customizable current
-        # account processing
-        
-        for row in the_set.select():
-            try:
-                if row.document.receipts == True:
-                    total_debt -= row.operation.amount
-                elif row.document.invoices == True:
-                    total_debt += row.operation.amount
-            except (ValueError, TypeError):
-                response.flash = "Error: could not calculate\
-                 the total debt."
-                break
-                
+            session.q = q
+            the_set = db(q)
+
+            session.customer_id = session.form.vars.customer
+            session.subcustomer_id = session.form.vars.subcustomer
+
+            # a naive current account total debt
+            # TODO: complete and customizable current
+            # account processing
+
+            for row in the_set.select():
+                try:
+                    if row.operation.amount is not None:
+                        if row.document.receipts == True:
+                            session.total_debt -= row.operation.amount
+                        elif row.document.invoices == True:
+                            session.total_debt += row.operation.amount
+                except (ValueError, TypeError), e:
+                    print "Could not calculate operation %s: %s" % str(row.operation.operation_id, e)
+
+            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="crm", f="current_account_report"))
+
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, current_account_report)
+
+    if session.q is not None:
         columns = ["operation.operation_id", "operation.posted", \
         "operation.amount", "operation.customer_id", \
         "operation.subcustomer_id", "document.description"]
@@ -93,11 +114,13 @@ def current_account_report():
         "operation.customer_id": "Customer", \
         "operation.subcustomer_id": "Subcustomer", \
         "document.description": "Document" }
-               
-        operations = SQLTABLE(the_set.select(), columns=columns, \
-        headers=headers, linkto=URL(c="operations", f="ria_movements"))
-    return dict(query_form = query_form, operations = operations, \
-    total_debt = total_debt)
+
+        operations = SQLTABLE(db(session.q).select(), columns=columns, \
+        headers=headers, linkto=URL(a="gestionlibre", c="operations", f="ria_movements"))
+
+    return dict(query_form = session.form, operations = operations, \
+    total_debt = session.total_debt, customer = db.customer[session.customer_id], \
+    subcustomer = db.subcustomer[session.subcustomer_id])
 
 
 def new_customer():

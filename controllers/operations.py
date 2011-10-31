@@ -111,6 +111,8 @@ def movements_checks(operation_id):
     """ Movements check processing """
     # TODO: erease checks movement if amount is 0
     # TODO: return warnings/errors
+    # TODO: assign one-to-one relation to checks and movements
+    
     concept_id = None
     checks = db(db.bank_check.operation_id == operation_id).select()
     operation = db.operation[operation_id]
@@ -154,8 +156,8 @@ def movements_checks(operation_id):
         # no concept configured for checks
         return 0
 
-    return len(checks)
 
+    return len(checks)
 
 
 def movements_difference(operation_id):
@@ -213,6 +215,9 @@ def movements_update(operation_id):
     db.operation[operation_id].update_record( \
     amount = movements_amount(operation_id))
     update = True
+
+    db.commit()
+    
     return update
 
 
@@ -221,33 +226,49 @@ def movements_amount(operation_id):
 
     amount = None
 
-    q_items = db.movement.concept_id == db.concept.concept_id
-    q_items &= db.concept.internal != True
-    q_items &= db.concept.discounts != True
-    q_items &= db.concept.surcharges != True
-    q_items &= db.concept.current_account != True
-    q_items &= db.movement.operation_id == operation_id
+    if db.operation[operation_id].document_id.receipts != True:
+        
+        q_items = db.movement.concept_id == db.concept.concept_id
+        q_items &= db.concept.internal != True
+        q_items &= db.concept.discounts != True
+        q_items &= db.concept.surcharges != True
+        q_items &= db.concept.current_account != True
+        q_items &= db.concept.banks != True
+        
+        q_items &= db.movement.operation_id == operation_id
 
-    q_discounts = db.movement.concept_id == db.concept.concept_id
-    q_discounts &= db.concept.discounts == True
-    q_discounts &= db.movement.operation_id == operation_id
+        q_discounts = db.movement.concept_id == db.concept.concept_id
+        q_discounts &= db.concept.discounts == True
+        q_discounts &= db.movement.operation_id == operation_id
 
-    q_surcharges = db.movement.concept_id == db.concept.concept_id
-    q_surcharges &= db.concept.surcharges == True
-    q_surcharges &= db.movement.operation_id == operation_id
+        q_surcharges = db.movement.concept_id == db.concept.concept_id
+        q_surcharges &= db.concept.surcharges == True
+        q_surcharges &= db.movement.operation_id == operation_id
 
-    rows_items = db(q_items).select()
-    rows_surcharges = db(q_surcharges).select()
-    rows_discounts = db(q_discounts).select()
+        rows_items = db(q_items).select()
+        rows_surcharges = db(q_surcharges).select()
+        rows_discounts = db(q_discounts).select()
 
-    items = float(abs(sum([item.movement.amount for item \
-    in rows_items if item.movement.amount is not None])))
-    surcharges = float(abs(sum([item.movement.amount \
-    for item in rows_surcharges if item.movement.amount is not None])))
-    discounts = float(abs(sum([item.movement.amount \
-    for item in rows_discounts if item.movement.amount is not None])))
+        items = float(abs(sum([item.movement.amount for item \
+        in rows_items if item.movement.amount is not None])))
 
-    amount = float(items + surcharges -discounts)
+
+        surcharges = float(abs(sum([item.movement.amount \
+        for item in rows_surcharges if item.movement.amount is not None])))
+
+        discounts = float(abs(sum([item.movement.amount \
+        for item in rows_discounts if item.movement.amount is not None])))
+
+        amount = float(items + surcharges -discounts)
+
+    else:
+        q_payments = db.movement.operation_id == operation_id
+        q_payments &= db.movement.concept_id == db.concept.concept_id
+        q_payments &= db.concept.payment_method == True
+        rows_payments = db(q_payments).select()
+
+        amount = float(abs(sum([payment.movement.amount \
+        for payment in rows_payments if payment.movement.amount is not None])))
 
     return amount
 
@@ -299,7 +320,7 @@ def is_editable(operation_id):
 ####################################################################
 
 
-def index():
+def index(evt, args=[], vars={}):
     """ Staff on-line panel. Show info/stats/links to actions"""
 
     now = datetime.datetime.now()
@@ -327,12 +348,24 @@ def index():
 # base web interface for movements
 # administration
 
-def ria_movements():
-    # reset the current operation (sent client-side)
-    reset_operation_form = FORM(INPUT(_type="submit", _value="Reset operation"))
-    if reset_operation_form.accepts(request.vars, formname="reset_operation"):
-        session.operation_id = None
+def ria_movements_process(evt, args=[], vars={}):
+    # TODO: incomplete
+    # do not expose if operation was already processed
+    # process/validate the operation
+    if operations.process(db, session, session.operation_id):
+        print "Operation processed"
+    else:
+        print "Could not process the operation"
+    return dict(_redirect=URL(a="gestionlibre", c="operations", f="ria_movements"))
+    
+    
+def ria_movements_reset(evt, args=[], vars={}):
+    session.operation_id = None
+    return dict(_redirect=URL(a="gestionlibre", c="operations", f="ria_movements"))
 
+def ria_movements(evt, args=[], vars={}):
+    # reset the current operation (sent client-side)
+    reset_operation_form = A("Reset operation", _href=URL(a="gestionlibre", c="operations", f="ria_movements_reset"))    
     # get the current operation if stored in session
     operation_id = session.get("operation_id", None)
 
@@ -345,65 +378,93 @@ def ria_movements():
     # specified, create one
     elif ("new" in request.vars) or (operation_id is None):
         session.operation_id = operation_id = db.operation.insert(\
-        user_id = auth.user_id)
+        user_id = config.auth.user_id)
 
     # standard operation update sqlform
     # TODO: operation change shouldn't be allowed if processed
-    form = SQLFORM(db.operation, operation_id, _id="operation_form")
-    if form.accepts(request.vars):
-        response.flash = "Form accepted"
     
+    session.form = SQLFORM(db.operation, operation_id, _id="operation_form")
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            db.operation[session.operation_id].update_record(**session.form.vars)
+            print "Form accepted"
+            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="ria_movements"))
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, ria_movements)
+
     # Process operation for accounting/other when accepted
-    process_operation_form = FORM(INPUT(_value="Process", _type="submit"))
+    process_operation_form = A("Process operation", _href=URL(a="gestionlibre", c="operations", f="ria_movements_process"))
+
     
-    if process_operation_form.accepts(request.vars, formname="process_operation"):
-        # TODO: incomplete
-        # do not expose if operation was already processed
-        # process/validate the operation
-        if operations.process(db, session, operation_id):
-            response.flash = "Operation processed"
-        else:
-            response.flash = "Could not process the operation"
+
+    movements_rows = db( \
+        db.movement.operation_id == session.operation_id).select()
+    movements_list = SQLTABLE(movements_rows, \
+                              columns=["movement.movement_id", \
+                                       "movement.description", \
+                                       "movement.concept_id", \
+                                       "movement.quantity", \
+                                       "movement.posted"], \
+                              headers={"movement.movement_id": "Edit", \
+                                       "movement.description": "Description", \
+                                       "movement.concept_id": "Product", \
+                                       "movement.quantity": "Qty", \
+                                       "movement.posted": "Posted"}, \
+                              linkto=URL(a="gestionlibre", c="operations", \
+                                         f="movements_modify_element"))
     
+    add_item = A("Add item", _href=URL(a="gestionlibre", c="operations", f="movements_element"))
+
     return dict(message="Operation number %s" % operation_id, \
-    form = form, \
+    form = session.form, \
     reset_operation_form = reset_operation_form, \
-    process_operation_form = process_operation_form)
-    
-def movements_element():
+    process_operation_form = process_operation_form, movements_list \
+    = movements_list, add_item = add_item)
+
+def movements_element(evt, args=[], vars={}):
     """ Insert sub-form for concept selection at movements form"""
     if not "operation_id" in session.keys():
         raise HTTP(500, "Operation not found.")
-    form = SQLFORM(db.movement, fields=["code","description",
+    
+    session.form = SQLFORM(db.movement, fields=["code","description",
 "concept_id", "price_id", "quantity", "amount", "discriminated_id", \
 "table_number", "detail", "value", "posted", "discount", "surcharge", \
-"replica"], _id="movements_element_form")
-    form.vars.operation_id = session.operation_id
-    
-    if form.accepts(request.vars, session, keepvalues=True):
-        response.flash = "Form accepted"
-    elif form.errors:
-        response.flash = "The form has errors"
-        
-    # query for operation movements
-    movements_list = db(db.movement.operation_id == session.operation_id).select()
-    
-    return dict(form=form, movements_list = movements_list)
+"replica"])
+    session.form.vars.operation_id = session.operation_id
 
-def movements_modify_element():
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            db.movement.insert(**session.form.vars)
+            db.commit()
+            print "Form accepted"
+            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="ria_movements"))
+        elif form.errors:
+            print "The form has errors"
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, movements_element)
+    # query for operation movements
+    return dict(form=session.form)
+
+def movements_modify_element(evt, args=[], vars={}):
     """ Movements element edition sub-form."""
-    movements_element = args[1]
-    form = SQLFORM(db.movement, movements_element, \
-    _id="movements_modify_element_form")
-    if form.accepts(request.vars, session):
-        response.flash = "Form accepted"
-        return dict(_redirect=URL(f="movements"))
-    return dict(form=form)
+    if len(args) > 1:
+        session.movements_element_id = args[1]
+
+    session.form = SQLFORM(db.movement, session.movements_element_id)
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            db.movement[session.movements_element_id].update_record(**session.form.vars)
+            db.commit()
+            print "Form accepted"
+            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="ria_movements"))
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, movements_modify_element)
+    return dict(form=session.form)
 
 # create intallment/quotas for current operation
-def operation_installment():
+def operation_installment(evt, args=[], vars={}):
     total = 0
-    installment = None
+    
     # get session operation
     operation = db.operation[session.operation_id]
 
@@ -417,43 +478,60 @@ def operation_installment():
             pass
 
     # installment creation form
-    form = SQLFORM.factory(Field('quotas', 'integer'), \
+    session.form = SQLFORM.factory(Field('quotas', 'integer'), \
     Field('fee_id', 'integer', requires=IS_IN_DB(db, db.fee)))
-    if form.accepts(request.vars, session):
-        # create installment and fixed quotas
-        # TODO: custom quota fields
-        session.installment_id = installment_id = db.installment.insert(\
-        customer_id = operation.customer_id, subcustomer_id = operation.subcustomer_id, \
-        supplier_id = operation.supplier_id, fee_id = request.vars.fee_id)
-        
-        # quota amount = total / quotas
-        quota_amount = total / float(request.vars.quotas)
-        quotas_list = list()
-        for x in range(int(request.vars.quotas)):
-            quotas_list.append(db.quota.insert(installment_id = installment_id, \
-            fee_id = request.vars.fee_id, number = x+1, amount = quota_amount))
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            # create installment and fixed quotas
+            # TODO: custom quota fields
+            session.installment_id = db.installment.insert(\
+            customer_id = operation.customer_id, subcustomer_id = operation.subcustomer_id, \
+            supplier_id = operation.supplier_id, fee_id = session.form.vars.fee_id)
 
-        installment = db.installment[installment_id]
-        installment.update(quotas = len(quotas_list), \
-        monthly_amount = quota_amount, starting_quota_id = quotas_list[0], \
-        ending_quota_id = quotas_list[len(quotas_list) -1])
-        response.flash = "Installment created"
+            # quota amount = total / quotas
+            quota_amount = total / float(session.form.vars.quotas)
+            quotas_list = list()
 
-    return dict(total = total, form = form, installment = installment)
+            print "Quota amount", quota_amount
+            
+            for x in range(int(session.form.vars.quotas)):
+                quotas_list.append(db.quota.insert(installment_id = session.installment_id, \
+                fee_id = session.form.vars.fee_id, number = x+1, amount = quota_amount))
+
+            print "Quotas list", quotas_list
+
+            db.installment[session.installment_id].update_record(quotas = len(quotas_list), \
+            monthly_amount = quota_amount, starting_quota_id = quotas_list[0], \
+            ending_quota_id = quotas_list[len(quotas_list) -1])
+
+            db.commit()
+            print "Installment created"
+            
+            config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="operation_installment"))
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, operation_installment)
+
+    installment = db.installment[session.installment_id]
+
+    return dict(total = total, form = session.form, installment = installment)
 
 
-def ria_new_customer_order():
+def ria_new_customer_order_reset(evt, args=[], vars={}):
+    session.operation_id = None
+    return config.html_frame.window.OnLinkClicked("gestionlibre/operations/ria_new_customer_order")
+
+
+def ria_new_customer_order(evt, args=[], vars={}):
     """ Customer's ordering on-line form.
     Note: get db objects with db(query).select()
     i.e. contact.customer returns the db record id """
+    
+    contact_user = db(db.contact_user.user_id == config.auth.user_id).select().first()
+    
+    reset = A("Reset this order", _href=URL(a="gestionlibre", c="operations", f="ria_new_customer_order_reset"))
 
     if len(args) > 0:
         session.operation_id = int(args[1])
-
-    reset_order = FORM(INPUT(_type="submit", _value="Reset order"))
-    if reset_order.accepts(request.vars, session):
-        session.operation_id = None
-    contact_user = db(db.contact_user.user_id == auth.user_id).select().first()
 
     # catch incomplete registrations (no contact user relations)
     if contact_user is None:
@@ -491,6 +569,7 @@ def ria_new_customer_order():
         customer_order = db.operation.insert( \
         customer_id = customer, document_id = default_order.value)
         session.operation_id = customer_order
+        db.commit()
     else:
         customer_order = session.operation_id
         if session.operation_id is None:
@@ -498,8 +577,9 @@ def ria_new_customer_order():
             customer_id = customer, \
             document_id = default_order.value)
             session.operation_id = customer_order
+            db.commit()
 
-    form = SQLFORM(db.operation, customer_order, \
+    session.form = SQLFORM(db.operation, customer_order, \
     fields=["description"], _id="new_customer_order_form")
 
     # Available order documents
@@ -509,10 +589,16 @@ def ria_new_customer_order():
     check_list = list()
     order_options = dict()
 
-    if form.accepts(request.vars, session):
-        db.operation[customer_order].update_record( \
-        document_id = request.vars.order_type)
-        response.flash = "Form accepted"
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            db.operation[customer_order].update_record( \
+            description = session.form.vars.description)
+            db.commit()
+            print "Form accepted"
+            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="ria_new_customer_order"))
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, ria_new_customer_order)
+
 
     for order_document in order_documents:
         loop_count += 1
@@ -535,54 +621,78 @@ def ria_new_customer_order():
             else:
                 order_options[order_document.document_id]["checked"] = False
 
-    return dict(form=form, reset = reset_order, contact = contact, \
+    order_list = db(db.movement.operation_id == session.operation_id  \
+    ).select()
+
+    return dict(form=session.form, reset=reset, contact = contact, \
     customer = customer, order = db.operation[customer_order], \
-    contact_user = contact_user, order_options = order_options)
+    contact_user = contact_user, order_options = order_options, order_list = order_list)
 
 # order movement creation
-def new_customer_order_element():
+def new_customer_order_element(evt, args=[], vars={}):
     """ Insert sub-form for product selection at Customer ordering form"""
+    
     if not "operation_id" in session.keys():
         raise HTTP(500, "Customer order not found.")
-    form = SQLFORM.factory(Field('concept_id', \
+    
+    session.form = SQLFORM.factory(Field('concept_id', \
     'reference concept', requires=IS_IN_SET(orderable_concepts())), \
     Field('description'), Field('quantity', 'double'), \
     _id="new_customer_order_element_form")
-    if form.accepts(request.vars, session):
-        db.movement.insert(operation_id = session.operation_id, \
-        concept_id = request.vars.concept_id, \
-        description = request.vars.description, \
-        quantity = request.vars.quantity)
-        response.flash = "Form accepted"
-    order_list = db(db.movement.operation_id == session.operation_id  \
-    ).select()
-    return dict(form=form, order_list = order_list)
+
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            db.movement.insert(operation_id = session.operation_id, \
+            concept_id = session.form.vars.concept_id, \
+            description = session.form.vars.description, \
+            quantity = session.form.vars.quantity)
+
+            db.commit()
+
+            print "Form accepted"
+            return config.html_frame.window.OnLinkClicked("gestionlibre/operations/ria_new_customer_order")
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, new_customer_order_element)
+
+    return dict(form=session.form)
 
 # order movement modification
-def new_customer_order_modify_element():
+def new_customer_order_modify_element(evt, args=[], vars={}):
     """ Customer order element edition sub-form."""
     if not "operation_id" in session.keys():
         raise HTTP(500, "Customer order not found.")
-    customer_order_element = db.movement[args[1]]
 
-    form = SQLFORM.factory(Field('concept_id', \
+    if len(args) > 1:
+        session.customer_order_element_id = args[1]
+        
+    customer_order_element = db.movement[session.customer_order_element_id]
+
+    session.form = SQLFORM.factory(Field('concept_id', \
     'reference concept', requires=IS_IN_SET(orderable_concepts()), \
     default=customer_order_element.movement_id), \
     Field('description', default=customer_order_element.description), \
     Field('quantity', 'double', \
     default = customer_order_element.quantity), \
     _id="new_customer_order_modify_element_form")
-    if form.accepts(request.vars, session):
-        customer_order_element.update_record( \
-        description = request.vars.description, \
-        concept_id = request.vars.concept_id, \
-        quantity = request.vars.quantity)
-        response.flash = "Form accepted"
-        return dict(_redirect=URL(f="new_customer_order"))
-    return dict(form=form)
+
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            customer_order_element.update_record( \
+            description = session.form.vars.description, \
+            concept_id = session.form.vars.concept_id, \
+            quantity = session.form.vars.quantity)
+            
+            db.commit()
+            
+            print "Form accepted"
+            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="ria_new_customer_order"))
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, new_customer_order_modify_element)
+
+    return dict(form=session.form)
 
 
-def order_allocation():
+def order_allocation(evt, args=[], vars={}):
     # Note: this is a draft for
     # Inventory/Order allocation
     # management and is not intended
@@ -605,9 +715,11 @@ def order_allocation():
     order_movements = preset.select()
 
     # separate movements by customer and concept
-    movements_stack = dict()
-    pending_stack = dict()
-    operations = set()
+    session.movements_stack = dict()
+    session.pending_stack = dict()
+    session.operations_stack = set()
+    session.allocations_completed = session.get("allocations_completed", set())
+
     for om in order_movements:
         try:
             qty = float(om.movement.quantity)
@@ -617,43 +729,43 @@ def order_allocation():
             concept = int(om.movement.concept_id)
             customer = int(om.operation.customer_id)
             operation = int(om.operation.operation_id)
-            operations.add(operation)
+            session.operations_stack.add(operation)
         except (KeyError, ValueError, AttributeError, TypeError):
             concept = customer = operation = None
 
-        if customer in movements_stack:
-            if concept in movements_stack[customer]:
-                movements_stack[customer][\
+        if customer in session.movements_stack:
+            if concept in session.movements_stack[customer]:
+                session.movements_stack[customer][\
                 concept]["qty"] += qty
             else:
-                movements_stack[customer][\
+                session.movements_stack[customer][\
                 concept] = dict(first = operation, \
                 qty = qty, allocated = 0, pending = True, \
                 stock = 0, allocate = 0.0)
         else:
-            movements_stack[customer] = dict()
-            movements_stack[customer][concept] = dict(\
+            session.movements_stack[customer] = dict()
+            session.movements_stack[customer][concept] = dict(\
             first = operation, qty = qty, \
             allocated = 0, pending = True, stock = 0, allocate = 0.0)
 
     # compare order quantity and allocated qty
     # per order item (order allocation after order date)
-    for customer in movements_stack:
-        for concept in movements_stack[customer]:
+    for customer in session.movements_stack:
+        for concept in session.movements_stack[customer]:
             # get the item stock
             # TODO: manage user selected warehouses
 
             try:
                 stock = db(\
                 db.stock.concept_id == concept).select().first().value
-                oldest = db.operation[movements_stack[\
+                oldest = db.operation[session.movements_stack[\
                 customer][concept]["first"]\
                 ].posted
             except AttributeError:
                 stock = oldest = None
 
             # update the stock value for the current customer/concept
-            movements_stack[customer][concept]["stock"] = stock
+            session.movements_stack[customer][concept]["stock"] = stock
 
             q = (db.movement.posted >= oldest) & (db.movement.concept_id == concept)
             q &= db.movement.operation_id == db.operation.operation_id
@@ -663,23 +775,23 @@ def order_allocation():
 
             # set allocated amount
             try:
-                movements_stack[customer][concept][\
+                session.movements_stack[customer][concept][\
                 "allocated"] = sum(\
                 [m.movement.quantity for m in allocated_set.select() \
                 if m.movement.quantity is not None], 0.00)
             except KeyError:
-                movements_stack[customer][concept][\
+                session.movements_stack[customer][concept][\
                 "allocated"] = 0.00
             # if allocated is equal to ordered for any order movement
             # set item as completed
-            if movements_stack[customer][concept]["qty"] <= \
-            movements_stack[customer][concept]["allocated"]:
-                movements_stack[customer][concept]["pending"] = False
+            if session.movements_stack[customer][concept]["qty"] <= \
+            session.movements_stack[customer][concept]["allocated"]:
+                session.movements_stack[customer][concept]["pending"] = False
 
     # present a form-row to allocate from inventory
     # based on available stock value.
     form_rows = []
-    for customer, v in movements_stack.iteritems():
+    for customer, v in session.movements_stack.iteritems():
         for concept, w in v.iteritems():
             try:
                 # getting the customer with dictionary syntax
@@ -699,7 +811,7 @@ def order_allocation():
             TD(w["stock"]), \
             INPUT(_name="order_allocation_%s_%s" % (customer, concept))))
 
-    form = FORM(TABLE(THEAD(TR(TH("Customer"),TH("Product code"), \
+    session.form = FORM(TABLE(THEAD(TR(TH("Customer"),TH("Product code"), \
     TH("Concept"), TH("Ordered"), TH("Allocated"), TH("Stock"), \
     TH("Allocate"))), TBODY(*form_rows), TFOOT(TR(TD(), TD(), TD(), \
     TD(), TD(), TD(), TD(INPUT(_value="Allocate orders", _type="submit"))))))
@@ -708,42 +820,55 @@ def order_allocation():
     # classify allocated items by customer
     # for each customer allocation item group
 
-    operations = set()
+    session.operations_stack = set()
 
-    if form.accepts(request.vars, session):
-        for var in request.vars:
-            if "order_allocation" in var:
-                try:
-                    concept = int(var.split("_")[3])
-                    customer = int(var.split("_")[2])
-                    movements_stack[customer][concept]["allocate"] = float( \
-                    request.vars[var])
-                except (ValueError, TypeError, KeyError):
-                    customer = None
-                    concept = None
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            for var in session.form.vars:
+                if "order_allocation" in var:
+                    try:
+                        concept = int(var.split("_")[3])
+                        customer = int(var.split("_")[2])
+                        session.movements_stack[customer][concept]["allocate"] = float( \
+                        session.form.vars[var])
+                    except (ValueError, TypeError, KeyError):
+                        customer = None
+                        concept = None
 
-        # create and populate the order allocation document
-        for customer, v in movements_stack.iteritems():
-            operation = None
-            for concept, w in v.iteritems():
-                if w["allocate"] > 0:
-                    if operation is None:
-                        # new operation
-                        # TODO: order allocation document defined by user input/configuration
-                        operation = db.operation.insert(customer_id = customer, \
-                        document_id = db(db.document.books == True).select().first())
-                    db.movement.insert(operation_id = operation, \
-                    quantity = w["allocate"], concept_id = concept)
-                    # reduce stock value
-                    stock_item = db(db.stock.concept_id == concept).select().first()
-                    stock_value = stock_item.value -w["allocate"]
-                    stock_item.update_record(value = stock_value)
-                    operations.add(operation)
+            # create and populate the order allocation document
+            order_allocations = 0
+            for customer, v in session.movements_stack.iteritems():
+                operation = None
+                for concept, w in v.iteritems():
+                    if w["allocate"] > 0:
+                        if operation is None:
+                            # new operation
+                            # TODO: order allocation document defined by user input/configuration
+                            operation = db.operation.insert(customer_id = customer, \
+                            document_id = db(db.document.books == True).select().first())
+                            order_allocations += 1
+
+                        db.movement.insert(operation_id = operation, \
+                        quantity = w["allocate"], concept_id = concept)
+                        # reduce stock value
+                        stock_item = db(db.stock.concept_id == concept).select().first()
+                        stock_value = stock_item.value -w["allocate"]
+                        stock_item.update_record(value = stock_value)
+                        session.operations_stack.add(operation)
+            db.commit()
+            
+            session.allocations_completed = session.operations_stack
+            
+            print "Order allocations completed: %s" % order_allocations
+            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="order_allocation"))
+
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, order_allocation)
 
     # return a list with allocations by item
-    return dict(form = form, operations = operations)
+    return dict(form = session.form, allocations_completed = session.allocations_completed)
 
-def list_order_allocations():
+def list_order_allocations(evt, args=[], vars={}):
     q = db.operation.processed == False
     q &= db.operation.document_id == db.document.document_id
     q &= db.document.books == True
@@ -753,236 +878,165 @@ def list_order_allocations():
     "operation.description": "Description", "operation.posted": "Posted"}
     order_allocations = SQLTABLE(db(q).select(), columns = columns, \
     headers = headers, \
-    linkto=URL(c="operations", f="update_order_allocation"))
+    linkto=URL(a="gestionlibre", c="operations", f="update_order_allocation"))
+    
     return dict(order_allocations = order_allocations)
 
-def update_order_allocation():
-    order_allocation = crud.update(db.operation, args[1])
+def update_order_allocation(evt, args=[], vars={}):
+    if len(args) > 1:
+        session.operation_id = session.order_allocation_id = args[1]
+
+    session.form = SQLFORM(db.operation, session.order_allocation_id)
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            db.operation[session.order_allocation_id].update_record(**session.form.vars)
+            db.commit()
+            print "Form accepted"
+            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="list_order_allocations"))
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, update_order_allocation)
+
     movements = SQLTABLE(db(\
-    db.movement.operation_id == args[1]).select(), \
+    db.movement.operation_id == session.order_allocation_id).select(), \
     columns=["movement.movement_id", "movement.code","movement.concept_id", \
     "movement.quantity"], headers={"movement.movement_id": \
     "ID", "movement.code": "Code", \
     "movement.concept_id": "Concept", "movement.quantity": "Quantity"}, \
-    linkto=URL(c="operations", f="movements_modify_element"))
-    return dict(order_allocation = order_allocation, movements = movements)
+    linkto=URL(a="gestionlibre", c="operations", f="movements_modify_element"))
+    
+    return dict(form = session.form, movements = movements)
 
+def reset_packing_slip(evt, args=[], vars={}):
+    session.packing_slip_id = None
+    return dict(_redirect=URL(a="gestionlibre", c="operations", f="packing_slip"))
 
-def packing_slip():
+def packing_slip(evt, args=[], vars={}):
     """Create a packing slip from order allocation
     operation.
     """
-    packing_slip_id = None
-    document_id = db(db.document.packing_slips == True).select(\
-        ).first().document_id
 
-    if len(args) > 0:
-        order_allocation_id = args[1]
-        order_allocation = db.operation[order_allocation_id]
-        # copy the allocation data to the new packing slip
-        # TODO: user/configuration document selection
-        # and custom packing slip source and items
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            # web2py stores the created record id as "id"
+            # instead of using the table field definition
+            if session.packing_slip_id is not None:
+                db.operation[session.packing_slip_id].update(**session.form.vars)
+            else:
+                session.packing_slip_id = db.operation.insert(**session.form.vars)
 
-        packing_slip_id = db.operation.insert(\
-        customer_id = order_allocation.customer_id, \
-        document_id = document_id)
-        # TODO: fill packing slip with allocation movements
-        for m in db(db.movement.operation_id == order_allocation_id).select():
-            db.movement.insert(operation_id = packing_slip_id, \
-            quantity = m.quantity, \
-            value = m.value, concept_id = m.concept_id)
+            db.commit()
+            print "Form accepted"
 
-        packing_slip_form = crud.update(db.operation, packing_slip_id)
-        order_allocation.update_record(processed = True)
+            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="packing_slip"))
 
     else:
-        packing_slip_form = crud.create(db.operation)
-        packing_slip_form.vars.document_id = document_id
+        session.document_id = db(db.document.packing_slips == True).select(\
+        ).first().document_id
 
-    if packing_slip_form.accepts(request.vars, session):
-        # web2py stores the created record id as "id"
-        # instead of using the table field definition
-        packing_slip_id = packing_slip_form.vars.id
-        packing_slip_form = crud.update(db.operation, packing_slip_id)
+        if len(args) > 1:
+            # packing slip from order allocation document
+            session.packing_slips_id = None
+            session.order_allocation_id = args[1]
+            order_allocation = db.operation[session.order_allocation_id]
+            
+            # copy the allocation data to the new packing slip
+            # TODO: user/configuration document selection
+            # and custom packing slip source and items
 
-    movements = SQLTABLE(db(\
-    db.movement.operation_id == packing_slip_id).select(), \
-    columns=["movement.movement_id", "movement.code","movement.concept_id", \
-    "movement.quantity"], headers={"movement.movement_id": "ID", \
-    "movement.code": "Code", \
-    "movement.concept_id": "Concept", "movement.quantity": "Quantity"})
+            session.packing_slip_id = db.operation.insert(\
+            customer_id = order_allocation.customer_id, \
+            document_id = session.document_id)
 
-    return dict(packing_slip_form = packing_slip_form, \
-    movements = movements, packing_slip_id = packing_slip_id)
+            # TODO: fill packing slip with allocation movements
+            for m in db(db.movement.operation_id == session.order_allocation_id).select():
+                db.movement.insert(operation_id = session.packing_slip_id, \
+                quantity = m.quantity, \
+                value = m.value, concept_id = m.concept_id)
+                
+            order_allocation.update_record(processed = True)
+            
+            # create the form
+            session.form = SQLFORM(db.operation, session.packing_slip_id)
+            db.commit()
+            "New packing slip: %s" % session.packing_slip_id
 
-def ria_receipt():
-    """    Get or create a new receipt.
-    Presents a one-view multi-form receipt
-    for customer payments
-    """
-    operation_id = session.get("operation_id", None)
-
-    # allow receipt reset
-    reset_receipt_form = FORM(INPUT(_type="submit", _value="Reset receipt"))
-    if reset_receipt_form.accepts(request.vars, \
-    formname="reset_receipt_form"):
-        operation_id = session.operation_id = None
-
-    # get the session receipt or create one
-    if operation_id is None:
-        # new receipt
-        # TODO: user/configuration selected receipt document
-        document = db(db.document.receipts == True).select().first()
-        operation_id = session.operation_id = db.operation.insert(\
-        document_id = document)
-
-    operation = db.operation[session.operation_id]
-    document = db.document[operation.document_id]
-
-    process_receipt_form = FORM(INPUT(_value="Process receipt", \
-    _type="submit"))
-
-    if process_receipt_form.accepts(request.vars, formname = "process_receipt_form"):
-        # TODO: receipt processing
-        # Balance movements
-        # Call common operation process
-        # Check as processed or return errors
-        if operations.process(db, session, operation_id):
-            operation.update_record(processed = True)
-            response.flash="Receipt processed"
         else:
-            response.flash="Could not process the receipt"
+            if session.get("packing_slip_id", None) is not None:
+                session.form = SQLFORM(db.operation, session.packing_slip_id)
+            else:
+                session.form = SQLFORM(db.operation)
+            session.form.vars.document_id = session.document_id
 
-    receipt_form = crud.update(db.operation, operation_id)
-    if receipt_form.accepts(request.vars, \
-    formname="receipt_form"):
-        response.flash="Form accepted"
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, packing_slip)
 
-    if (document is None) or (document.receipts != True):
-        # return error
-        response.flash="Warning! Wrong document type."
+    if session.packing_slip_id is not None:
+        movements = SQLTABLE(db(\
+        db.movement.operation_id == session.packing_slip_id).select(), \
+        columns=["movement.movement_id", "movement.code","movement.concept_id", \
+        "movement.quantity"], headers={"movement.movement_id": "ID", \
+        "movement.code": "Code", \
+        "movement.concept_id": "Concept", "movement.quantity": "Quantity"})
 
-    return dict(receipt_form = receipt_form, \
-    process_receipt_form = process_receipt_form, \
-    reset_receipt_form = reset_receipt_form)
+    else:
+        movements = None
 
-def receipt_checks():
-    operation_id = session.operation_id
-    check_form = crud.create(db.bank_check)
-    if check_form.accepts(request.vars, session):
-        # create a movement for the current account entry
-        # TODO: form/config sourced current account record option
+    return dict(form = session.form, movements = movements, \
+    packing_slip_id = session.packing_slip_id)
 
-        # check concept
-        check_concept = db((db.concept.banks == True) \
-        & (db.concept.entry == True)).select().first()
 
-        db.movement.insert(operation_id = operation_id, \
-        concept_id = check_concept.concept_id, value = request.vars.amount, \
-        amount = request.vars.amount)
 
-        # current account concept
-        current_account_concept = db((db.concept.current_account == True) \
-        & (db.concept.exit == True)).select().first()
-
-        db.movement.insert(operation_id = operation_id, \
-        concept_id = current_account_concept.concept_id, value = request.vars.amount, \
-        amount = request.vars.amount)
-
-        response.flash = "Item added"
-
-    check_form.vars.operation_id = operation_id
-
-    columns = ["bank_ckeck.bank_check_id", "bank_check.number", \
-    "bank_check.customer_id", \
-    "bank_check.code", "bank_check.description", "bank_check.amount"]
-    headers = {"bank_ckeck.bank_check_id": "Edit", \
-    "bank_check.number": "Number", "bank_check.customer_id": "Customer", \
-    "bank_check.code": "Code", "bank_check.description": "Description", \
-    "bank_check.amount": "Amount"}
-
-    checks_list = SQLTABLE(db(\
-    db.bank_check.operation_id == operation_id).select(), \
-    columns = columns, headers = headers)
-
-    return dict(check_form = check_form, checks_list = checks_list)
-
-def receipt_items():
-    """ Cash or inter bank account payments """
-    receipt_item_form = crud.create(db.movement, \
-    formname="receipt_item_form")
-    operation_id = session.operation_id
-    # TODO: auto complete movemens with payment data
-    # and filter the rest of concepts stored in db
-
-    if receipt_item_form.accepts(request.vars, session):
-        # create a movement for the current account entry
-        # TODO: form/config sourced current account record option
-        concept = db((db.concept.current_account == True) & \
-        (db.concept.exit == True)).select().first()
-        db.movement.insert(operation_id = operation_id, \
-        concept_id = concept.concept_id, value = request.vars.value, \
-        amount = request.vars.amount)
-        response.flash = "Item added"
-
-    columns = ["movement.movement_id", "movement.code", \
-    "movement.description", \
-    "movement.posted", "movement.amount", "movement.concept_id"]
-    headers = {"movement.movement_id": "Edit", "movement.code": "Code", \
-    "movement.description": "Description", "movement.posted": "Posted", \
-    "movement.amount": "Amount", "movement.concept_id": "Concept"}
-
-    receipt_item_form.vars.operation_id = session.operation_id
-    receipt_items_list = SQLTABLE(db(\
-    db.movement.operation_id == session.operation_id).select(), \
-    columns = columns, headers = headers, linkto=URL(c="operations", \
-    f="movements_modify_element"))
-    return dict(receipt_item_form = receipt_item_form, \
-    receipt_items_list = receipt_items_list)
-
-def list_receipts():
-    q = (db.operation.document_id == db.document.document_id) & \
-    (db.document.receipts == True)
-    columns = ["operation.operation_id", "operation.code", \
-    "operation.description", "document.description", \
-    "operation.posted"]
-    headers = {"operation.operation_id": "Edit", \
-    "operation.code": "Code", "operation.description": "Description", \
-    "document.description": "Document", \
-    "operation.posted": "Posted"}
-
-    receipts = SQLTABLE(db(q).select(), columns = columns, \
-    headers = headers, linkto=URL(c="operations", f="movements"))
-    return dict(receipts = receipts)
-
-def ria_product_billing():
+def ria_product_billing_start(evt, args=[], vars={}):
     """ Presents a packing slips list for billing
     and collects billing details. Creates an invoice
     and redirects the action to the movements update form.
     """
-    packing_slips = list()
-    packing_slips_rows = list()
-    checked_list = list()
-    document_id = None
+    
     customer_id = session.get("customer_id", None)
     subcustomer_id = session.get("subcustomer_id", None)
 
     # form to filter packing slips  by customer
-    customer_form = SQLFORM.factory(Field('customer_id', \
+    session.form = SQLFORM.factory(Field('customer_id', \
     'reference customer', requires = IS_IN_DB(db, db.customer, "%(legal_name)s")), \
     Field('subcustomer_id', 'reference subcustomer', \
-    requires = IS_IN_DB(db, db.subcustomer, "%(legal_name)s")))
-    if customer_form.accepts(request.vars, session, \
-    keepvalues=True, formname="customer_form"):
-        q = (db.operation.customer_id == request.vars.customer_id \
-        ) | (db.operation.subcustomer_id == request.vars.subcustomer_id)
-        q &= db.operation.processed != True
-        q &= db.operation.document_id == db.document.document_id
-        q &= db.document.packing_slips == True
-        packing_slips = db(q).select()
-        customer_id = session.customer_id = request.vars.customer_id
-        subcustomer_id = session.subcustomer_id = request.vars.subcustomer_id
+    requires = IS_IN_DB(db, db.subcustomer, "%(legal_name)s")), \
+    Field("price_list_id", \
+    requires = IS_EMPTY_OR(IS_IN_DB(db(db.price_list), \
+    "price_list.price_list_id", "%(description)s"))) )
 
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            session.customer_id = session.form.vars.customer_id
+            session.subcustomer_id = session.form.vars.subcustomer_id
+            session.price_list_id = session.form.vars.price_list_id
+            
+            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="ria_product_billing"))
+            
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, ria_product_billing_start)
+
+    return dict(form = session.form)
+
+def ria_product_billing(evt, args=[], vars={}):
+
+    packing_slips = list()
+    packing_slips_rows = list()
+    checked_list = list()
+    document_id = None
+
+    customer_id = session.get("customer_id", None)
+    subcustomer_id = session.get("subcustomer_id", None)
+
+    if (customer_id is None) and (subcustomer_id is None):
+        raise Exception("No customer or subcustomer specified")
+
+    q = (db.operation.customer_id == session.customer_id \
+    ) | (db.operation.subcustomer_id == session.subcustomer_id)
+    q &= db.operation.processed != True
+    q &= db.operation.document_id == db.document.document_id
+    q &= db.document.packing_slips == True
+
+    packing_slips = db(q).select()
+    
     # create packing slips table for selection
     # and the actual billing form
     # TODO: present new eyecandy third party widgets for multiselect box
@@ -994,10 +1048,11 @@ def ria_product_billing():
         _name="operation_%s" % row.operation.operation_id)))
 
     documents = db(db.document.invoices == True).select()
+    
     document_options = [OPTION(document.description, \
     _value=document.document_id) for document in documents]
 
-    billing_form = FORM(TABLE(THEAD(TR(TH("Operation"),TH("Posted"), \
+    session.form = FORM(TABLE(THEAD(TR(TH("Operation"),TH("Posted"), \
     TH("Code"), TH("Description"), TH("Bill"))), \
     TBODY(*packing_slips_rows), \
     TFOOT(TR(TD(), TD(), TD(), TD(LABEL("Choose a document type", \
@@ -1007,40 +1062,59 @@ def ria_product_billing():
     # operations marked for billing
     bill_items = []
 
-    if billing_form.accepts(request.vars, session, \
-    formname="billing_form"):
-        for v in request.vars:
-            if v.startswith("operation_"):
-                bill_items.append(int(v.split("_")[1]))
-        if len(bill_items) > 0:
-            # create an invoice  with the collected data
-            invoice_id = db.operation.insert( \
-            document_id = request.vars.document_id, \
-            customer_id = customer_id, \
-            subcustomer_id =  subcustomer_id)
-            # fill the invoice
-            for packing_slip_id in bill_items:
-                packing_slip_items = db( \
-                db.movement.operation_id == packing_slip_id).select()
-                for movement in packing_slip_items:
-                    db.movement.insert(operation_id = invoice_id, \
-                    concept_id = movement.concept_id, \
-                    amount = movement.amount, value = movement.value, \
-                    quantity = movement.quantity)
-                # check the packing slip as processed
-                db.operation[packing_slip_id].update_record( \
-                processed = True)
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            for k, v in session.form.vars.iteritems():
+                if k.startswith("operation_"):
+                    if v == "on":
+                        bill_items.append(int(k.split("_")[1]))
 
-            # TODO: insert ivoices payment / current account movements
-            # set invoice as current operation
-            session.operation_id = invoice_id
-            # redirect to movements edition
-            return dict(_redirect=URL(c="operations", f="ria_movements"))
+            if len(bill_items) > 0:
+                # create an invoice  with the collected data
+                invoice_id = db.operation.insert( \
+                document_id = session.form.vars.document_id, \
+                customer_id = customer_id, \
+                subcustomer_id =  subcustomer_id)
+                
+                # fill the invoice
+                for packing_slip_id in bill_items:
+                    packing_slip_items = db( \
+                    db.movement.operation_id == packing_slip_id).select()
+                    for movement in packing_slip_items:
+                        value = movement.value
+                        amount = movement.amount
+                        if session.get("price_list_id", None) is not None:
+                            
+                            # Calculate price
+                            price = db((db.price.price_list_id == session.price_list_id \
+                            ) & (db.price.concept_id == movement.concept_id)).select().first()
+                            value = price.value
+                            amount = price.value * movement.quantity
+                            
+                        db.movement.insert(operation_id = invoice_id, \
+                        concept_id = movement.concept_id, \
+                        amount = amount, value = value, \
+                        quantity = movement.quantity)
+                        
+                    # check the packing slip as processed
+                    db.operation[packing_slip_id].update_record( \
+                    processed = True)
 
-    return dict(customer_form = customer_form, \
-    billing_form = billing_form)
+                # TODO: insert ivoices payment / current account movements
+                # set invoice as current operation
+                session.operation_id = invoice_id
+                # redirect to movements edition
+                db.commit()
+                print "New invoice created"
+                return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="movements_detail"))
 
+            else:
+                print "No items checked"
 
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, ria_product_billing)
+
+    return dict(form = session.form)
 
 
 ####################################################################
@@ -1143,9 +1217,13 @@ def movements_header(evt, args=[], vars={}):
         "branch", "due_date", "voided", "fund_id", \
         "cost_center_id", "observations", "jurisdiction_id"]
         customer_option = default_customer_option
-
+        
         # Document form options
         s = db(db.document.exit == True)
+
+    else:
+        s = db(db.document)
+        fields = None
 
     # Document filter by Sales, Purchases or Stock
     db.operation.document_id.requires = IS_IN_DB(s, "document.document_id", "%(description)s")
@@ -1189,6 +1267,10 @@ def movements_detail(evt, args=[], vars={}):
     A user interface to manage movements
     """
 
+    if len(args) > 1:
+        if args[0] == "operation":
+            operation_id = session.operation_id = int(args[1])
+            
     operation_id = session.operation_id
 
     # Operation options
@@ -1282,7 +1364,7 @@ def movements_detail(evt, args=[], vars={}):
         "bank_check.due_date": "Due date", \
         "bank_check.number": "Number", \
         "bank_check.amount": "Amount"
-        }, linkto=URL(a="gestionlibre", c="operations", f="movements_modify_item"))
+        }, linkto=URL(a="gestionlibre", c="operations", f="movements_modify_check"))
     
     # Taxes
     q = db.movement.concept_id == db.concept.concept_id
@@ -1395,7 +1477,7 @@ def movements_modify_item(evt, args=[], vars={}):
     operation_id = session.operation_id
     operation = db.operation[operation_id]
     document = db.document[operation.document_id]
-    
+
     try:
         movement = db.movement[args[1]]
         session.movement_id = args[1]
@@ -1411,7 +1493,6 @@ def movements_modify_item(evt, args=[], vars={}):
 
     if evt is not None:
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
-            print "Delete value is %s" % request.vars.delete
             if session.form.vars.delete:
                 # erase the db record if marked for deletion
                 if is_editable(operation_id):
@@ -1424,16 +1505,6 @@ def movements_modify_item(evt, args=[], vars={}):
                 concept_id = session.form.vars.item
                 quantity = float(session.form.vars.quantity)
                 value = amount = None
-
-                """
-                # Calculate price, value, quantity, amount
-                price_list_id = session.get("price_list_id", None)
-                if price_list_id is not None:
-                    price = db((db.price.price_list_id == price_list_id \
-                    ) & (db.price.concept_id == concept_id)).select().first()
-
-                # not used (price/value should be pre-established by a db insert form)
-                """
 
                 value = float(session.form.vars.value)
                 amount = value * quantity
@@ -1454,6 +1525,50 @@ def movements_modify_item(evt, args=[], vars={}):
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, movements_modify_item)        
     return dict(form = session.form)
 
+# modify check
+
+
+def movements_modify_check(evt, args=[], vars={}):
+    """ Modify an operation's item (or movement). """
+    
+    operation_id = session.operation_id
+    operation = db.operation[operation_id]
+    document = db.document[operation.document_id]
+    
+    try:
+        bank_check = db.bank_check[args[1]]
+        session.bank_check_id = args[1]
+    except IndexError:
+        bank_check = db.bank_check[session.bank_check_id]
+
+    db.bank_check.concept_id.requires=IS_EMPTY_OR(IS_IN_DB(db, db.concept, "%(description)s"))
+
+    fields = ["checkbook_id", "code", "description", "customer_id", "supplier_id", "number", "bank_id", "amount", "due_date", "detail", "concept_id"]
+    session.form = SQLFORM(db.bank_check, bank_check.bank_check_id, fields = fields, deletable = True)
+
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            if session.form.vars.delete_this_record is not None:
+                # erase the db record if marked for deletion
+                if is_editable(operation_id):
+                    print "Erasing check %s" % bank_check.bank_check_id
+                    bank_check.delete_record()
+                else:
+                    print "Operation %s is not editable" % operation_id
+            else:
+                # Modify the operation item
+                if is_editable(operation_id):
+                    bank_check.update_record(**session.form.vars)
+                else:
+                    print "Operation %s is not editable" % operation_id
+            db.commit()
+            config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="movements_detail"))
+
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, movements_modify_check)
+    return dict(form = session.form)
+# modify check
+
 
 def movements_add_check(evt, args=[], vars={}):
     operation_id = session.operation_id
@@ -1461,10 +1576,14 @@ def movements_add_check(evt, args=[], vars={}):
     """ Adds a check for any operation type """
     # TODO: select different fields for each operation type
     # add own for company checks
+
+    db.bank_check.concept_id.requires=IS_EMPTY_OR(IS_IN_DB(db, db.concept, "%(description)s"))
+
     fields = [
     "number", "bank_id", "customer_id", "supplier_id", "amount", \
-    "due_date", "checkbook_id"
+    "due_date", "checkbook_id", "concept_id"
     ]
+    
     session.form = SQLFORM(db.bank_check, fields=fields)
     session.form.vars.operation_id = operation_id
     

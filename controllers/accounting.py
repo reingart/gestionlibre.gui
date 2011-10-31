@@ -1,11 +1,28 @@
-# coding: utf8
-# intente algo como
+# -*- coding: utf-8 -*-
+
+import gluon
+from gluon import *
+import datetime
+import config
+
+db = config.db
+session = config.session
+request = config.request
+
+import applications.gestionlibre.modules.operations as operations
+import applications.gestionlibre.modules.crm as crm
+
+import datetime
+
+from gui2py.form import EVT_FORM_SUBMIT
+
+
 def index(): return dict(message="hello from accounting.py")
 
 
-def journal_entries():
+def journal_entries(evt, args=[], vars={}):
     journal_entries = SQLTABLE(db(db.journal_entry).select(), \
-    linkto=URL(c="accounting", f="journal_entry"), \
+    linkto=URL(a="gestionlibre", c="accounting", f="journal_entry"), \
     columns=["journal_entry.journal_entry_id", "journal_entry.code", \
     "journal_entry.description", "journal_entry.number", \
     "journal_entry.posted", "journal_entry.accounting_period_id"], \
@@ -14,18 +31,24 @@ def journal_entries():
     "journal_entry.posted": "Posted", "journal_entry.accounting_period_id": "Period"})
     return dict(journal_entries = journal_entries)
 
-    
-def journal_entry():
+
+def journal_entry(evt, args=[], vars={}):
     # j.e. sum
+
+    if len(args) > 1:
+        session.journal_entry_id = args[1]
+
     # TODO: detect unallowed entries (like None values)
     total = 0
-    for e in db(db.entry.journal_entry_id == request.args[1]).select():
+    for e in db(db.entry.journal_entry_id == session.journal_entry_id).select():
         if e.amount: total += float(e.amount)
-    journal_entry_id = request.args[1]
-    journal_entry = crud.read(db.journal_entry, journal_entry_id)
+    journal_entry_id = session.journal_entry_id
+    
+    journal_entry = SQLFORM(db.journal_entry, journal_entry_id, readonly=True)
+    
     entries = SQLTABLE(db(\
     db.entry.journal_entry_id == journal_entry_id).select(), \
-    linkto=URL(c="accounting", f="entry"), \
+    linkto=URL(a="gestionlibre", c="accounting", f="entry"), \
     columns=["entry.entry_id", "entry.code", \
     "entry.description", "entry.journal_entry_id", \
     "entry.account_id", "entry.amount"], \
@@ -37,9 +60,24 @@ def journal_entry():
     total = total)
 
     
-def entry():
-    entry = crud.update(db.entry, request.args[1])
-    return dict(entry = entry)
+def entry(evt, args=[], vars={}):
+    if len(args) > 1:
+        session.entry_id = args[1]
+
+    session.form = SQLFORM(db.entry, session.entry_id)
+
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            db.entry[session.entry_id].update_record(**session.form.vars)
+            db.commit()
+            print "Form accepted"
+            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", \
+            c="accounting", f="journal_entry", args=["journal_entry", \
+            session.journal_entry_id]))
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, entry)
+
+    return dict(entry = session.form)
 
 
 def switch_value_list():
