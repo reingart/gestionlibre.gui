@@ -23,19 +23,20 @@ config.session, config.response, config.session, ...
 
 # method overriding for handling click on links
 class NewHtmlWindow(wx.html.HtmlWindow):
-    def OnLinkClicked(self, link):
+    def OnLinkClicked(self, link, kind=None):
         # reload html in html widget (incomplete)
         if isinstance(link, basestring):
             xml = action(link)
             config.html_frame.window.SetPage(xml)
+            set_url(link, kind=kind)
         else:
-            
             if not (link.Href.startswith("/%s" % config.APP_NAME) or \
             link.Href.startswith(config.APP_NAME)):
-                wx.html.HtmlWindow.OnLinkClicked(self, link)
+                wx.html.HtmlWindow.OnLinkClicked(self, link, kind=kind)
             else:
                 xml = action(link.Href)
                 config.html_frame.window.SetPage(xml)
+            set_url(link.Href, kind=kind)
 
 def action(url):
     # print "url:", url
@@ -109,3 +110,56 @@ def action(url):
         xml = gluon.template.render(filename = absolute_path, path=config.TEMPLATES_FOLDER,  context = config.context)
 
     return xml
+
+
+def set_url(url, kind=None):
+    # called after link event ends
+
+    # if url position does not exists (-1)
+    # and urls list is empty
+    #    add url and increment the index value
+    if len(config._urls) < 1:
+        config._urls.append(url)
+        config._this_url = 0
+
+    elif kind=="previous":
+        if not (config._this_url <= 0):
+            config._this_url -= 1
+
+    elif kind=="next":
+        if not(config._this_url >= len(config._urls)):
+            config._this_url += 1
+
+    else:
+        # new url from the middle of the urls list
+        config._urls = config._urls[:(config._this_url+1)]
+        config._urls.append(url)
+        config._this_url += 1
+
+def get_next_url():
+    try:
+        url = config._urls[config._this_url +1]
+        return url
+    except IndexError:
+        return None
+
+def get_previous_url():
+    try:
+        if config._this_url != 0:
+            url = config._urls[config._this_url -1]
+            return url
+        else:
+            return None
+    except IndexError:
+        return None
+
+
+def OnNextClick(evt):
+    url = get_next_url()
+    if url is not None: return config.html_frame.window.OnLinkClicked(url, kind="next")
+
+
+def OnPreviousClick(evt):
+    url = get_previous_url()
+    if url is not None: return config.html_frame.window.OnLinkClicked(url, kind="previous")
+

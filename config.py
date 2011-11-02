@@ -52,3 +52,6 @@ menu = None
 address = None
 _auth_next = None
 _auth_source = None
+
+_this_url = -1
+_urls = []

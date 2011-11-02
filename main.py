@@ -189,14 +189,6 @@ config.menu = MENU([
     ('Setup', False, URL('gestionlibre','setup','index'), []),
     ])
 
-"""
-    ('Setup', False, None, [
-        ('Populate tables', False, URL('gestionlibre','migration','importcsvdir'), []),
-        ('Set options', False, URL('gestionlibre','setup','options'), []),
-        ('Initialize', False, URL('gestionlibre','setup','initialize'), []),
-        ]
-    ),
-"""
 
 if __name__ == "__main__":
     GestionLibre = wx.PySimpleApp(0)
@@ -206,16 +198,35 @@ if __name__ == "__main__":
 
     config.html_frame.window = gui.NewHtmlWindow(config.html_frame, \
     style = config.WX_HTML_STYLE)
-    xml = gui.action("gestionlibre/default/index")
-    config.html_frame.window.SetPage(xml)
+
+    # html frame layout:
+    html_sizer_1 = wx.BoxSizer(wx.VERTICAL)
+    html_sizer_2 = wx.BoxSizer(wx.HORIZONTAL)
+    html_sizer_1.Add(config.html_frame.window, 1, wx.EXPAND|wx.ALL, 5)
+    html_sizer_2.Add(config.html_frame.button_6, 1, wx.ALIGN_CENTER|wx.ALL, 5)
+    html_sizer_2.Add(config.html_frame.button_7, 0, wx.ALIGN_CENTER|wx.ALL, 5)
+    html_sizer_1.Add(html_sizer_2, 0)
+    config.html_frame.SetSize((640, 480))
+    config.html_frame.SetSizer(html_sizer_1)
+    config.html_frame.Layout()
+    # end of html layout
+
+    # previous and next button events
+    config.html_frame.Bind(wx.EVT_BUTTON, gui.OnPreviousClick, config.html_frame.button_6)
+    config.html_frame.Bind(wx.EVT_BUTTON, gui.OnNextClick, config.html_frame.button_7)
+
+    # xml = gui.action()
+    # config.html_frame.window.SetPage(xml)
+
+    config.html_frame.window.OnLinkClicked("gestionlibre/default/index")
 
     GestionLibre.SetTopWindow(config.starting_frame)
-
     config.starting_frame.Show()
     config.html_frame.Show()
 
     # gui-based user authentication
-
+    # (incomplete)
+    
     # add the html window
     GestionLibre.MainLoop()
 
