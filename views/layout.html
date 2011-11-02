@@ -13,6 +13,7 @@
     {{ firm = db(db.contact.contact_id == contact).select().first().description }}
   {{pass}}
 {{except (AttributeError, KeyError, ValueError), e:}}
+  {{ =P("Could not load the firm contact information") }}
   {{ print str(e) }}
   {{ user = None }}
   {{ user_mail = "not logged in" }}

@@ -86,9 +86,16 @@ def action(url):
 
 import controllers.default, controllers.operations, controllers.crm, \
 controllers.registration, controllers.fees, \
-controllers.scm, controllers.accounting, controllers.financials
+controllers.scm, controllers.accounting, controllers.financials, \
+controllers.setup
 
 config.address = {
+    "setup":{
+        "index": {"action": controllers.setup.index},
+        "load_example_db": {"action": controllers.setup.load_example_db},
+        "options": {"action": controllers.setup.options},
+        "option": {"action": controllers.setup.option},
+        },
     "default":{
         "index": {"action": controllers.default.index},
         "new_function": {"action": controllers.default.new_function},
@@ -179,13 +186,17 @@ config.address = {
 
 config.menu = MENU([
     ('Index', False, URL('gestionlibre','default','index'), []),
+    ('Setup', False, URL('gestionlibre','setup','index'), []),
+    ])
+
+"""
     ('Setup', False, None, [
         ('Populate tables', False, URL('gestionlibre','migration','importcsvdir'), []),
         ('Set options', False, URL('gestionlibre','setup','options'), []),
         ('Initialize', False, URL('gestionlibre','setup','initialize'), []),
-        ]),
-    ])
-    
+        ]
+    ),
+"""
 
 if __name__ == "__main__":
     GestionLibre = wx.PySimpleApp(0)

@@ -1,0 +1,12 @@
+{{ extend "layout.html" }}
+{{=H3("Setup")}}
+{{ if first_run_form is not None: }}
+  {{ =P("Please create an administrative user")}}
+  {{ =first_run_form }}
+{{ else: }}
+  {{ if config.auth.user is not None:}}
+    {{=BEAUTIFY(actions)}}
+  {{ else: }}
+    {{ =P("Please login as admin for setup options") }}
+  {{ pass }}
+{{ pass }}

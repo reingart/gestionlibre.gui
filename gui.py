@@ -38,6 +38,7 @@ class NewHtmlWindow(wx.html.HtmlWindow):
                 config.html_frame.window.SetPage(xml)
 
 def action(url):
+    # print "url:", url
     url_data = get_function(url)
     # arguments: evt (form submission), controller, function
     try:

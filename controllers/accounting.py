@@ -16,12 +16,34 @@ import datetime
 
 from gui2py.form import EVT_FORM_SUBMIT
 
+def accounting_period(year):
+    # get or create an accounting period
+    if year is None:
+        # get the system clock year by default
+        year = datetime.date.today().year
+
+    pedestal = datetime.date(year, 1, 1)
+    threshold = datetime.date(year+1, 1, 1)
+    accounting_period_id = None
+    the_period = db(db.accounting_period.starting >= pedestal\
+    ).select().first()
+    if the_period is None:
+        accounting_period_id = db.accounting_period.insert(\
+        starting = pedestal, ending = threshold, \
+        description = str(year))
+        db.commit()
+    else:
+        accounting_period_id = the_period.accounting_period_id
+
+    return accounting_period_id
 
 def index(): return dict(message="hello from accounting.py")
 
 
 def journal_entries(evt, args=[], vars={}):
-    journal_entries = SQLTABLE(db(db.journal_entry).select(), \
+    accounting_period_id = accounting_period(datetime.date.today().year)
+    journal_entries = SQLTABLE(db(\
+    db.journal_entry.accounting_period_id == accounting_period_id).select(), \
     linkto=URL(a="gestionlibre", c="accounting", f="journal_entry"), \
     columns=["journal_entry.journal_entry_id", "journal_entry.code", \
     "journal_entry.description", "journal_entry.number", \
@@ -30,7 +52,6 @@ def journal_entries(evt, args=[], vars={}):
     "journal_entry.description": "Description", "journal_entry.number": "Number", \
     "journal_entry.posted": "Posted", "journal_entry.accounting_period_id": "Period"})
     return dict(journal_entries = journal_entries)
-
 
 def journal_entry(evt, args=[], vars={}):
     # j.e. sum
