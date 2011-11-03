@@ -87,7 +87,7 @@ def action(url):
 import controllers.default, controllers.operations, controllers.crm, \
 controllers.registration, controllers.fees, \
 controllers.scm, controllers.accounting, controllers.financials, \
-controllers.setup
+controllers.setup, controllers.file
 
 config.address = {
     "setup":{
@@ -96,6 +96,11 @@ config.address = {
         "options": {"action": controllers.setup.options},
         "option": {"action": controllers.setup.option},
         },
+
+    "file":{
+        "quit": {"action": controllers.file.quit},
+        },
+
     "default":{
         "index": {"action": controllers.default.index},
         "new_function": {"action": controllers.default.new_function},
@@ -190,6 +195,59 @@ config.menu = MENU([
     ])
 
 
+def menu_event(evt):
+    the_event = config.starting_frame.menu_events[evt.Id]
+    if isinstance(the_event, basestring):
+        config.html_frame.window.OnLinkClicked(the_event)
+    return None
+
+def main_menu_click(evt):
+    # call action based on item widget address info
+    return None
+
+def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu_bar=False):
+    menu_item = None
+    try:
+        menu_items = getattr(parent_menu, "menu_items")
+    except AttributeError:
+        parent_menu.menu_items = dict()
+        menu_items = parent_menu.menu_items
+
+    for k, v in submenu.iteritems():
+        item_count += 1
+        try:
+            menu_items = getattr(parent_menu, "menu_items")
+        except:
+            parent_menu.menu_items = dict()
+
+        if is_menu_bar == True:
+            parent_menu.menu_items[k] = wx.Menu()
+            parent_menu.Append(parent_menu.menu_items[k], v["label"])
+
+            if v.has_key("submenu"):
+                if len(v["submenu"]) > 0:
+                    main_menu_elements(frame, parent_menu.menu_items[k], submenu=v["submenu"], item_count = item_count)
+
+        elif v.has_key("submenu"):
+            if len(v["submenu"]) > 0:
+                parent_menu.menu_items[k] = wx.Menu()
+                parent_menu.AppendMenu(-1, v["label"], parent_menu.menu_items[k])
+                main_menu_elements(frame, parent_menu.menu_items[k], submenu=v["submenu"], item_count = item_count)
+            else:
+                parent_menu.menu_items[k] = v
+                menu_item = parent_menu.Append(item_count, v["label"])
+        else:
+            parent_menu.menu_items[k] = v
+            # parent_menu.Append(-1, v["label"])
+            menu_item = parent_menu.Append(item_count, v["label"])
+
+        if v.has_key("action") and (menu_item is not None):
+            if v["action"] is not None:
+                frame.Bind(wx.EVT_MENU, menu_event, menu_item)
+                frame.menu_events[menu_item.Id] = v["action"]
+    return None
+
+
 if __name__ == "__main__":
     GestionLibre = wx.PySimpleApp(0)
     wx.InitAllImageHandlers()
@@ -221,6 +279,15 @@ if __name__ == "__main__":
     config.html_frame.window.OnLinkClicked("gestionlibre/default/index")
 
     GestionLibre.SetTopWindow(config.starting_frame)
+
+    config.starting_frame.menu_events = dict()
+
+    # self.starting_menubar.Append(self.file_menu, "File")
+    main_menu_elements(config.starting_frame, config.starting_frame.starting_menubar, \
+    submenu=config.MAIN_MENU, is_menu_bar = True)
+    
+    config.starting_frame.SetMenuBar(config.starting_frame.starting_menubar)
+
     config.starting_frame.Show()
     config.html_frame.Show()
 

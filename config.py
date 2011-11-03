@@ -55,3 +55,141 @@ _auth_source = None
 
 _this_url = -1
 _urls = []
+
+# Dictiary with menu items and event binding
+"""
+
+            "": {
+                "label": "", "visible": True, "action": None, "submenu":[]
+                }
+                
+"""
+MAIN_MENU = {
+            "file": {
+                "label": "File",
+                "visible": True,
+                "action": URL(a="gestionlibre", c="file", f="quit"),
+                "submenu":{
+                    "crud": {
+                        "label": "File CRUD",
+                        "visible": True,
+                        "action": None,
+                        "submenu":{}
+                        }, # crud
+                    "forms": {
+                        "label": "Forms",
+                        "visible": True,
+                        "action": None,
+                        "submenu":{
+                            "design": {
+                                "label": "Design",
+                                "visible": True,
+                                "action": None,
+                                "submenu":{}
+                             }, # design
+                             "label": {
+                                "label": "Label",
+                                "visible": True,
+                                "action": None,
+                                "submenu":[]
+                            }, # label
+                            "various": {
+                                "label": "Various",
+                                "visible": True,
+                                "action": None,
+                                "submenu":[]
+                            } # various
+                            }, # forms submenu
+                        "separator": True
+                        }, # forms
+                    "update": {
+                        "label": "Update",
+                        "visible": True,
+                        "action": None,
+                        "submenu":{
+                            "price_list": {
+                                "label": "Price list",
+                                "visible": True,
+                                "action": None,
+                                "submenu":{
+                                    "by_article": {
+                                        "label": "By article",
+                                        "visible": True,
+                                        "action": None,
+                                        "submenu":[]
+                                    } # by_article
+                                } # price_list submenu
+                            }, # price_list
+                            "articles": {
+                                "label": "Articles",
+                                "visible": True,
+                                "action": None,
+                                "submenu":{
+                                    "browse": {
+                                        "label": "Browse",
+                                        "visible": True,
+                                        "action": None,
+                                        "submenu":{}
+                                    }, # browse
+                                    "import": {
+                                        "label": "Import",
+                                        "visible": True,
+                                        "action": None,
+                                        "submenu":{}
+                                    }, # import
+                                    "prices": {
+                                        "label": "Prices",
+                                        "visible": True,
+                                        "action": None,
+                                        "submenu":{}
+                                    }, # prices
+                                } # articles submenu
+                            }, # articles
+                            "Sales": {
+                                "label": "Sales",
+                                "visible": True,
+                                "action": None,
+                                "submenu":{
+                                    "auto_apply": {
+                                        "label": "Auto apply",
+                                        "visible": True,
+                                        "action": None,
+                                        "submenu":{}
+                                    }, # auto_apply
+
+                                    "verify": {
+                                        "label": "Verify",
+                                        "visible": True,
+                                        "action": None,
+                                        "submenu":{}
+                                    }, # verify
+
+                                    "process_jurisdictions": {
+                                        "label": "Process jurisdictions",
+                                        "visible": True,
+                                        "action": None,
+                                        "submenu":{}
+                                    }, # process jurisdictions
+
+                                    "discount_by_customer": {
+                                        "label": "Discount by customer",
+                                        "visible": True,
+                                        "action": None,
+                                        "submenu":{}
+                                    }, # discount by customer
+                                } # sales submenu
+                            }, # sales
+                            }, # update submenu
+                        }, # update
+
+                    "quit": {
+                        "label": "Quit",
+                        "visible": True,
+                        "action": "gestionlibre/file/quit",
+                        "submenu":{}
+                        }, # crud
+                        
+                    } # file submenu
+                } # file
+                
+    } # MAIN_MENU
