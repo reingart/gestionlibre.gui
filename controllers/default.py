@@ -38,11 +38,33 @@ def index(evt, args = [], vars = {}):
     A(B("Movements list"), _href=URL(a="gestionlibre", c='operations',f='movements_list')),
     A(B("New operation (movements form)"), _href=URL(a="gestionlibre", c='operations',f='movements_start')),
     A(B("Current accounts payments"), _href=URL(a="gestionlibre", c='financials',f='current_accounts_type')),
+    A(B("Layout colors"), _href=URL(a="gestionlibre", c='default',f='change_layout_colors')),
     ]
     ])
 
     # response.flash = T('Welcome to web2py and GestionLibre')
     return dict(message='Prototype app', links = links)
+
+
+def change_layout_colors(evt, args=[], vars={}):
+    if session.get("layout_colors", None) is None:
+        session.layout_colors = ["#" + color for color in config.COLORS]
+    session.form = SQLFORM.factory(Field("background"), Field("foreground"), Field("random", "boolean"))
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            print "Random option", session.form.vars.random
+            if session.form.vars.random == True:
+                import random
+                session.layout_colors_background = "#" + str(random.choice(config.COLORS))
+                session.layout_colors_foreground = "#" + str(random.choice(config.COLORS))
+            else:
+                session.layout_colors_background = session.form.vars.background
+                session.layout_colors_foreground = session.form.vars.foreground
+            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="default", f="change_layout_colors"))
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, change_layout_colors)
+    
+    return dict(form = session.form)
 
 
 def user(evt, args=[], vars={"_next": "gestionlibre/default/index"}):

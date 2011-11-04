@@ -1,6 +1,18 @@
 <html>
-<body bgcolor="#EEEEEE">
 
+{{ if config.session.get("layout_colors_background", None) is not None: }}
+{{ bgcolor = config.session.layout_colors_background }}
+{{ else: }}
+{{ bgcolor = "#EEEEEE" }}
+{{ pass }}
+
+{{ if config.session.get("layout_colors_foreground", None) is not None: }}
+{{ fgcolor = config.session.layout_colors_foreground }}
+{{ else: }}
+{{ fgcolor = "#000000" }}
+{{ pass }}
+
+<body bgcolor="{{=bgcolor}}" color="{{=fgcolor}}">
 {{try:}}
   {{ user = config.auth.user }}
   {{ if user is None:}}

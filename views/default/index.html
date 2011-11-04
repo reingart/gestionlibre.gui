@@ -5,8 +5,7 @@
 
 {{ n = 0 }}
 
-<table bgcolor="#EEEEEE" width="100%">
-
+<table width="100%">
 {{ for link in links: }}
   {{  n += 1.0 }}
   {{ if n % 2 == 0:}}
@@ -16,8 +15,7 @@
     {{ bgcolor = "white" }}
     {{ fontcolor = "black" }}
   {{ pass }}
-<!-- <tr bgcolor="{{=bgcolor}}"><td>{{ =link}}</td></tr> -->
-<tr><td>{{ =link}}</td></tr>
+<tr><td>{{=link}}</td></tr>
 {{ pass }}
 
 </table>

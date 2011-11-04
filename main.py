@@ -105,6 +105,7 @@ config.address = {
         "index": {"action": controllers.default.index},
         "new_function": {"action": controllers.default.new_function},
         "user": {"action": controllers.default.user},
+        "change_layout_colors": {"action": controllers.default.change_layout_colors},
         },
     "scm":{
         "ria_stock": {"action": controllers.scm.ria_stock},
@@ -273,20 +274,16 @@ if __name__ == "__main__":
     config.html_frame.Bind(wx.EVT_BUTTON, gui.OnPreviousClick, config.html_frame.button_6)
     config.html_frame.Bind(wx.EVT_BUTTON, gui.OnNextClick, config.html_frame.button_7)
 
-    # xml = gui.action()
-    # config.html_frame.window.SetPage(xml)
-
-    config.html_frame.window.OnLinkClicked("gestionlibre/default/index")
+    config.starting_frame.menu_events = dict()
 
     GestionLibre.SetTopWindow(config.starting_frame)
 
-    config.starting_frame.menu_events = dict()
-
-    # self.starting_menubar.Append(self.file_menu, "File")
     main_menu_elements(config.starting_frame, config.starting_frame.starting_menubar, \
     submenu=config.MAIN_MENU, is_menu_bar = True)
-    
+
     config.starting_frame.SetMenuBar(config.starting_frame.starting_menubar)
+
+    config.html_frame.window.OnLinkClicked("gestionlibre/default/index")
 
     config.starting_frame.Show()
     config.html_frame.Show()
