@@ -1,17 +1,9 @@
 # -*- coding: utf-8 -*-
 
-SQLITE_DB_FOLDER = r"/home/user/web2py/applications/gestionlibre/databases/"
-SQLITE_DB_FILE = r'sqlite://storage.sqlite'
+import sys, os
 
-# Use the default key for the example database
-HMAC_KEY = "sha512:3f00b793-28b8-4b3c-8ffb-081b57fac54a"
-
-TEMPLATES_FOLDER = r"/home/user/gestionlibre_gui-hg/views/"
 WEB2PY_FOLDER = r"/home/user/web2py"
 GUI2PY_FOLDER = r"/home/user/gui2py-hg"
-APP_NAME = "gestionlibre"
-
-import sys
 
 # import gui2py support -wxHTML FORM handling- (change the path!)
 sys.path.append(GUI2PY_FOLDER)
@@ -22,10 +14,23 @@ sys.path.append(WEB2PY_FOLDER)
 import wx
 import wx.html
 
+import gluon
+from gluon import *
+
+# SQLITE_DB_FOLDER = r"/home/user/web2py/applications/gestionlibre/databases/"
+SQLITE_DB_FOLDER = r"/home/user/proyecto_gestion_libre/test_sqlite_db/"
+SQLITE_DB_FILE = r'sqlite://storage.sqlite'
+
 WX_HTML_STYLE = wx.html.HW_DEFAULT_STYLE | wx.TAB_TRAVERSAL
 
-from gluon import *
-import gluon
+# Use the default key for the example database
+HMAC_KEY = "sha512:3f00b793-28b8-4b3c-8ffb-081b57fac54a"
+
+TEMPLATES_FOLDER = r"/home/user/gestionlibre_gui-hg/views/"
+APP_NAME = "gestionlibre"
+
+CSV_CONFIG_FILE = os.path.join(os.getcwd(), "example_db", "spanish.csv")
+CSV_TABLES_ROUTE = os.path.join(os.getcwd(), "example_db", "spanish")
 
 # create DAL connection (and create DB if not exists)
 db = DAL(SQLITE_DB_FILE, folder=SQLITE_DB_FOLDER)

@@ -87,15 +87,19 @@ def action(url):
 import controllers.default, controllers.operations, controllers.crm, \
 controllers.registration, controllers.fees, \
 controllers.scm, controllers.accounting, controllers.financials, \
-controllers.setup, controllers.file
+controllers.setup, controllers.file, controllers.migration
 
 config.address = {
     "setup":{
         "index": {"action": controllers.setup.index},
-        "load_example_db": {"action": controllers.setup.load_example_db},
         "options": {"action": controllers.setup.options},
         "option": {"action": controllers.setup.option},
         },
+
+    "migration":{
+        "import_csv_dir": {"action": controllers.migration.import_csv_dir},
+        },
+
 
     "file":{
         "quit": {"action": controllers.file.quit},
@@ -106,6 +110,7 @@ config.address = {
         "new_function": {"action": controllers.default.new_function},
         "user": {"action": controllers.default.user},
         "change_layout_colors": {"action": controllers.default.change_layout_colors},
+        "set_default_layout_colors": {"action": controllers.default.set_default_layout_colors},
         },
     "scm":{
         "ria_stock": {"action": controllers.scm.ria_stock},

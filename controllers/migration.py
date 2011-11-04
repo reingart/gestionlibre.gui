@@ -1,6 +1,15 @@
 # -*- coding: utf-8 -*-
 
-# intente algo como
+from gluon import *
+import gluon
+
+import gluon.validators
+
+from gui2py.form import EVT_FORM_SUBMIT
+
+import config
+db = config.db
+session = config.session
 
 import os, csv, datetime
 
@@ -16,8 +25,30 @@ LEGACY_TABLES: dictionary with { [table_csv_file_name]: { "table_name": [new tab
 """
 
 LEGACY_TABLES = {}
-LEGACY_TABLES_ROUTE = os.path.join("applications", request.application, "private", "legacy_tables")
-PRIVATE_ROUTE = os.path.join("applications", request.application, "private")
+LEGACY_TABLES_ROUTE = None
+PRIVATE_ROUTE = None
+
+
+# Old database field conversion pattern (from csv to dict)
+# Input csv file: a list of records in the following syntax:
+# tablearchive.csv, db_table_name, db_field_name, csv_record_field_index,
+# data type (web2py dal), default value
+def importcsvpattern(path):
+    csvfilename = ""
+    tmpdict = {}
+    spam_reader = csv.reader(open(path, "rb"))
+    for number, line in enumerate(spam_reader):
+        # skip header
+        if number <= 0:
+            continue
+        # check table change
+        if line[0] != csvfilename:
+             # 0: filename, 1: tablename , 2: field, 3: index value, 4 and 5 are type and default value
+            tmpdict[line[0]] = dict(table_name = line[1].strip(), fields = [(line[2].strip(), int(line[3]), str(line[4]).strip(), str(line[5]).strip()),])
+        else:
+            tmpdict[line[0]]["fields"].append((line[2].strip(), int(line[3]), str(line[4]).strip(), str(line[5]).strip()))
+        csvfilename = line[0]
+    return tmpdict
 
 
 # data parse for csv input
@@ -62,8 +93,6 @@ def parse_value(string_type, string_default, string_value):
         return string_value
 
 
-
-
 # insert database records using a dict pattern from csv tables
 # csv tables must be stored in
 # applications/application/private/legacy_tables
@@ -99,45 +128,30 @@ def populate_with_legacy_db(legacy_tables_route, legacy_tables):
                             voidstrings +=1
 
                     if len(tmpdict) > 1:
-                        db[table].insert(**tmpdict)
+                        the_id = db[table].insert(**tmpdict)
+                        print "Inserted", table, "record", the_id
                         records += 1 
                 except Exception, e:
                     # TODO: catch common db exceptions
                     db.debugging.insert(msg="Populate_with_legacy_db Insert Error: Table %s, row %s: %s" % (table, str(n), str(e)))
                     errors += 1
+        if records > 0:
+            db.commit()
     return records, errors, voidstrings
 
 def index(): return dict(message="hello from migration.py")
 
 # Get legacy database records and insert them in the app's db
-def importcsvdir():
-    db(db.debugging.id > 0).delete()
-    error_list=None
-    form = FORM(LABEL("CSV file name", _for="#csvinputfile"), INPUT(_id="csvinputfile", _type="text", _name="csvinputfile"), INPUT(_type="submit"))
-    if form.accepts(request.vars, session):
-        legacytables = importcsvpattern(os.path.join(PRIVATE_ROUTE, request.vars["csvinputfile"]))
-        result = populate_with_legacy_db(LEGACY_TABLES_ROUTE, legacytables)
-        error_list = db(db.debugging).select()
-        return dict(records = result[0], errors = result[1], voidstrings = result[2], form = form, error_list = error_list)
-    return dict(records = "", errors = "", voidstrings = "", form = form, error_list = error_list)
+def import_csv_dir(evt, args=[], vars={}):
+    config.session.form = FORM(H3("Load database from CSV"), INPUT(_value="Load from CSV", _type="submit"))
+    if evt is not None:
+        if config.session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            legacytables = importcsvpattern(config.CSV_CONFIG_FILE)
+            result = populate_with_legacy_db(config.CSV_TABLES_ROUTE, legacytables)
+            print "Load tables from CSV (records, errors and voidstrings):", result
+            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="setup", f="index", vars={"message":"%s records inserted" % result[0]}))
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, import_csv_dir)
 
-# Old database field conversion pattern (from csv to dict)
-# Input csv file: a list of records in the following syntax:
-# tablearchive.csv, db_table_name, db_field_name, csv_record_field_index,
-# data type (web2py dal), default value
-def importcsvpattern(path):
-    csvfilename = ""
-    tmpdict = {}
-    spam_reader = csv.reader(open(path, "rb"))
-    for number, line in enumerate(spam_reader):
-        # skip header
-        if number <= 0:
-            continue
-        # check table change
-        if line[0] != csvfilename:
-             # 0: filename, 1: tablename , 2: field, 3: index value, 4 and 5 are type and default value
-            tmpdict[line[0]] = dict(table_name = line[1].strip(), fields = [(line[2].strip(), int(line[3]), str(line[4]).strip(), str(line[5]).strip()),])
-        else:
-            tmpdict[line[0]]["fields"].append((line[2].strip(), int(line[3]), str(line[4]).strip(), str(line[5]).strip()))
-        csvfilename = line[0]
-    return tmpdict
+    return dict(form = session.form)
+

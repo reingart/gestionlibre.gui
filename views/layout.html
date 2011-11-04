@@ -1,18 +1,29 @@
 <html>
 
 {{ if config.session.get("layout_colors_background", None) is not None: }}
-{{ bgcolor = config.session.layout_colors_background }}
+  {{ bgcolor = config.session.layout_colors_background }}
 {{ else: }}
-{{ bgcolor = "#EEEEEE" }}
+  {{try:}}
+    {{ session.layout_colors_background = bgcolor = db(db.option.name == "user_%s_layout_bgcolor" % config.auth.user_id).select().first().value }}
+  {{ except (AttributeError, IndexError, KeyError): }}
+    {{ bgcolor = "#FFFFFF" }}
+  {{ pass }}
 {{ pass }}
 
 {{ if config.session.get("layout_colors_foreground", None) is not None: }}
-{{ fgcolor = config.session.layout_colors_foreground }}
+  {{ fgcolor = config.session.layout_colors_foreground }}
 {{ else: }}
-{{ fgcolor = "#000000" }}
+  {{try:}}
+    {{ session.layout_colors_foreground = fgcolor = db(db.option.name == "user_%s_layout_fgcolor" % config.auth.user_id).select().first().value }}
+  {{ except (AttributeError, IndexError, KeyError): }}
+    {{ fgcolor = "#000000" }}
+  {{ pass }}
 {{ pass }}
 
-<body bgcolor="{{=bgcolor}}" color="{{=fgcolor}}">
+{{ print "Layout:" }}
+{{ print "Colors (fg, bg):", fgcolor, bgcolor }}
+
+<body bgcolor="{{=bgcolor}}" text="{{=fgcolor}}">
 {{try:}}
   {{ user = config.auth.user }}
   {{ if user is None:}}

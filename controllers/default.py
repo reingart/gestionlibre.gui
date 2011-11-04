@@ -39,6 +39,7 @@ def index(evt, args = [], vars = {}):
     A(B("New operation (movements form)"), _href=URL(a="gestionlibre", c='operations',f='movements_start')),
     A(B("Current accounts payments"), _href=URL(a="gestionlibre", c='financials',f='current_accounts_type')),
     A(B("Layout colors"), _href=URL(a="gestionlibre", c='default',f='change_layout_colors')),
+    A(B("Set colors as default"), _href=URL(a="gestionlibre", c='default',f='set_default_layout_colors')),
     ]
     ])
 
@@ -52,7 +53,6 @@ def change_layout_colors(evt, args=[], vars={}):
     session.form = SQLFORM.factory(Field("background"), Field("foreground"), Field("random", "boolean"))
     if evt is not None:
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
-            print "Random option", session.form.vars.random
             if session.form.vars.random == True:
                 import random
                 session.layout_colors_background = "#" + str(random.choice(config.COLORS))
@@ -60,11 +60,36 @@ def change_layout_colors(evt, args=[], vars={}):
             else:
                 session.layout_colors_background = session.form.vars.background
                 session.layout_colors_foreground = session.form.vars.foreground
+
+                print "Background:", session.layout_colors_background
+                print "Foreground:", session.layout_colors_foreground
+                
             return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="default", f="change_layout_colors"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, change_layout_colors)
     
     return dict(form = session.form)
+
+def set_default_layout_colors(evt, args=[], vars={}):
+
+    if config.auth.user is not None:
+        user_id = config.auth.user_id
+        fg_option = db(db.option.name == "user_%s_layout_fgcolor" % user_id).select().first()
+        bg_option = db(db.option.name == "user_%s_layout_bgcolor" % user_id).select().first()
+
+        if fg_option is None:
+            fg_option_id = db.option.insert(name="user_%s_layout_fgcolor" % user_id, value=config.session.layout_colors_foreground)
+        else:
+            fg_option.update_record(value=session.layout_colors_foreground)
+
+        if bg_option is None:
+            db.option.insert(name="user_%s_layout_bgcolor" % user_id, value=config.session.layout_colors_background)
+        else:
+            bg_option.update_record(value=session.layout_colors_background)
+            
+        db.commit()
+
+    return config.html_frame.window.OnLinkClicked(config.session._this_url)
 
 
 def user(evt, args=[], vars={"_next": "gestionlibre/default/index"}):

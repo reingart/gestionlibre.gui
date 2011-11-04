@@ -63,29 +63,10 @@ def index(evt, args=[], vars={}):
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, index)
 
     actions = [
-        A("Auto populate database (example db)", _href=URL(a="gestionlibre", c="setup", f="load_example_db")), A("Options", _href=URL(a="gestionlibre", c="setup", f="options"))
+        A("Options", _href=URL(a="gestionlibre", c="setup", f="options")), A("Load tables from CSV", _href=URL(a="gestionlibre", c="migration", f="import_csv_dir"))
         ]
-
-    return dict(actions = actions, first_run_form = first_run_form)
-
-
-def load_example_db(evt, args=[], vars={}):
-    message = None
     
-    # load db
-    try:
-        db.import_from_csv_file(open('example_db.csv', 'rb'))
-    except Exception, e:
-        message = str(e)
-        print str(e)
-
-    # commit command
-    db.commit()
-
-    # return load finished message
-    message="Db load complete"
-    
-    return dict(message=message)
+    return dict(actions = actions, first_run_form = first_run_form, vars = vars)
 
 
 def setup(evt, args=[], vars={}):

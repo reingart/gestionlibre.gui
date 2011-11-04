@@ -1,5 +1,9 @@
 {{ extend "layout.html" }}
 {{=H3("Setup")}}
+{{ if "message" in vars.keys(): }}
+{{ =P(vars["message"].capitalize()) }}
+{{ pass }}
+
 {{ if first_run_form is not None: }}
   {{ =P("Please create an administrative user")}}
   {{ =first_run_form }}
