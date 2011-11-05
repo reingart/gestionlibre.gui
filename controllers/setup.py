@@ -53,7 +53,7 @@ def index(evt, args=[], vars={}):
 
                 db.commit()
                 
-                print "User %s created with password %s" % (session.admin_user_id, session.form.vars.password)
+                print "User %s created" % session.admin_user_id
                 print "You should configure a firm tax id to use ordering forms"
                 
                 return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="setup", f="index"))

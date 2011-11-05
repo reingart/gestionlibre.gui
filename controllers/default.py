@@ -61,9 +61,6 @@ def change_layout_colors(evt, args=[], vars={}):
                 session.layout_colors_background = session.form.vars.background
                 session.layout_colors_foreground = session.form.vars.foreground
 
-                print "Background:", session.layout_colors_background
-                print "Foreground:", session.layout_colors_foreground
-                
             return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="default", f="change_layout_colors"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, change_layout_colors)
@@ -89,7 +86,7 @@ def set_default_layout_colors(evt, args=[], vars={}):
             
         db.commit()
 
-    return config.html_frame.window.OnLinkClicked(config.session._this_url)
+    return dict(_redirect=config._urls[config._this_url])
 
 
 def user(evt, args=[], vars={"_next": "gestionlibre/default/index"}):
@@ -153,8 +150,6 @@ def user(evt, args=[], vars={"_next": "gestionlibre/default/index"}):
         elif current.request.args[0] == "register":
             if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
                 # password encryption web2py builtin method
-                print "Form register values", session.form.vars
-
                 # validate identical passwords
                 if session.form.vars.password == session.form.vars.retype_password:
                     new_user_id = db.auth_user.insert(first_name = session.form.vars.first_name, \
