@@ -1,0 +1,24 @@
+{{ extend "layout.html" }}
+{{=A("Create " + table_name, _href=URL(a="gestionlibre", c="appadmin", f="create", args=[table_name,]))}}
+
+{{ if table is not None: }}
+  {{ =table }}
+{{ pass }}
+
+{{ if links is not None: }}
+  {{ if len(links) > 0: }}
+    {{ counter = 0}}
+    {{ links_div_list = [] }}
+    {{ for link in links:}}
+      {{ links_div_list.append(link) }}
+      {{ links_div_list.append(SPAN("  ")) }}
+    {{ pass }}
+    {{=H3("Pages")}}
+    {{ =DIV(*links_div_list) }}
+  {{ else: }}
+    {{ =H3("No records found")}}
+  {{ pass }}
+
+{{ else:}}
+  {{ =H3("No records found")}}
+{{ pass }}

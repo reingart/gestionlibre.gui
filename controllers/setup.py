@@ -27,7 +27,7 @@ def index(evt, args=[], vars={}):
         print "Admin user group created"
 
     # create an admin user creation form
-    session.form = SQLFORM.factory(Field("first_name", requires=IS_NOT_EMPTY()), Field("second_name", requires=IS_NOT_EMPTY()), Field("email", requires=IS_EMAIL()), Field("password", "password", requires = gluon.validators.CRYPT(key=config.HMAC_KEY)), Field("retype_password", "password", requires = gluon.validators.CRYPT(key=config.HMAC_KEY)))
+    session.form = SQLFORM.factory(Field("first_name", requires=IS_NOT_EMPTY()), Field("last_name", requires=IS_NOT_EMPTY()), Field("email", requires=IS_EMAIL()), Field("password", "password", requires = gluon.validators.CRYPT(key=config.HMAC_KEY)), Field("retype_password", "password", requires = gluon.validators.CRYPT(key=config.HMAC_KEY)))
 
     # look for administrative user
     try:
@@ -45,7 +45,7 @@ def index(evt, args=[], vars={}):
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             if session.form.vars.password == session.form.vars.retype_password:
                 session.admin_user_id = db.auth_user.insert(first_name = session.form.vars.first_name, \
-                second_name = session.form.vars.second_name, email = session.form.vars.email, \
+                last_name = session.form.vars.last_name, email = session.form.vars.email, \
                 password = session.form.vars.password)
 
                 # assign admin membership

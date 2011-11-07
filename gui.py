@@ -26,20 +26,31 @@ class NewHtmlWindow(wx.html.HtmlWindow):
     def OnLinkClicked(self, link, kind=None):
         # reload html in html widget (incomplete)
         if isinstance(link, basestring):
-            xml = action(link)
-            config.html_frame.window.SetPage(xml)
+            if (link.startswith("/%s" % config.APP_NAME) or \
+            link.startswith(config.APP_NAME)):
+                xml = action(link)
+                config.html_frame.window.SetPage(xml)
+            else:
+                # non application url
+                config.html_frame.window.LoadPage(link)
+
             set_url(link, kind=kind)
+
         else:
             if not (link.Href.startswith("/%s" % config.APP_NAME) or \
             link.Href.startswith(config.APP_NAME)):
-                wx.html.HtmlWindow.OnLinkClicked(self, link, kind=kind)
+                # web source
+                wx.html.HtmlWindow.OnLinkClicked(self, link)
+
             else:
+                # application action address
                 xml = action(link.Href)
                 config.html_frame.window.SetPage(xml)
+
             set_url(link.Href, kind=kind)
 
+
 def action(url):
-    # print "url:", url
     url_data = get_function(url)
     # arguments: evt (form submission), controller, function
     try:
@@ -135,6 +146,7 @@ def set_url(url, kind=None):
         config._urls = config._urls[:(config._this_url+1)]
         config._urls.append(url)
         config._this_url += 1
+
 
 def get_next_url():
     try:

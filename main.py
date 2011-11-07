@@ -87,12 +87,20 @@ def action(url):
 import controllers.default, controllers.operations, controllers.crm, \
 controllers.registration, controllers.fees, \
 controllers.scm, controllers.accounting, controllers.financials, \
-controllers.setup, controllers.file, controllers.migration
+controllers.setup, controllers.file, controllers.migration, \
+controllers.appadmin
 
 # import handlers
 import handlers
 
 config.address = {
+    "appadmin": {
+        "index": {"action": controllers.appadmin.index},
+        "select": {"action": controllers.appadmin.select},
+        "read": {"action": controllers.appadmin.read},
+        "update": {"action": controllers.appadmin.update},
+        "create": {"action": controllers.appadmin.create},
+        },
     "setup":{
         "index": {"action": controllers.setup.index},
         "options": {"action": controllers.setup.options},
@@ -125,6 +133,8 @@ config.address = {
     "operations":{
         # extended format:
         # "movements_list": {"action": controllers.operations.movements_list, "window": None, "replace": False, "parent": html_frame},
+        "articles": {"action": controllers.operations.articles},
+        "articles_list": {"action": controllers.operations.articles_list},
         "ria_product_billing_start": {"action": controllers.operations.ria_product_billing_start},
         "ria_product_billing": {"action": controllers.operations.ria_product_billing},
         "reset_packing_slip": {"action": controllers.operations.reset_packing_slip},
@@ -194,6 +204,8 @@ config.address = {
             },
 }
 
+
+
 # HTMLWindow Default Layout menu
 config.menu = MENU([
     ('Index', False, URL('gestionlibre','default','index'), []),
@@ -239,20 +251,30 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
         except:
             parent_menu.menu_items = dict()
 
-        if is_menu_bar == True:
-            parent_menu.menu_items[k] = wx.Menu()
-            parent_menu.Append(parent_menu.menu_items[k], v["label"])
 
-            if v.has_key("submenu"):
-                if len(v["submenu"]) > 0:
-                    item_count = main_menu_elements(frame, parent_menu.menu_items[k], submenu=v["submenu"], item_count = item_count)
+        if v.get("visible", False):
+            
+            if is_menu_bar == True:
+                parent_menu.menu_items[k] = wx.Menu()
+                parent_menu.Append(parent_menu.menu_items[k], v["label"])
 
-        else:
-            if v.has_key("submenu"):
-                if len(v["submenu"]) > 0:
-                    parent_menu.menu_items[k] = wx.Menu()
-                    parent_menu.AppendMenu(item_count, v["label"], parent_menu.menu_items[k])
-                    item_count = main_menu_elements(frame, parent_menu.menu_items[k], submenu=v["submenu"], item_count = item_count)
+                if v.has_key("submenu"):
+                    if len(v["submenu"]) > 0:
+                        item_count = main_menu_elements(frame, parent_menu.menu_items[k], submenu=v["submenu"], item_count = item_count)
+
+            else:
+                if v.has_key("submenu"):
+                    if len(v["submenu"]) > 0:
+                        parent_menu.menu_items[k] = wx.Menu()
+                        parent_menu.AppendMenu(item_count, v["label"], parent_menu.menu_items[k])
+                        item_count = main_menu_elements(frame, parent_menu.menu_items[k], submenu=v["submenu"], item_count = item_count)
+                    else:
+                        parent_menu.menu_items[k] = v
+                        menu_item = parent_menu.Append(item_count, v["label"])
+
+                        # enable/disable
+                        parent_menu.Enable(item_count, v.get("enabled", True))
+
                 else:
                     parent_menu.menu_items[k] = v
                     menu_item = parent_menu.Append(item_count, v["label"])
@@ -260,33 +282,26 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
                     # enable/disable
                     parent_menu.Enable(item_count, v.get("enabled", True))
 
-            else:
-                parent_menu.menu_items[k] = v
-                menu_item = parent_menu.Append(item_count, v["label"])
+                if v.get("separator", False):
+                    parent_menu.AppendSeparator()
 
-                # enable/disable
-                parent_menu.Enable(item_count, v.get("enabled", True))
+            if v.has_key("action"):
+                if menu_item is not None:
+                    if v["action"] is not None:
+                        frame.Bind(wx.EVT_MENU, menu_event, menu_item)
+                        frame.menu_events[menu_item.Id] = v["action"]
 
-            if v.get("separator", False):
-                parent_menu.AppendSeparator()
+            elif v.has_key("handler"):
+                if menu_item is not None:
+                    if v["handler"] is not None:
+                        handler_list = v["handler"].split(".")
+                        the_obj = globals()[handler_list[0]]
+                        for x in range(len(handler_list)):
+                            if x > 0:
+                                the_obj = getattr(the_obj, handler_list[x])
 
-        if v.has_key("action"):
-            if menu_item is not None:
-                if v["action"] is not None:
-                    frame.Bind(wx.EVT_MENU, menu_event, menu_item)
-                    frame.menu_events[menu_item.Id] = v["action"]
-                    
-        elif v.has_key("handler"):
-            if menu_item is not None:
-                if v["handler"] is not None:
-                    handler_list = v["handler"].split(".")
-                    the_obj = globals()[handler_list[0]]
-                    for x in range(len(handler_list)):
-                        if x > 0:
-                            the_obj = getattr(the_obj, handler_list[x])
-
-                    frame.Bind(wx.EVT_MENU, menu_event, menu_item)
-                    frame.menu_events[menu_item.Id] = the_obj
+                        frame.Bind(wx.EVT_MENU, menu_event, menu_item)
+                        frame.menu_events[menu_item.Id] = the_obj
 
     return item_count
 
@@ -295,6 +310,9 @@ if __name__ == "__main__":
     GestionLibre = wx.PySimpleApp(0)
     wx.InitAllImageHandlers()
     config.starting_frame = MyFrame(None, -1, "")
+    config.starting_frame.SetSize((640, 360))
+    
+    
     config.html_frame = MyHTMLFrame(config.starting_frame, -1, "")
 
     config.html_frame.window = gui.NewHtmlWindow(config.html_frame, \
@@ -312,10 +330,18 @@ if __name__ == "__main__":
     config.html_frame.Layout()
     # end of html layout
 
-    # previous and next button events
+    # Previous and next button events
     config.html_frame.Bind(wx.EVT_BUTTON, gui.OnPreviousClick, config.html_frame.button_6)
     config.html_frame.Bind(wx.EVT_BUTTON, gui.OnNextClick, config.html_frame.button_7)
 
+    # Main window button events
+    config.starting_frame.Bind(wx.EVT_BUTTON, handlers.billing_button_click, config.starting_frame.button_1)
+    config.starting_frame.Bind(wx.EVT_BUTTON, handlers.current_accounts_button_click, config.starting_frame.button_2)
+    config.starting_frame.Bind(wx.EVT_BUTTON, handlers.customers_button_click, config.starting_frame.button_3)
+    config.starting_frame.Bind(wx.EVT_BUTTON, handlers.articles_button_click, config.starting_frame.button_4)
+    config.starting_frame.Bind(wx.EVT_BUTTON, handlers.queries_button_click, config.starting_frame.button_5)
+    config.starting_frame.Bind(wx.EVT_BUTTON, handlers.movements_button_click, config.starting_frame.button_8)
+    
     config.starting_frame.menu_events = dict()
 
     GestionLibre.SetTopWindow(config.starting_frame)
@@ -330,9 +356,9 @@ if __name__ == "__main__":
     config.starting_frame.Show()
     config.html_frame.Show()
 
-    # gui-based user authentication
+    # Gui-based user authentication
     # (incomplete)
     
-    # add the html window
+    # Add the html window
     GestionLibre.MainLoop()
 

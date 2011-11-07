@@ -2128,3 +2128,34 @@ def movements_articles(evt, args=[], vars={}):
     config.html_frame.window.Bind(EVT_FORM_SUBMIT, movements_articles)
 
     return dict(form = session.form, table = table)
+
+
+def articles(evt, args=[], vars={}):
+    # TODO: allow unspecified fields
+    session.form = SQLFORM.factory(Field("category", "reference category", requires = IS_IN_DB(db, db.category, "%(description)s")), Field("subcategory", "reference subcategory", requires = IS_IN_DB(db, db.subcategory, "%(description)s")), Field("supplier", "reference supplier", requires = IS_IN_DB(db, db.supplier, "%(legal_name)s")))
+
+    q = None
+    
+    # form submitted
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            # list items for selection
+            q = db.concept.category_id == session.form.vars.category
+            q &= db.concept.subcategory_id == session.form.vars.subcategory
+            q &= db.concept.supplier_id == session.form.vars.supplier
+
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, articles)
+
+    if q is not None:
+        config.session.articles_query = q
+        config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="articles_list"))
+
+    return dict(form = session.form)
+
+def articles_list(evt, args=[], vars={}):
+    rows = db(config.session.articles_query).select()
+    table = None
+    if len(rows) > 0:
+        table = SQLTABLE(rows, linkto=URL(a="gestionlibre", c="appadmin", f="update"))
+    return dict(table = table, back=A("New query", _href=URL(a="gestionlibre", c="operations", f="articles")))

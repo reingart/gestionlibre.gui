@@ -22,29 +22,10 @@ def index(evt, args = [], vars = {}):
     example action using the internationalization operator T and flash
     rendered by views/default/index.html or views/generic.html
     
-    Project's index page (incomplete)
+    Project's index page
     """
-    # A("GestionLibre", _href="http://code.google.com/p/gestionlibre/"),
-    links = UL(*[LI(a) for a in [
-    A(B("Customer control panel"), _href=URL(a="gestionlibre", c='crm',f='customer_panel')),
-    A(B("Movements panel"), _href=URL(a="gestionlibre", c='operations',f='index')),
-    A(B("RIA Stock"), _href=URL(a="gestionlibre", c='scm',f='ria_stock')),
-    A(B("Journal entries"), _href=URL(a="gestionlibre", c='accounting',f='journal_entries')),
-    A(B("Order allocation"), _href=URL(a="gestionlibre", c='operations',f='order_allocation')),
-    A(B("Order allocation list"), _href=URL(a="gestionlibre", c='operations',f='list_order_allocations')),
-    A(B("Packing slip"), _href=URL(a="gestionlibre", c='operations',f='packing_slip')),
-    A(B("RIA Product billing"), _href=URL(a="gestionlibre", c='operations',f='ria_product_billing_start')),
-    A(B("Current account report"), _href=URL(a="gestionlibre", c='crm',f='current_account_report')),
-    A(B("Movements list"), _href=URL(a="gestionlibre", c='operations',f='movements_list')),
-    A(B("New operation (movements form)"), _href=URL(a="gestionlibre", c='operations',f='movements_start')),
-    A(B("Current accounts payments"), _href=URL(a="gestionlibre", c='financials',f='current_accounts_type')),
-    A(B("Layout colors"), _href=URL(a="gestionlibre", c='default',f='change_layout_colors')),
-    A(B("Set colors as default"), _href=URL(a="gestionlibre", c='default',f='set_default_layout_colors')),
-    ]
-    ])
 
-    # response.flash = T('Welcome to web2py and GestionLibre')
-    return dict(message='Prototype app', links = links)
+    return dict(message='Desktop App')
 
 
 def change_layout_colors(evt, args=[], vars={}):
@@ -124,10 +105,10 @@ def user(evt, args=[], vars={"_next": "gestionlibre/default/index"}):
 
         elif args[0] == "register":
             session.form = SQLFORM.factory(Field("first_name", requires=IS_NOT_EMPTY()),
-            Field("second_name", requires=IS_NOT_EMPTY()),
+            Field("last_name", requires=IS_NOT_EMPTY()),
             Field("email", requires=IS_EMAIL()),
-            Field("password", "password", requires = gluon.validators.CRYPT()),
-            Field("retype_password", "password", requires = gluon.validators.CRYPT()),
+            Field("password", "password", requires = gluon.validators.CRYPT(key=config.HMAC_KEY)),
+            Field("retype_password", "password", requires = gluon.validators.CRYPT(key=config.HMAC_KEY)),
             )
             
         else: pass
@@ -153,7 +134,7 @@ def user(evt, args=[], vars={"_next": "gestionlibre/default/index"}):
                 # validate identical passwords
                 if session.form.vars.password == session.form.vars.retype_password:
                     new_user_id = db.auth_user.insert(first_name = session.form.vars.first_name, \
-                    second_name = session.form.vars.second_name, email = session.form.vars.email, \
+                    last_name = session.form.vars.last_name, email = session.form.vars.email, \
                     password = session.form.vars.password)
                 else:
                     print "The passwords do not match"

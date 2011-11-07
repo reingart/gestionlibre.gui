@@ -1,408 +1,182 @@
 # -*- coding: utf-8 -*-
+from gluon import *
+import gluon
 
-# ##########################################################
-# ## make sure administrator is on localhost
-# ###########################################################
+import gluon.validators
 
-import os
-import socket
-import datetime
-import copy
-import gluon.contenttype
-import gluon.fileutils
+from gui2py.form import EVT_FORM_SUBMIT
 
-# ## critical --- make a copy of the environment
+import config
+db = config.db
+session = config.session
 
-global_env = copy.copy(globals())
-global_env['datetime'] = datetime
-
-http_host = request.env.http_host.split(':')[0]
-remote_addr = request.env.remote_addr
-try:
-    hosts = (http_host, socket.gethostname(),
-             socket.gethostbyname(http_host),
-             '::1','127.0.0.1','::ffff:127.0.0.1')   
-except:
-    hosts = (http_host, )
-
-if request.env.http_x_forwarded_for or request.env.wsgi_url_scheme\
-     in ['https', 'HTTPS']:
-    session.secure()
-elif (remote_addr not in hosts) and (remote_addr != "127.0.0.1"):
-    raise HTTP(200, T('appadmin is disabled because insecure channel'))
-if not gluon.fileutils.check_credentials(request):
-    redirect(URL(a='admin', c='default', f='index'))
-
-ignore_rw = True
-response.view = 'appadmin.html'
-response.menu = [[T('design'), False, URL('admin', 'default', 'design',
-                 args=[request.application])], [T('db'), False,
-                 URL(r=request, f='index')], [T('state'), False,
-                 URL(r=request, f='state')], [T('cache'), False,
-                 URL(r=request, f='ccache')]]
-
-# ##########################################################
-# ## auxiliary functions
-# ###########################################################
-
-
-def get_databases(request):
-    dbs = {}
-    for (key, value) in global_env.items():
-        cond = False
-        try:
-            cond = isinstance(value, GQLDB)
-        except:
-            cond = isinstance(value, SQLDB)
-        if cond:
-            dbs[key] = value
-    return dbs
-
-
-databases = get_databases(None)
-
-
-def eval_in_global_env(text):
-    exec ('_ret=%s' % text, {}, global_env)
-    return global_env['_ret']
-
-
-def get_database(request):
-    if request.args and request.args[0] in databases:
-        return eval_in_global_env(request.args[0])
-    else:
-        session.flash = T('invalid request')
-        redirect(URL(r=request, f='index'))
-
-
-def get_table(request):
-    db = get_database(request)
-    if len(request.args) > 1 and request.args[1] in db.tables:
-        return (db, request.args[1])
-    else:
-        session.flash = T('invalid request')
-        redirect(URL(r=request, f='index'))
-
-
-def get_query(request):
-    try:
-        return eval_in_global_env(request.vars.query)
-    except Exception:
-        return None
-
-
-def query_by_table_type(tablename,db,request=request):
-    keyed = hasattr(db[tablename],'_primarykey')
-    if keyed:
-        firstkey = db[tablename][db[tablename]._primarykey[0]]
-        cond = '>0'
-        if firstkey.type in ['string', 'text']:
-            cond = '!=""'
-        qry = '%s.%s.%s%s' % (request.args[0], request.args[1], firstkey.name, cond)
-    else:
-        qry = '%s.%s.id>0' % tuple(request.args[:2])
-    return qry
-
-
-
-# ##########################################################
-# ## list all databases and tables
-# ###########################################################
-
-
-def index():
-    return dict(databases=databases)
-
-
-# ##########################################################
-# ## insert a new record
-# ###########################################################
-
-
-def insert():
-    (db, table) = get_table(request)
-    form = SQLFORM(db[table], ignore_rw=ignore_rw)
-    if form.accepts(request.vars, session):
-        response.flash = T('new record inserted')
-    return dict(form=form,table=db[table])
-
-
-# ##########################################################
-# ## list all records in table and insert new record
-# ###########################################################
-
-
-def download():
-    import os
-    db = get_database(request)
-    return response.download(request,db)
-
-def csv():
-    import gluon.contenttype
-    response.headers['Content-Type'] = \
-        gluon.contenttype.contenttype('.csv')
-    db = get_database(request)
-    query = get_query(request)
-    if not query:
-        return None
-    response.headers['Content-disposition'] = 'attachment; filename=%s_%s.csv'\
-         % tuple(request.vars.query.split('.')[:2])
-    return str(db(query).select())
-
-
-def import_csv(table, file):
-    table.import_from_csv_file(file)
-
-def select():
-    import re
-    db = get_database(request)
-    dbname = request.args[0]
-    regex = re.compile('(?P<table>\w+)\.(?P<field>\w+)=(?P<value>\d+)')
-    if len(request.args)>1 and hasattr(db[request.args[1]],'_primarykey'):
-        regex = re.compile('(?P<table>\w+)\.(?P<field>\w+)=(?P<value>.+)')
-    if request.vars.query:
-        match = regex.match(request.vars.query)
-        if match:
-            request.vars.query = '%s.%s.%s==%s' % (request.args[0],
-                    match.group('table'), match.group('field'),
-                    match.group('value'))
-    else:
-        request.vars.query = session.last_query
-    query = get_query(request)
-    if request.vars.start:
-        start = int(request.vars.start)
-    else:
-        start = 0
-    nrows = 0
-    stop = start + 100
-    table = None
-    rows = []
-    orderby = request.vars.orderby
-    if orderby:
-        orderby = dbname + '.' + orderby
-        if orderby == session.last_orderby:
-            if orderby[0] == '~':
-                orderby = orderby[1:]
-            else:
-                orderby = '~' + orderby
-    session.last_orderby = orderby
-    session.last_query = request.vars.query
-    form = FORM(TABLE(TR(T('Query:'), '', INPUT(_style='width:400px',
-                _name='query', _value=request.vars.query or '',
-                requires=IS_NOT_EMPTY(error_message=T("Cannot be empty")))), TR(T('Update:'),
-                INPUT(_name='update_check', _type='checkbox',
-                value=False), INPUT(_style='width:400px',
-                _name='update_fields', _value=request.vars.update_fields
-                 or '')), TR(T('Delete:'), INPUT(_name='delete_check',
-                _class='delete', _type='checkbox', value=False), ''),
-                TR('', '', INPUT(_type='submit', _value='submit'))),
-                _action=URL(r=request,args=request.args))
-    if request.vars.csvfile != None:
-        try:
-            import_csv(db[request.vars.table],
-                       request.vars.csvfile.file)
-            response.flash = T('data uploaded')
-        except Exception, e:
-            response.flash = DIV(T('unable to parse csv file'),PRE(str(e)))
-    if form.accepts(request.vars, formname=None):
-#         regex = re.compile(request.args[0] + '\.(?P<table>\w+)\.id\>0')
-        regex = re.compile(request.args[0] + '\.(?P<table>\w+)\..+')
-        
-        match = regex.match(form.vars.query.strip())
-        if match:
-            table = match.group('table')
-        try:
-            nrows = db(query).count()
-            if form.vars.update_check and form.vars.update_fields:
-                db(query).update(**eval_in_global_env('dict(%s)'
-                                  % form.vars.update_fields))
-                response.flash = T('%s rows updated', nrows)
-            elif form.vars.delete_check:
-                db(query).delete()
-                response.flash = T('%s rows deleted', nrows)
-            nrows = db(query).count()
-            if orderby:
-                rows = db(query).select(limitby=(start, stop),
-                        orderby=eval_in_global_env(orderby))
-            else:
-                rows = db(query).select(limitby=(start, stop))
-        except Exception, e:
-            (rows, nrows) = ([], 0)
-            response.flash = DIV(T('Invalid Query'),PRE(str(e)))
-    return dict(
-        form=form,
-        table=table,
-        start=start,
-        stop=stop,
-        nrows=nrows,
-        rows=rows,
-        query=request.vars.query,
-        )
-
-
-# ##########################################################
-# ## edit delete one record
-# ###########################################################
-
-
-def update():
-    (db, table) = get_table(request)
-    keyed = hasattr(db[table],'_primarykey')
-    record = None
-    if keyed:
-        key = [f for f in request.vars if f in db[table]._primarykey]
-        if key:
-            record = db(db[table][key[0]] == request.vars[key[0]]).select().first()
-    else:
-        record = db(db[table].id == request.args(2)).select().first()
-
-    if not record:
-        qry = query_by_table_type(table, db)
-        session.flash = T('record does not exist')
-        redirect(URL(r=request, f='select', args=request.args[:1],
-                     vars=dict(query=qry)))
-    
-    if keyed:
-        for k in db[table]._primarykey: 
-            db[table][k].writable=False
-    
-    form = SQLFORM(db[table], record, deletable=True, delete_label=T('Check to delete'), 
-                   ignore_rw=ignore_rw and not keyed,
-                   linkto=URL(r=request, f='select',
-                   args=request.args[:1]), upload=URL(r=request,
-                   f='download', args=request.args[:1]))
-
-    if form.accepts(request.vars, session):
-        session.flash = T('done!')
-        qry = query_by_table_type(table, db)
-        redirect(URL(r=request, f='select', args=request.args[:1],
-                 vars=dict(query=qry)))
-    return dict(form=form,table=db[table])
-
-
-# ##########################################################
-# ## get global variables
-# ###########################################################
-
-
-def state():
+def index(evt, args=[], vars={}):
     return dict()
 
-def ccache():
-    form = FORM(
-        P(TAG.BUTTON("Clear CACHE?", _type="submit", _name="yes", _value="yes")),
-        P(TAG.BUTTON("Clear RAM", _type="submit", _name="ram", _value="ram")),
-        P(TAG.BUTTON("Clear DISK", _type="submit", _name="disk", _value="disk")),
-    )
-    
-    if form.accepts(request.vars, session):
-        clear_ram = False
-        clear_disk = False
-        session.flash = ""
-        if request.vars.yes:
-            clear_ram = clear_disk = True
-        if request.vars.ram:
-            clear_ram = True
-        if request.vars.disk:
-            clear_disk = True
-            
-        if clear_ram:
-            cache.ram.clear()
-            session.flash += "Ram Cleared "
-        if clear_disk:
-            cache.disk.clear()
-            session.flash += "Disk Cleared"
-            
-        redirect(URL(r=request))
-    
+
+def select(evt, args=[], vars={}):
+    # get table
+    # get limits or default limits
+
+    table_name = args[0]
+    table = None
+    links = None
+    q = None
+    upper_limit = None
+    lower_limit = None
+    db_table = db[table_name]
+
     try:
-        from guppy import hpy; hp=hpy()
-    except ImportError:
-        hp = False
+        id_field = db_table["%s_id" % table_name]
+        id_field_name = "%s_id" % table_name
+    except KeyError:
+        id_field = db_table["id"]
+        id_field_name = "id"
         
-    import shelve, os, copy, time, math
-    from gluon import portalocker
+    first_row_id = vars.get("first_row_id", None)
+    last_row_id = vars.get("last_row_id", None)
     
-    ram = {
-        'bytes': 0,
-        'objects': 0,
-        'hits': 0,
-        'misses': 0,
-        'ratio': 0,
-        'oldest': time.time()
-    }
-    disk = copy.copy(ram)
-    total = copy.copy(ram)
-    
-    for key, value in cache.ram.storage.items():
-        if isinstance(value, dict):
-            ram['hits'] = value['hit_total'] - value['misses']
-            ram['misses'] = value['misses']
-            try:
-                ram['ratio'] = ram['hits'] * 100 / value['hit_total']
-            except (KeyError, ZeroDivisionError):
-                ram['ratio'] = 0
-        else:
-            if hp:
-                ram['bytes'] += hp.iso(value[1]).size
-                ram['objects'] += hp.iso(value[1]).count
-                
-                if value[0] < ram['oldest']:
-                    ram['oldest'] = value[0]
-    
-    locker = open(os.path.join(request.folder,
-                                        'cache/cache.lock'), 'a')
-    portalocker.lock(locker, portalocker.LOCK_EX)
-    disk_storage = shelve.open(
-        os.path.join(request.folder,
-                'cache/cache.shelve'))
-    
-    for key, value in disk_storage.items():
-        if isinstance(value, dict):
-            disk['hits'] = value['hit_total'] - value['misses']
-            disk['misses'] = value['misses']
-            try:
-                disk['ratio'] = disk['hits'] * 100 / value['hit_total']
-            except (KeyError, ZeroDivisionError):
-                disk['ratio'] = 0
-        else:
-            if hp:
-                disk['bytes'] += hp.iso(value[1]).size
-                disk['objects'] += hp.iso(value[1]).count
-                if value[0] < disk['oldest']:
-                    disk['oldest'] = value[0]
-        
-    portalocker.unlock(locker)
-    locker.close()
-    disk_storage.close()        
-    
-    total['bytes'] = ram['bytes'] + disk['bytes']
-    total['objects'] = ram['objects'] + disk['objects']
-    total['hits'] = ram['hits'] + disk['hits']
-    total['misses'] = ram['misses'] + disk['misses']
-    try:
-        total['ratio'] = total['hits'] * 100 / (total['hits'] + total['misses'])
-    except (KeyError, ZeroDivisionError):
-        total['ratio'] = 0
-    
-    if disk['oldest'] < ram['oldest']:
-        total['oldest'] = disk['oldest']
+    if "upper_limit" in vars and "lower_limit" in vars:
+        upper_limit = vars["upper_limit"]
+        lower_limit = vars["lower_limit"]
+        q = (id_field <= int(upper_limit)) & (id_field >= int(\
+        lower_limit))
+
     else:
-        total['oldest'] = ram['oldest']
-    
-    def GetInHMS(seconds):
-        hours = math.floor(seconds / 3600)
-        seconds -= hours * 3600
-        minutes = math.floor(seconds / 60)
-        seconds -= minutes * 60
-        seconds = math.floor(seconds)
+        if config.session.get("items_per_page", None) is None:
+            try:
+                # search default options in db
+                config.session.items_per_page = db(\
+                db.option.name=="items_per_page"\
+                ).select().first().value
+            except:
+                config.session.items_per_page = 10
+
+        # create links list
+        rows = db(db_table).select()
+
+        config.session.select_pages = []
         
-        return (hours, minutes, seconds)
+        if len(rows) > 0:
+            first_row_id = rows.first()[id_field_name]
+            last_row_id = rows.last()[id_field_name]
 
-    ram['oldest'] = GetInHMS(time.time() - ram['oldest'])
-    disk['oldest'] = GetInHMS(time.time() - disk['oldest'])
-    total['oldest'] = GetInHMS(time.time() - total['oldest'])
+            # counter = first_row_id
+            subcounter = 0
+
+            tmp_pages = []
+            
+            for row in rows:
+                if row[id_field_name] != last_row_id:
+                    tmp_pages.append(row[id_field_name])
+                    # counter +=1
+                    subcounter += 1
+                    if subcounter >= config.session.items_per_page:
+                        config.session.select_pages.append(tmp_pages)
+                        tmp_pages = list()
+                        subcounter = 0
+                        
+                elif row[id_field_name] == last_row_id:
+                    tmp_pages.append(row[id_field_name])
+                    # counter +=1
+                    # subcounter += 1
+                    config.session.select_pages.append(tmp_pages)
+                else:
+                    break
+
+            if len(config.session.select_pages) > 0:
+                lower_limit = config.session.select_pages[0][0]
+                upper_limit = config.session.select_pages[0][len(\
+                config.session.select_pages[0]) -1]
+                
+                # first query
+
+                
+                q = id_field >= config.session.select_pages[0][0]
+                q &= id_field <= config.session.select_pages[0][len(\
+                config.session.select_pages[0]) -1]
+
+    if len(config.session.select_pages) > 0:
+        page_links = []
+        for sp in config.session.select_pages:
+            if len(sp) > 0:
+                url = URL(a="gestionlibre", \
+                    c="appadmin", f="select", \
+                    args=[table_name], \
+                    vars={"lower_limit": sp[0], \
+                    "upper_limit": sp[len(sp) -1] })
+                text = "%s-%s" % (sp[0], \
+                    sp[len(sp) -1])
+
+                if sp[0] == lower_limit:
+                    a = A(text, _href=url)
+                else:
+                    a = EM(A(text, _href=url))
+
+                page_links.append(a)
+
+        links = [SPAN(link) for link in page_links]
+
+    # create table
+    if q is not None:
+        table = SQLTABLE(db(q).select(), linkto=URL(a="gestionlibre", c="appadmin", f="update"))
+
+    return dict(table = table, links = links, table_name = table_name)
+
+def update(evt, args=[], vars={}):
+
+    if len(args) > 0:
+        # get table
+        config.session.db_table = db[args[0]]
+        # get record id
+        config.session.record_id = args[1]
+
+    # create form
+    session.form = SQLFORM(config.session.db_table, config.session.db_table[config.session.record_id], deletable = True)
     
-    return dict(form=form, total=total,
-                ram=ram, disk=disk)
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            # on validation, update the db record
+            if config.session.form.vars.delete_this_record is not None:
+                config.session.db_table[config.session.record_id].delete_record()
+                db.commit()
+                print "Record deleted"
+                config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="appadmin", f="select", args=[str(config.session.db_table)]))
+            else:
+                config.session.db_table[config.session.record_id].update_record(**session.form.vars)
+                db.commit()
+                print "Form accepted"
+                config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="appadmin", f="read", args=[str(config.session.db_table), config.session.record_id]))
 
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, update)
+
+    return dict(form=session.form)
+
+
+def read(evt, args=[], vars={}):
+    session.form = SQLFORM(db[args[0]], args[1], readonly=True)
+    return dict(form = session.form, table_name = args[0])
+
+
+def create(evt, args=[], vars={}):
+    if len(args) > 0:
+        # get table
+        config.session.db_table = db[args[0]]
+
+    # create form
+    config.session.form = SQLFORM(config.session.db_table)
+
+    if evt is not None:
+        if config.session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            # on validation, insert the db record
+            config.session.record_id = config.session.db_table.insert(**config.session.form.vars)
+            db.commit()
+            print "Form accepted"
+            config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="appadmin", f="read", args=[str(config.session.db_table), config.session.record_id]))
+
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, create)
+
+
+    return dict(form = config.session.form, table=config.session.db_table)

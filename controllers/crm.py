@@ -117,7 +117,7 @@ def current_account_report(evt, args=[], vars={}):
 
         operations = SQLTABLE(db(session.q).select(), columns=columns, \
         headers=headers, linkto=URL(a="gestionlibre", c="operations", f="ria_movements"))
-
+        
     return dict(query_form = session.form, operations = operations, \
     total_debt = session.total_debt, customer = db.customer[session.customer_id], \
     subcustomer = db.subcustomer[session.subcustomer_id])

@@ -57,12 +57,11 @@ _this_url = -1
 _urls = []
 
 # Dictiary with menu items and event binding
-"""
-            "": {
-                "position": -1, "label": "", "visible": True, "enabled": False, "action": None, "submenu":{}
-                }
-                # replace "action"... with "handler": "module.handler" for no URL event handlers
-"""
+# replace "action"... with "handler": "module.handler" for no URL event handlers
+#
+#    "name": {
+#    "position": -1, "label": "", "visible": True, "enabled": False, "action": None, "submenu":{}
+#    }
 
 
 MAIN_MENU = {
@@ -72,31 +71,31 @@ MAIN_MENU = {
                 "action": None,
                 "submenu":{
                     "crud": {
-                        "position": -1, "label": "File CRUD",
+                        "position": 0, "label": "File CRUD",
                         "visible": True, "enabled": False,
                         "action": None,
                         "submenu":{}
                         }, # crud
                     "forms": {
-                        "position": -1, "label": "Forms",
+                        "position": 1, "label": "Forms",
                         "visible": True, "enabled": False,
                         "action": None,
                         "submenu":{
                             "design": {
-                                "position": -1, "label": "Design",
+                                "position": 0, "label": "Design",
                                 "visible": True, "enabled": False,
                                 "action": None,
                                 "submenu":{}
                              }, # design
 
                              "label": {
-                                "position": -1, "label": "Label",
+                                "position": 1, "label": "Label",
                                 "visible": True, "enabled": False,
                                 "action": None,
                                 "submenu":{}
                             }, # label
                             "various": {
-                                "position": -1, "label": "Various",
+                                "position": 2, "label": "Various",
                                 "visible": True, "enabled": False,
                                 "action": None,
                                 "submenu":{}
@@ -105,12 +104,12 @@ MAIN_MENU = {
                         "separator": True
                         }, # forms
                     "update": {
-                        "position": -1, "label": "Update",
+                        "position": 2, "label": "Update",
                         "visible": True, "enabled": False,
                         "action": None,
                         "submenu":{
                             "price_list": {
-                                "position": -1, "label": "Price list",
+                                "position": 0, "label": "Price list",
                                 "visible": True, "enabled": False,
                                 "action": None,
                                 "submenu":{
@@ -123,7 +122,7 @@ MAIN_MENU = {
                                 } # price_list submenu
                             }, # price_list
                             "articles": {
-                                "position": -1, "label": "Articles",
+                                "position": 1, "label": "Articles",
                                 "visible": True, "enabled": False,
                                 "action": None,
                                 "submenu":{
@@ -134,13 +133,13 @@ MAIN_MENU = {
                                         "submenu":{}
                                     }, # browse
                                     "import": {
-                                        "position": -1, "label": "Import",
+                                        "position": 0, "label": "Import",
                                         "visible": True, "enabled": False,
                                         "action": None,
                                         "submenu":{}
                                     }, # import
                                     "prices": {
-                                        "position": -1, "label": "Prices",
+                                        "position": 1, "label": "Prices",
                                         "visible": True, "enabled": False,
                                         "action": None,
                                         "submenu":{}
@@ -148,33 +147,33 @@ MAIN_MENU = {
                                 } # articles submenu
                             }, # articles
                             "sales": {
-                                "position": -1, "label": "Sales",
+                                "position": 2, "label": "Sales",
                                 "visible": True, "enabled": False,
                                 "action": None,
                                 "submenu":{
                                     "auto_apply": {
-                                        "position": -1, "label": "Auto apply",
+                                        "position": 0, "label": "Auto apply",
                                         "visible": True, "enabled": False,
                                         "action": None,
                                         "submenu":{}
                                     }, # auto_apply
 
                                     "verify": {
-                                        "position": -1, "label": "Verify",
+                                        "position": 1, "label": "Verify",
                                         "visible": True, "enabled": False,
                                         "action": None,
                                         "submenu":{}
                                     }, # verify
 
                                     "process_jurisdictions": {
-                                        "position": -1, "label": "Process jurisdictions",
+                                        "position": 2, "label": "Process jurisdictions",
                                         "visible": True, "enabled": False,
                                         "action": None,
                                         "submenu":{}
                                     }, # process jurisdictions
 
                                     "discount_by_customer": {
-                                        "position": -1, "label": "Discount by customer",
+                                        "position": 3, "label": "Discount by customer",
                                         "visible": True, "enabled": False,
                                         "action": None,
                                         "submenu":{}
@@ -182,7 +181,7 @@ MAIN_MENU = {
                                 } # sales submenu
                             }, # sales
                             "purchases": {
-                                "position": -1, "label": "Purchases",
+                                "position": 3, "label": "Purchases",
                                 "visible": True, "enabled": False,
                                 "action": None,
                                 "submenu":{
@@ -195,7 +194,7 @@ MAIN_MENU = {
                                 } # purchases submenu
                             }, # purchases
                             "closing": {
-                                "position": -1, "label": "Closing",
+                                "position": 4, "label": "Closing",
                                 "visible": True, "enabled": False,
                                 "action": None,
                                 "submenu":{} # closing submenu
@@ -203,42 +202,42 @@ MAIN_MENU = {
                           }, # update submenu
                        }, # update
                     "transfers": {
-                        "position": -1, "label": "Transfers",
+                        "position": 3, "label": "Transfers",
                         "visible": True, "enabled": False,
                         "action": None,
                         "submenu":{
                             "branches": {
-                                "position": -1, "label": "Branches",
+                                "position": 0, "label": "Branches",
                                 "visible": True, "enabled": False,
                                 "action": None,
                                 "submenu":{}
                              }, # branches
 
                             "replica": {
-                                "position": -1, "label": "Replica",
+                                "position": 1, "label": "Replica",
                                 "visible": True, "enabled": False,
                                 "action": None,
                                 "submenu":{
                                     "generate": {
-                                        "position": -1, "label": "Generate",
+                                        "position": 0, "label": "Generate",
                                         "visible": True, "enabled": False,
                                         "action": None,
                                         "submenu":{}
                                     }, # generate
                                     "send": {
-                                        "position": -1, "label": "Send",
+                                        "position": 1, "label": "Send",
                                         "visible": True, "enabled": False,
                                         "action": None,
                                         "submenu":{}
                                     }, # send
                                     "receive": {
-                                        "position": -1, "label": "Receive",
+                                        "position": 2, "label": "Receive",
                                         "visible": True, "enabled": False,
                                         "action": None,
                                         "submenu":{}
                                     }, # receive
                                     "process": {
-                                        "position": -1, "label": "Process",
+                                        "position": 3, "label": "Process",
                                         "visible": True, "enabled": False,
                                         "action": None,
                                         "submenu":{}
@@ -249,49 +248,49 @@ MAIN_MENU = {
                         "separator": True
                         }, # transfers
                     "print": {
-                        "position": -1, "label": "Print...",
+                        "position": 4, "label": "Print...",
                         "visible": True, "enabled": False,
                         "action": None,
                         "submenu":{}
                         }, # print
                     "page_setup": {
-                        "position": -1, "label": "Page setup",
+                        "position": 5, "label": "Page setup",
                         "visible": True, "enabled": False,
                         "action": None,
                         "submenu":{},
                         "separator": True
                         }, # page_setup
                     "options": {
-                        "position": -1, "label": "Options",
+                        "position": 6, "label": "Options",
                         "visible": True, "enabled": False,
                         "action": None,
                         "submenu":{
                             "formats": {
-                                "position": -1, "label": "Options",
+                                "position": 0, "label": "Options",
                                 "visible": True, "enabled": False,
                                 "action": None,
                                 "submenu":{},
                                 }, # formats
                             "reset": {
-                                "position": -1, "label": "Reset",
+                                "position": 1, "label": "Reset",
                                 "visible": True, "enabled": False,
                                 "action": None,
                                 "submenu":{},
                                 }, # reset
                             "branch": {
-                                "position": -1, "label": "Branch",
+                                "position": 2, "label": "Branch",
                                 "visible": True, "enabled": False,
                                 "action": None,
                                 "submenu":{},
                                 }, # branch
                             "map": {
-                                "position": -1, "label": "Map",
+                                "position": 3, "label": "Map",
                                 "visible": True, "enabled": False,
                                 "action": None,
                                 "submenu":{},
                                 }, # map
                             "reset_password": {
-                                "position": -1, "label": "Password reset",
+                                "position": 4, "label": "Password reset",
                                 "visible": True, "enabled": False,
                                 "action": None,
                                 "submenu":{},
@@ -299,7 +298,7 @@ MAIN_MENU = {
                             }, # options submenu
                         }, # options
                     "parameters": {
-                        "position": -1, "label": "Parameters",
+                        "position": 7, "label": "Parameters",
                         "visible": True, "enabled": False,
                         "action": None,
                         "submenu":{
@@ -369,7 +368,7 @@ MAIN_MENU = {
                         }, # parameters
 
                     "db_update": {
-                        "position": -1, "label": "Database",
+                        "position": 8, "label": "Database",
                         "visible": True, "enabled": False,
                         "action": None,
                         "submenu":{
@@ -401,26 +400,26 @@ MAIN_MENU = {
                         "separator": True
                         }, # db_update
                     "change_user": {
-                        "position": -1, "label": "Change user",
+                        "position": 9, "label": "Change user",
                         "visible": True, "enabled": False,
                         "action": None,
                         "submenu":{},
                         }, # change_user
                     "change_password": {
-                        "position": -1, "label": "Change password",
+                        "position": 10, "label": "Change password",
                         "visible": True, "enabled": False,
                         "action": None,
                         "submenu":{},
                         }, # change_password
                     "security_policies": {
-                        "position": -1, "label": "Security policies",
+                        "position": 11, "label": "Security policies",
                         "visible": True, "enabled": False,
                         "action": None,
                         "submenu":{},
                         "separator": True
                         }, # security_policies
                     "quit": {
-                        "position": -1, "label": "Quit",
+                        "position": 12, "label": "Quit",
                         "visible": True, "enabled": True,
                         "action": "gestionlibre/file/quit",
                         "submenu":{},
@@ -847,7 +846,7 @@ MAIN_MENU = {
                     "submenu":{
                         }, # windows submenu
             }, # windows
-            
+
             "help":{
                     "position": 8, "label": "Help",
                     "visible": True, "enabled": False,
@@ -861,18 +860,9 @@ MAIN_MENU = {
                             }, # about
                         }, # help submenu
             }, # help
-            
+
     } # MAIN_MENU
 
-"""
-            "sales":{
-                    "position": -1, "label": "Quit",
-                    "visible": True, "enabled": False,
-                    "action": None,
-                    "submenu":{}, # sales submenu
-                }, # sales
-
-"""
 
 # web colors
 COLORS = [
