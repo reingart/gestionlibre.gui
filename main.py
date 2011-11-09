@@ -50,7 +50,7 @@ import gui
 db = config.db
 
 # load web2py app env object for GestionLibre
-config.env = gluon.shell.env(config.APP_NAME, dir=config.WEB2PY_FOLDER)
+config.env = gluon.shell.env(config.WEB2PY_APP_NAME, dir=config.WEB2PY_FOLDER)
 
 # TODO: Authenticate with wx widgets.
 # A series of hack imports (with shell) and bindings are needed
@@ -68,7 +68,8 @@ import applications.gestionlibre.modules.db_gestionlibre as db_gestionlibre
 
 # define the database tables
 # web2py = False forces db.define_table("auth_user"..)
-db_gestionlibre.define_tables(db, web2py = False)
+
+db_gestionlibre.define_tables(db, config.auth, web2py = False)
 
 # define the auth tables (this goes after app tables definition)
 config.auth.settings.hmac_key = config.HMAC_KEY       # before define_tables()
@@ -88,7 +89,7 @@ import controllers.default, controllers.operations, controllers.crm, \
 controllers.registration, controllers.fees, \
 controllers.scm, controllers.accounting, controllers.financials, \
 controllers.setup, controllers.file, controllers.migration, \
-controllers.appadmin
+controllers.appadmin, controllers.output
 
 # import handlers
 import handlers
@@ -111,6 +112,9 @@ config.address = {
         },
     "file":{
         "quit": {"action": controllers.file.quit},
+        },
+    "output":{
+        "operation": {"action": controllers.output.operation},
         },
     "default":{
         "index": {"action": controllers.default.index},
@@ -208,8 +212,8 @@ config.address = {
 
 # HTMLWindow Default Layout menu
 config.menu = MENU([
-    ('Index', False, URL('gestionlibre','default','index'), []),
-    ('Setup', False, URL('gestionlibre','setup','index'), []),
+    ('Index', False, URL(config.APP_NAME,'default','index'), []),
+    ('Setup', False, URL(config.APP_NAME,'setup','index'), []),
     ])
 
 

@@ -56,14 +56,14 @@ def index(evt, args=[], vars={}):
                 print "User %s created" % session.admin_user_id
                 print "You should configure a firm tax id to use ordering forms"
                 
-                return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="setup", f="index"))
+                return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="setup", f="index"))
             else:
                 print "The passwords do not match"
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, index)
 
     actions = [
-        A("Options", _href=URL(a="gestionlibre", c="setup", f="options")), A("Load tables from CSV", _href=URL(a="gestionlibre", c="migration", f="import_csv_dir"))
+        A("Options", _href=URL(a=config.APP_NAME, c="setup", f="options")), A("Load tables from CSV", _href=URL(a=config.APP_NAME, c="migration", f="import_csv_dir"))
         ]
     
     return dict(actions = actions, first_run_form = first_run_form, vars = vars)
@@ -74,7 +74,7 @@ def setup(evt, args=[], vars={}):
 
 
 def options(evt, args=[], vars={}):
-    the_options = SQLTABLE(db(db.option).select(), linkto=URL(a="gestionlibre", c="setup", f="option"))
+    the_options = SQLTABLE(db(db.option).select(), linkto=URL(a=config.APP_NAME, c="setup", f="option"))
     return dict(options = the_options)
 
 
@@ -98,7 +98,7 @@ def option(evt, args=[], vars={}):
                 session.the_option_id = db.option[session.the_option_id].update_record(**session.form.vars)
             db.commit()
             print "Form accepted"
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="setup", f="options"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="setup", f="options"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, option)
 

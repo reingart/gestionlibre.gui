@@ -9,8 +9,13 @@ db = config.db
 session = config.session
 request = config.request
 
-import applications.gestionlibre.modules.operations as operations
-import applications.gestionlibre.modules.crm as crm
+# import applications.gestionlibre.modules.operations as operations
+# import applications.gestionlibre.modules.crm as crm
+
+modules = __import__('applications.%s.modules' % config.WEB2PY_APP_NAME, globals(), locals(), ['operations', 'crm'], -1)
+crm = modules.crm
+operations = modules.operations
+
 
 import datetime
 
@@ -44,7 +49,7 @@ def journal_entries(evt, args=[], vars={}):
     accounting_period_id = accounting_period(datetime.date.today().year)
     journal_entries = SQLTABLE(db(\
     db.journal_entry.accounting_period_id == accounting_period_id).select(), \
-    linkto=URL(a="gestionlibre", c="accounting", f="journal_entry"), \
+    linkto=URL(a=config.APP_NAME, c="accounting", f="journal_entry"), \
     columns=["journal_entry.journal_entry_id", "journal_entry.code", \
     "journal_entry.description", "journal_entry.number", \
     "journal_entry.posted", "journal_entry.accounting_period_id"], \
@@ -69,7 +74,7 @@ def journal_entry(evt, args=[], vars={}):
     
     entries = SQLTABLE(db(\
     db.entry.journal_entry_id == journal_entry_id).select(), \
-    linkto=URL(a="gestionlibre", c="accounting", f="entry"), \
+    linkto=URL(a=config.APP_NAME, c="accounting", f="entry"), \
     columns=["entry.entry_id", "entry.code", \
     "entry.description", "entry.journal_entry_id", \
     "entry.account_id", "entry.amount"], \
@@ -92,7 +97,7 @@ def entry(evt, args=[], vars={}):
             db.entry[session.entry_id].update_record(**session.form.vars)
             db.commit()
             print "Form accepted"
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", \
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, \
             c="accounting", f="journal_entry", args=["journal_entry", \
             session.journal_entry_id]))
     else:

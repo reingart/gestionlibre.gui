@@ -149,7 +149,7 @@ def import_csv_dir(evt, args=[], vars={}):
             legacytables = importcsvpattern(config.CSV_CONFIG_FILE)
             result = populate_with_legacy_db(config.CSV_TABLES_ROUTE, legacytables)
             print "Load tables from CSV (records, errors and voidstrings):", result
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="setup", f="index", vars={"message":"%s records inserted" % result[0]}))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="setup", f="index", vars={"message":"%s records inserted" % result[0]}))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, import_csv_dir)
 

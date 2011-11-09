@@ -10,8 +10,13 @@ db = config.db
 session = config.session
 request = config.request
 
-import applications.gestionlibre.modules.operations as operations
-import applications.gestionlibre.modules.crm as crm
+
+modules = __import__('applications.%s.modules' % config.WEB2PY_APP_NAME, globals(), locals(), ['operations', 'crm'], -1)
+crm = modules.crm
+operations = modules.operations
+
+# import applications.gestionlibre.modules.operations as operations
+# import applications.gestionlibre.modules.crm as crm
 
 import datetime
 
@@ -100,7 +105,7 @@ def current_account_report(evt, args=[], vars={}):
                 except (ValueError, TypeError), e:
                     print "Could not calculate operation %s: %s" % str(row.operation.operation_id, e)
 
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="crm", f="current_account_report"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="crm", f="current_account_report"))
 
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, current_account_report)
@@ -116,7 +121,7 @@ def current_account_report(evt, args=[], vars={}):
         "document.description": "Document" }
 
         operations = SQLTABLE(db(session.q).select(), columns=columns, \
-        headers=headers, linkto=URL(a="gestionlibre", c="operations", f="ria_movements"))
+        headers=headers, linkto=URL(a=config.APP_NAME, c="operations", f="ria_movements"))
         
     return dict(query_form = session.form, operations = operations, \
     total_debt = session.total_debt, customer = db.customer[session.customer_id], \

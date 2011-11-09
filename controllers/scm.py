@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# intente algo como
+
 import gluon
 from gluon import *
 import datetime
@@ -9,8 +9,12 @@ db = config.db
 session = config.session
 request = config.request
 
-import applications.gestionlibre.modules.operations as operations
-import applications.gestionlibre.modules.crm as crm
+modules = __import__('applications.%s.modules' % config.WEB2PY_APP_NAME, globals(), locals(), ['operations', 'crm'], -1)
+crm = modules.crm
+operations = modules.operations
+
+# import applications.gestionlibre.modules.operations as operations
+# import applications.gestionlibre.modules.crm as crm
 
 import datetime
 
@@ -55,7 +59,7 @@ def ria_stock(evt, args=[], vars={}):
                     else:
                         session.q &= warehouse_query
 
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="scm", f="ria_stock"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="scm", f="ria_stock"))
 
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, ria_stock)
@@ -77,10 +81,10 @@ def ria_stock(evt, args=[], vars={}):
     # TODO: unify action/function naming conventions
     stock_list = SQLTABLE(rows, columns = columns, \
     headers = headers, \
-    linkto=URL(a="gestionlibre", c="scm", f="stock_item_update"))
+    linkto=URL(a=config.APP_NAME, c="scm", f="stock_item_update"))
 
-    change_stock_form = A("Change stock", _href=URL(a="gestionlibre", c="scm", f="change_stock"))
-    stock_movement_form = A("Stock movement", _href=URL(a="gestionlibre", c="scm", f="stock_movement"))
+    change_stock_form = A("Change stock", _href=URL(a=config.APP_NAME, c="scm", f="change_stock"))
+    stock_movement_form = A("Stock movement", _href=URL(a=config.APP_NAME, c="scm", f="stock_movement"))
 
 
     return dict(stock_list = stock_list, \
@@ -98,7 +102,7 @@ def stock_item_update(evt, args=[], vars={}):
             db.stock[session.stock_id].update_record(**session.form.vars)
             db.commit()
             print "Record updated"
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="scm", f="ria_stock"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="scm", f="ria_stock"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, stock_item_update)
         
@@ -159,7 +163,7 @@ def stock_movement(evt, args=[], vars={}):
                     
                     db.commit()
                     print "Stock updated"
-                    return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="scm", f="ria_stock"))
+                    return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="scm", f="ria_stock"))
 
             else:
                 # the item does not exist
@@ -206,7 +210,7 @@ def change_stock(evt, args=[], vars={}):
                 value = tmp_value)
                 db.commit()
                 print "Stock value changed"
-                return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="scm", f="ria_stock"))
+                return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="scm", f="ria_stock"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, change_stock)
     return dict(form = session.form)

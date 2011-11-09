@@ -1,5 +1,5 @@
 {{ extend "layout.html" }}
-{{=A("Create " + table_name, _href=URL(a="gestionlibre", c="appadmin", f="create", args=[table_name,]))}}
+{{=A("Create " + table_name, _href=URL(a=config.APP_NAME, c="appadmin", f="create", args=[table_name,]))}}
 
 {{ if table is not None: }}
   {{ =table }}

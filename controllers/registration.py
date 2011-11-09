@@ -24,7 +24,7 @@ def post_register_specify_firm(evt, args=[], vars={}):
                     contact_id=contact, description=db.auth_user[config.auth.user_id].email)
                     db.commit()
                     print "Firm specification successful"
-                    return dict(_redirect="gestionlibre/default/index")
+                    return dict(_redirect=URL(a=config.APP_NAME, c="default", f="index"))
                 else:
                     "Contact already exists"
     else:

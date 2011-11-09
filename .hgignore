@@ -4,8 +4,9 @@ syntax: glob
 *.pyo
 *.bak
 *.bak2
-*.directory*
-*logo.png*
+*.directory
+*.png
+*.pdf
 cache/*
 private/*
 uploads/*

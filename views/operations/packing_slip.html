@@ -1,8 +1,8 @@
 {{extend 'layout.html'}}
 <h1>Packing slip</h1>
 {{if packing_slip_id is not None:}}
-{{=A("Edit movements", _href=URL(a="gestionlibre", c="operations", f="movements_detail", args=["operation", packing_slip_id]))}}
-{{=A("Reset form", _href=URL(a="gestionlibre", c="operations", f="reset_packing_slip"))}}
+{{=A("Edit movements", _href=URL(a=config.APP_NAME, c="operations", f="movements_detail", args=["operation", packing_slip_id]))}}
+{{=A("Reset form", _href=URL(a=config.APP_NAME, c="operations", f="reset_packing_slip"))}}
 {{pass}}
 {{=form}}
 {{=HR()}}

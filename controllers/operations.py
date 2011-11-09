@@ -10,8 +10,13 @@ db = config.db
 session = config.session
 request = config.request
 
-import applications.gestionlibre.modules.operations as operations
-import applications.gestionlibre.modules.crm as crm
+modules = __import__('applications.%s.modules' % config.WEB2PY_APP_NAME, globals(), locals(), ['operations', 'crm'], -1)
+crm = modules.crm
+operations = modules.operations
+
+# Import web2py app modules
+# import applications.gestionlibre.modules.operations as operations
+# import applications.gestionlibre.modules.crm as crm
 
 from gui2py.form import EVT_FORM_SUBMIT
 
@@ -356,16 +361,16 @@ def ria_movements_process(evt, args=[], vars={}):
         print "Operation processed"
     else:
         print "Could not process the operation"
-    return dict(_redirect=URL(a="gestionlibre", c="operations", f="ria_movements"))
+    return dict(_redirect=URL(a=config.APP_NAME, c="operations", f="ria_movements"))
     
     
 def ria_movements_reset(evt, args=[], vars={}):
     session.operation_id = None
-    return dict(_redirect=URL(a="gestionlibre", c="operations", f="ria_movements"))
+    return dict(_redirect=URL(a=config.APP_NAME, c="operations", f="ria_movements"))
 
 def ria_movements(evt, args=[], vars={}):
     # reset the current operation (sent client-side)
-    reset_operation_form = A("Reset operation", _href=URL(a="gestionlibre", c="operations", f="ria_movements_reset"))    
+    reset_operation_form = A("Reset operation", _href=URL(a=config.APP_NAME, c="operations", f="ria_movements_reset"))
     # get the current operation if stored in session
     operation_id = session.get("operation_id", None)
 
@@ -388,12 +393,12 @@ def ria_movements(evt, args=[], vars={}):
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             db.operation[session.operation_id].update_record(**session.form.vars)
             print "Form accepted"
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="ria_movements"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="ria_movements"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, ria_movements)
 
     # Process operation for accounting/other when accepted
-    process_operation_form = A("Process operation", _href=URL(a="gestionlibre", c="operations", f="ria_movements_process"))
+    process_operation_form = A("Process operation", _href=URL(a=config.APP_NAME, c="operations", f="ria_movements_process"))
 
     
 
@@ -410,10 +415,10 @@ def ria_movements(evt, args=[], vars={}):
                                        "movement.concept_id": "Product", \
                                        "movement.quantity": "Qty", \
                                        "movement.posted": "Posted"}, \
-                              linkto=URL(a="gestionlibre", c="operations", \
+                              linkto=URL(a=config.APP_NAME, c="operations", \
                                          f="movements_modify_element"))
     
-    add_item = A("Add item", _href=URL(a="gestionlibre", c="operations", f="movements_element"))
+    add_item = A("Add item", _href=URL(a=config.APP_NAME, c="operations", f="movements_element"))
 
     return dict(message="Operation number %s" % operation_id, \
     form = session.form, \
@@ -437,7 +442,7 @@ def movements_element(evt, args=[], vars={}):
             db.movement.insert(**session.form.vars)
             db.commit()
             print "Form accepted"
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="ria_movements"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="ria_movements"))
         elif form.errors:
             print "The form has errors"
     else:
@@ -456,7 +461,7 @@ def movements_modify_element(evt, args=[], vars={}):
             db.movement[session.movements_element_id].update_record(**session.form.vars)
             db.commit()
             print "Form accepted"
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="ria_movements"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="ria_movements"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, movements_modify_element)
     return dict(form=session.form)
@@ -507,7 +512,7 @@ def operation_installment(evt, args=[], vars={}):
             db.commit()
             print "Installment created"
             
-            config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="operation_installment"))
+            config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="operation_installment"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, operation_installment)
 
@@ -518,7 +523,7 @@ def operation_installment(evt, args=[], vars={}):
 
 def ria_new_customer_order_reset(evt, args=[], vars={}):
     session.operation_id = None
-    return config.html_frame.window.OnLinkClicked("gestionlibre/operations/ria_new_customer_order")
+    return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="ria_new_customer_order"))
 
 
 def ria_new_customer_order(evt, args=[], vars={}):
@@ -528,7 +533,7 @@ def ria_new_customer_order(evt, args=[], vars={}):
     
     contact_user = db(db.contact_user.user_id == config.auth.user_id).select().first()
     
-    reset = A("Reset this order", _href=URL(a="gestionlibre", c="operations", f="ria_new_customer_order_reset"))
+    reset = A("Reset this order", _href=URL(a=config.APP_NAME, c="operations", f="ria_new_customer_order_reset"))
 
     if len(args) > 0:
         session.operation_id = int(args[1])
@@ -595,7 +600,7 @@ def ria_new_customer_order(evt, args=[], vars={}):
             description = session.form.vars.description)
             db.commit()
             print "Form accepted"
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="ria_new_customer_order"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="ria_new_customer_order"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, ria_new_customer_order)
 
@@ -650,7 +655,7 @@ def new_customer_order_element(evt, args=[], vars={}):
             db.commit()
 
             print "Form accepted"
-            return config.html_frame.window.OnLinkClicked("gestionlibre/operations/ria_new_customer_order")
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="ria_new_customer_order"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, new_customer_order_element)
 
@@ -685,7 +690,7 @@ def new_customer_order_modify_element(evt, args=[], vars={}):
             db.commit()
             
             print "Form accepted"
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="ria_new_customer_order"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="ria_new_customer_order"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, new_customer_order_modify_element)
 
@@ -860,7 +865,7 @@ def order_allocation(evt, args=[], vars={}):
             session.allocations_completed = session.operations_stack
             
             print "Order allocations completed: %s" % order_allocations
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="order_allocation"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="order_allocation"))
 
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, order_allocation)
@@ -878,7 +883,7 @@ def list_order_allocations(evt, args=[], vars={}):
     "operation.description": "Description", "operation.posted": "Posted"}
     order_allocations = SQLTABLE(db(q).select(), columns = columns, \
     headers = headers, \
-    linkto=URL(a="gestionlibre", c="operations", f="update_order_allocation"))
+    linkto=URL(a=config.APP_NAME, c="operations", f="update_order_allocation"))
     
     return dict(order_allocations = order_allocations)
 
@@ -892,7 +897,7 @@ def update_order_allocation(evt, args=[], vars={}):
             db.operation[session.order_allocation_id].update_record(**session.form.vars)
             db.commit()
             print "Form accepted"
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="list_order_allocations"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="list_order_allocations"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, update_order_allocation)
 
@@ -902,13 +907,13 @@ def update_order_allocation(evt, args=[], vars={}):
     "movement.quantity"], headers={"movement.movement_id": \
     "ID", "movement.code": "Code", \
     "movement.concept_id": "Concept", "movement.quantity": "Quantity"}, \
-    linkto=URL(a="gestionlibre", c="operations", f="movements_modify_element"))
+    linkto=URL(a=config.APP_NAME, c="operations", f="movements_modify_element"))
     
     return dict(form = session.form, movements = movements)
 
 def reset_packing_slip(evt, args=[], vars={}):
     session.packing_slip_id = None
-    return dict(_redirect=URL(a="gestionlibre", c="operations", f="packing_slip"))
+    return dict(_redirect=URL(a=config.APP_NAME, c="operations", f="packing_slip"))
 
 def packing_slip(evt, args=[], vars={}):
     """Create a packing slip from order allocation
@@ -927,7 +932,7 @@ def packing_slip(evt, args=[], vars={}):
             db.commit()
             print "Form accepted"
 
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="packing_slip"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="packing_slip"))
 
     else:
         session.document_id = db(db.document.packing_slips == True).select(\
@@ -1009,7 +1014,7 @@ def ria_product_billing_start(evt, args=[], vars={}):
             session.subcustomer_id = session.form.vars.subcustomer_id
             session.price_list_id = session.form.vars.price_list_id
             
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="ria_product_billing"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="ria_product_billing"))
             
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, ria_product_billing_start)
@@ -1106,7 +1111,7 @@ def ria_product_billing(evt, args=[], vars={}):
                 # redirect to movements edition
                 db.commit()
                 print "New invoice created"
-                return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="movements_detail"))
+                return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_detail"))
 
             else:
                 print "No items checked"
@@ -1137,7 +1142,7 @@ def on_movements_start_submit(evt):
 
         db.commit()
         
-        config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="movements_header"))
+        config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_header"))
 
 def movements_start(evt, args=[], vars={}):
     """ Initial operation form """
@@ -1175,9 +1180,9 @@ def on_movements_header_submit(evt):
         db.commit()
 
         if operation.type in ("S", "P"):
-            config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations" ,f="movements_price_list"))
+            config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations" ,f="movements_price_list"))
         else:
-            config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations" ,f="movements_detail"))
+            config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations" ,f="movements_detail"))
 
 
 
@@ -1250,7 +1255,7 @@ def movements_header(evt, args=[], vars={}):
 def on_movements_price_list_submit(evt):
     if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
         session.price_list_id = session.form.vars.price_list
-        config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="movements_detail"))
+        config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_detail"))
 
 def movements_price_list(evt, args=[], vars={}):
     session.form = SQLFORM.factory(Field("price_list", \
@@ -1333,7 +1338,7 @@ def movements_detail(evt, args=[], vars={}):
     
     rows = s.select()
     movements["items"] = SQLTABLE(rows, \
-    columns = columns, headers = headers, linkto=URL(a="gestionlibre", c="operations", f="movements_modify_item"))
+    columns = columns, headers = headers, linkto=URL(a=config.APP_NAME, c="operations", f="movements_modify_item"))
    
     # Payments
     q = db.movement.concept_id == db.concept.concept_id
@@ -1346,7 +1351,7 @@ def movements_detail(evt, args=[], vars={}):
     
     rows = s.select()
     movements["payments"] = SQLTABLE(rows, \
-    columns = columns, headers = headers, linkto=URL(a="gestionlibre", c="operations", f="movements_modify_item"))
+    columns = columns, headers = headers, linkto=URL(a=config.APP_NAME, c="operations", f="movements_modify_item"))
 
     # Checks
     q = db.bank_check.operation_id == operation_id
@@ -1364,7 +1369,7 @@ def movements_detail(evt, args=[], vars={}):
         "bank_check.due_date": "Due date", \
         "bank_check.number": "Number", \
         "bank_check.amount": "Amount"
-        }, linkto=URL(a="gestionlibre", c="operations", f="movements_modify_check"))
+        }, linkto=URL(a=config.APP_NAME, c="operations", f="movements_modify_check"))
     
     # Taxes
     q = db.movement.concept_id == db.concept.concept_id
@@ -1374,7 +1379,7 @@ def movements_detail(evt, args=[], vars={}):
     
     rows = s.select()
     movements["taxes"] = SQLTABLE(rows, \
-    columns = columns, headers = headers, linkto=URL(a="gestionlibre", c="operations", f="movements_modify_item"))
+    columns = columns, headers = headers, linkto=URL(a=config.APP_NAME, c="operations", f="movements_modify_item"))
 
     return dict(operation = operation, \
     movements = movements, price_list = price_list, \
@@ -1436,7 +1441,7 @@ def on_movements_add_item_submit(evt):
 
         db.commit()
 
-        config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="movements_detail"))
+        config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_detail"))
 
 
 def movements_add_item(evt, args=[], vars={}):
@@ -1520,7 +1525,7 @@ def movements_modify_item(evt, args=[], vars={}):
 
             db.commit()
 
-            config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="movements_detail"))
+            config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_detail"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, movements_modify_item)        
     return dict(form = session.form)
@@ -1562,7 +1567,7 @@ def movements_modify_check(evt, args=[], vars={}):
                 else:
                     print "Operation %s is not editable" % operation_id
             db.commit()
-            config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="movements_detail"))
+            config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_detail"))
 
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, movements_modify_check)
@@ -1594,7 +1599,7 @@ def movements_add_check(evt, args=[], vars={}):
 
             db.commit()
             
-            config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="movements_detail"))
+            config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_detail"))
 
     config.html_frame.window.Bind(EVT_FORM_SUBMIT, movements_add_check)
     return dict(form = session.form)
@@ -1615,7 +1620,7 @@ def movements_current_account_concept(evt, args=[], vars={}):
     if session.difference <= 0:
         # return 0 amount message and cancel
         print "0 difference"
-        return dict(_redirect=URL(a="gestionlibre", c="operations", f="movements_detail"))
+        return dict(_redirect=URL(a=config.APP_NAME, c="operations", f="movements_detail"))
 
     # Current account concepts dal set
     q = db.concept.current_account == True
@@ -1630,7 +1635,7 @@ def movements_current_account_concept(evt, args=[], vars={}):
 
             db.commit()
 
-            config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="movements_current_account_quotas"))
+            config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_current_account_quotas"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, movements_current_account_concept)
 
@@ -1647,7 +1652,7 @@ def movements_current_account_quotas(evt, args=[], vars={}):
 
             db.commit()
 
-            config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", \
+            config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", \
             f="movements_current_account_data"))
 
     else:
@@ -1664,7 +1669,7 @@ def movements_current_account_data(evt, args=[], vars={}):
     operation_id = session.operation_id
     if not is_editable(operation_id):
         print "Operation %s is not editable" % operation_id
-        return dict(_redirect=URL(a="gestionlibre", c="operations", f="movements_detail"))
+        return dict(_redirect=URL(a=config.APP_NAME, c="operations", f="movements_detail"))
         
     # Begin current account data processing
     try:
@@ -1716,7 +1721,7 @@ def movements_current_account_data(evt, args=[], vars={}):
 
             db.commit()
 
-            config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", \
+            config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, \
             c="operations", f="movements_detail"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, movements_current_account_data)
@@ -1761,7 +1766,7 @@ def movements_add_discount_surcharge(evt, args=[], vars={}):
 
             db.commit()
 
-            config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", \
+            config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, \
             c="operations", f="movements_detail"))
 
     else:
@@ -1786,13 +1791,13 @@ def movements_list(evt, args = [], vars = {}):
     "operation.posted": "Posted"}
     table = SQLTABLE(db(db.operation).select(), \
     columns = columns, headers = headers, \
-    linkto=URL(a="gestionlibre", c="operations", f="movements_select"))
+    linkto=URL(a=config.APP_NAME, c="operations", f="movements_select"))
     return dict(table = table)
 
 def movements_select(evt, args = [], vars = {}):
     """ Set operation id and open a detail view """
     session.operation_id = args[1]
-    return dict(_redirect=URL(a="gestionlibre", c="operations", f="movements_detail"))
+    return dict(_redirect=URL(a=config.APP_NAME, c="operations", f="movements_detail"))
 
 def movements_process(evt, args=[], vars={}):
     message = None
@@ -1993,7 +1998,7 @@ def movements_option_update_stock(evt, args=[], vars={}):
         session.update_stock = False
     elif session.update_stock == False:
         session.update_stock = True
-    return dict(_redirect=URL(a="gestionlibre", c="operations", f="movements_detail"))
+    return dict(_redirect=URL(a=config.APP_NAME, c="operations", f="movements_detail"))
 
 def movements_option_update_taxes(evt, args=[], vars={}):
     """ Switch session update taxes value """
@@ -2003,7 +2008,7 @@ def movements_option_update_taxes(evt, args=[], vars={}):
         session.update_taxes = True
 
     print "Change update taxes value to %s" % session.update_taxes    
-    return dict(_redirect=URL(a="gestionlibre", c="operations", f="movements_detail"))
+    return dict(_redirect=URL(a=config.APP_NAME, c="operations", f="movements_detail"))
 
 def movements_select_warehouse(evt, args=[], vars={}):
     session.form = SQLFORM.factory(Field("warehouse", \
@@ -2012,7 +2017,7 @@ def movements_select_warehouse(evt, args=[], vars={}):
     if evt is not None:
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             session.warehouse_id = session.form.vars.warehouse
-            config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="movements_detail"))
+            config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_detail"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, movements_select_warehouse)
     return dict(form = session.form)
@@ -2062,7 +2067,7 @@ def on_movements_add_payment_method_submit(evt):
 
             db.commit()
 
-        return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="movements_detail"))
+        return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_detail"))
 
 
 def movements_add_payment_method(evt, args=[], vars={}):
@@ -2093,7 +2098,7 @@ def movements_add_tax(evt, args=[], vars={}):
 
             db.commit()
             
-        config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="movements_detail"))
+        config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_detail"))
 
     config.html_frame.window.Bind(EVT_FORM_SUBMIT, movements_add_tax)
     return dict(form = session.form)
@@ -2118,8 +2123,8 @@ def movements_articles(evt, args=[], vars={}):
             columns = ["concept.concept_id", "concept.code", "concept.description", "concept.family_id", "concept.color_id"]
             headers = {"concept.concept_id": "Select", "concept.code": "Code", "concept.description": "Description", "concept.family_id": "Family", "concept.color_id": "Color"}
 
-            config.after_submission["table"] = SQLTABLE(rows, columns = columns, headers = headers, linkto = URL(a="gestionlibre", c="operations", f="movements_add_item"))
-            config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="movements_articles"))
+            config.after_submission["table"] = SQLTABLE(rows, columns = columns, headers = headers, linkto = URL(a=config.APP_NAME, c="operations", f="movements_add_item"))
+            config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_articles"))
 
     if "table" in config.after_submission:
         table = config.after_submission["table"]
@@ -2149,7 +2154,7 @@ def articles(evt, args=[], vars={}):
 
     if q is not None:
         config.session.articles_query = q
-        config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="articles_list"))
+        config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="articles_list"))
 
     return dict(form = session.form)
 
@@ -2157,5 +2162,5 @@ def articles_list(evt, args=[], vars={}):
     rows = db(config.session.articles_query).select()
     table = None
     if len(rows) > 0:
-        table = SQLTABLE(rows, linkto=URL(a="gestionlibre", c="appadmin", f="update"))
-    return dict(table = table, back=A("New query", _href=URL(a="gestionlibre", c="operations", f="articles")))
+        table = SQLTABLE(rows, linkto=URL(a=config.APP_NAME, c="appadmin", f="update"))
+    return dict(table = table, back=A("New query", _href=URL(a=config.APP_NAME, c="operations", f="articles")))

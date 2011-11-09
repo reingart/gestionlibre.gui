@@ -11,6 +11,6 @@ Tax id: {{=customer.tax_identification}}
 Current account calculated amount: {{="%.2f" % value}}
 </li>
 {{if config.session.get("operation_id", None) != None:}}
-{{=A("Movements detail", _href=URL(a="gestionlibre", c="operations", f="movements_detail"))}} | 
+{{=A("Movements detail", _href=URL(a=config.APP_NAME, c="operations", f="movements_detail"))}} |
 {{ pass }}
-{{=A("Movements list", _href=URL(a="gestionlibre", c="operations", f="movements_list"))}}
+{{=A("Movements list", _href=URL(a=config.APP_NAME, c="operations", f="movements_list"))}}

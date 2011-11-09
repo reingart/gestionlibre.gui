@@ -70,7 +70,7 @@ def current_accounts_type(evt, args=[], vars={}):
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             session.current_accounts_type = session.form.vars.current_accounts_type
             
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="financials", f="current_accounts_data"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="financials", f="current_accounts_data"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, current_accounts_type)
 
@@ -112,7 +112,7 @@ def current_accounts_data(evt, args=[], vars={}):
                     else:
                         session["current_accounts_" + k] = session.form.vars[k]
                         
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="financials", f="current_accounts_detail"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="financials", f="current_accounts_detail"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, current_accounts_data)
             
@@ -202,7 +202,7 @@ def current_accounts_detail(evt, args=[], vars={}):
 
             if session.form.vars.selection_action == "payment":
 
-                return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="financials", f="current_accounts_payment"))
+                return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="financials", f="current_accounts_payment"))
 
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, current_accounts_detail)
@@ -268,7 +268,7 @@ def current_accounts_payment(evt, args=[], vars={}):
             
             db.commit()
 
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="operations", f="movements_detail"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_detail"))
 
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, current_accounts_payment)

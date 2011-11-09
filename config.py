@@ -2,13 +2,32 @@
 
 import sys, os
 
-WEB2PY_FOLDER = r"/home/user/web2py"
-GUI2PY_FOLDER = r"/home/user/gui2py-hg"
-SQLITE_DB_FOLDER = r"/home/user/web2py/applications/gestionlibre/databases/"
+# Keep "gestionlibre" as app name for consistency
+# with gui app controllers
+# TODO: application string replacement with APP_NAME call
+# for old URL constructions and auto-named web2py/gui paths
+
+# The name given to the installed web2py app
+APP_NAME = "gestionlibre"
+
+# System user (optional)
+# used as reference for path construction
+SYSTEM_USER_NAME = "user"
+
+# Gui app installation name
+# used for local URLs and titles
+WEB2PY_APP_NAME = "gestionlibre"
+
+# Change paths to match the system's configuration
+WEB2PY_FOLDER = r"/home/%s/web2py" % SYSTEM_USER_NAME
+GUI2PY_FOLDER = r"/home/%s/gui2py-hg" % SYSTEM_USER_NAME
+SQLITE_DB_FOLDER = r"/home/%s/web2py/applications/%s/databases/" % (SYSTEM_USER_NAME, WEB2PY_APP_NAME)
+TEMPLATES_FOLDER = r"/home/%s/gestionlibre_gui-hg/views/" % SYSTEM_USER_NAME
+PDF_TEMPLATES_FOLDER = r"/home/%s/gestionlibre_gui-hg/pdf_templates/" % SYSTEM_USER_NAME
+OUTPUT_FOLDER = r"/home/%s/gestionlibre_gui-hg/output/" % SYSTEM_USER_NAME
+
 SQLITE_DB_FILE = r'sqlite://storage.sqlite'
 HMAC_KEY = "sha512:3f00b793-28b8-4b3c-8ffb-081b57fac54a"
-TEMPLATES_FOLDER = r"/home/user/gestionlibre_gui-hg/views/"
-APP_NAME = "gestionlibre"
 
 # import gui2py support -wxHTML FORM handling- (change the path!)
 sys.path.append(GUI2PY_FOLDER)
@@ -24,10 +43,11 @@ from gluon import *
 
 WX_HTML_STYLE = wx.html.HW_DEFAULT_STYLE | wx.TAB_TRAVERSAL
 
+# CSV first run data for examples (optional)
 CSV_CONFIG_FILE = os.path.join(os.getcwd(), "example_db", "spanish.csv")
 CSV_TABLES_ROUTE = os.path.join(os.getcwd(), "example_db", "spanish")
 
-# create DAL connection (and create DB if not exists)
+# create DAL connection (and create DB if does not exists)
 db = DAL(SQLITE_DB_FILE, folder=SQLITE_DB_FOLDER)
 
 # generic web2py objects (for web server emulation)
@@ -421,7 +441,7 @@ MAIN_MENU = {
                     "quit": {
                         "position": 12, "label": "Quit",
                         "visible": True, "enabled": True,
-                        "action": "gestionlibre/file/quit",
+                        "action": "%s/file/quit" % APP_NAME,
                         "submenu":{},
                         }, # quit
                     } ,# file submenu
@@ -849,13 +869,13 @@ MAIN_MENU = {
 
             "help":{
                     "position": 8, "label": "Help",
-                    "visible": True, "enabled": False,
+                    "visible": True, "enabled": True,
                     "action": None,
                     "submenu":{
                             "about":{
                                     "position": -1, "label": "About",
-                                    "visible": True, "enabled": False,
-                                    "action": None,
+                                    "visible": True, "enabled": True,
+                                    "action": "http://code.google.com/p/%s/" % APP_NAME,
                                     "submenu":{},
                             }, # about
                         }, # help submenu

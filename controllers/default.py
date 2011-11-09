@@ -42,7 +42,7 @@ def change_layout_colors(evt, args=[], vars={}):
                 session.layout_colors_background = session.form.vars.background
                 session.layout_colors_foreground = session.form.vars.foreground
 
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="default", f="change_layout_colors"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="default", f="change_layout_colors"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, change_layout_colors)
     
@@ -70,7 +70,7 @@ def set_default_layout_colors(evt, args=[], vars={}):
     return dict(_redirect=config._urls[config._this_url])
 
 
-def user(evt, args=[], vars={"_next": "gestionlibre/default/index"}):
+def user(evt, args=[], vars={"_next": URL(a=config.APP_NAME, c="default", f="index")}):
     """
     exposes:
     http://..../[app]/default/user/login 
@@ -101,7 +101,7 @@ def user(evt, args=[], vars={"_next": "gestionlibre/default/index"}):
             config.auth.user = None
 
             # config.auth = None
-            return dict(_redirect="gestionlibre/default/index")
+            return dict(_redirect=URL(a=config.APP_NAME, c="default", f="index"))
 
         elif args[0] == "register":
             session.form = SQLFORM.factory(Field("first_name", requires=IS_NOT_EMPTY()),
@@ -143,7 +143,7 @@ def user(evt, args=[], vars={"_next": "gestionlibre/default/index"}):
                 
                 new_user = db.auth_user[new_user_id]
                 the_user = config.auth.login_bare(new_user.email, new_user.password)
-                config.html_frame.window.OnLinkClicked("gestionlibre/default/index")
+                config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="default", f="index"))
 
             elif session.form.errors:
                 print "Form errors", session.form.errors

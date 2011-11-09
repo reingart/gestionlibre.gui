@@ -9,8 +9,13 @@ db = config.db
 session = config.session
 request = config.request
 
-import applications.gestionlibre.modules.operations as operations
-import applications.gestionlibre.modules.crm as crm
+
+modules = __import__('applications.%s.modules' % config.WEB2PY_APP_NAME, globals(), locals(), ['operations', 'crm'], -1)
+crm = modules.crm
+operations = modules.operations
+
+# import applications.gestionlibre.modules.operations as operations
+# import applications.gestionlibre.modules.crm as crm
 
 from gui2py.form import EVT_FORM_SUBMIT
 
@@ -24,7 +29,7 @@ def list_fees(evt, args=[], vars={}):
     "fee.description": "Description", "fee.due_date": "Due date", \
     "fee.document_id": "Document", "fee.starting": "Starting", \
     "fee.ending": "Ending"}, \
-    linkto=URL(a="gestionlibre", c="fees", f="update_fee")))
+    linkto=URL(a=config.APP_NAME, c="fees", f="update_fee")))
     
 def update_fee(evt, args=[], vars={}):
 
@@ -37,7 +42,7 @@ def update_fee(evt, args=[], vars={}):
             db.fee[session.fee_id].update_record(**session.form.vars)
             db.commit()
             print "Fee updated"
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="fees", f="list_fees"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="fees", f="list_fees"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, update_fee)
 
@@ -50,7 +55,7 @@ def create_fee(evt, args=[], vars={}):
             db.fee.insert(**session.form.vars)
             db.commit()
             print "Fee updated"
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="fees", f="list_fees"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="fees", f="list_fees"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, create_fee)
     return dict(form = session.form)
@@ -73,7 +78,7 @@ def list_installments(evt, args=[], vars={}):
     "installment.subcustomer_id": "Subcustomer", \
     "installment.supplier_id": "Supplier", \
     "installment.fee_id": "Fee", "installment.quotas": "Quotas"}, \
-    linkto=URL(a="gestionlibre", c="fees", f="update_installment")))
+    linkto=URL(a=config.APP_NAME, c="fees", f="update_installment")))
 
 
 def update_installment(evt, args=[], vars={}):
@@ -85,7 +90,7 @@ def update_installment(evt, args=[], vars={}):
             db.installment[session.installment_id].update_record(**session.form.vars)
             db.commit()
             print "Installment updated"
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="fees", f="update_installment"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="fees", f="update_installment"))
             
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, update_installment)
@@ -98,7 +103,7 @@ def update_installment(evt, args=[], vars={}):
     headers = {"quota.quota_id": "Edit","quota.number": "Number",\
     "quota.due_date": "Due date", \
     "quota.fee_id": "Fee", "quota.amount": "Quota"}, \
-    linkto=URL(a="gestionlibre", c="fees", f="update_quota.html"))
+    linkto=URL(a=config.APP_NAME, c="fees", f="update_quota.html"))
 
     return dict(form = session.form, quotas = quotas)
 
@@ -112,7 +117,7 @@ def list_quotas():
     headers = {"quota.quota_id": "Edit","quota.number": "Number",\
     "quota.due_date": "Due date", \
     "quota.fee_id": "Fee", "quota.amount": "Quota"}, \
-    linkto=URL(a="gestionlibre", c="fees", f="update_quota.html")))
+    linkto=URL(a=config.APP_NAME, c="fees", f="update_quota.html")))
     
 def update_quota(evt, args=[], vars={}):
     if len(args) > 1:
@@ -123,7 +128,7 @@ def update_quota(evt, args=[], vars={}):
             db.quota[session.quota_id].update_record(**session.form.vars)
             db.commit()
             print "Quota updated"
-            return config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="fees", f="update_installment"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="fees", f="update_installment"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, update_quota)
     return dict(form = session.form)

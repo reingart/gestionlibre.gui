@@ -100,7 +100,7 @@ def select(evt, args=[], vars={}):
         page_links = []
         for sp in config.session.select_pages:
             if len(sp) > 0:
-                url = URL(a="gestionlibre", \
+                url = URL(a=config.APP_NAME, \
                     c="appadmin", f="select", \
                     args=[table_name], \
                     vars={"lower_limit": sp[0], \
@@ -119,7 +119,7 @@ def select(evt, args=[], vars={}):
 
     # create table
     if q is not None:
-        table = SQLTABLE(db(q).select(), linkto=URL(a="gestionlibre", c="appadmin", f="update"))
+        table = SQLTABLE(db(q).select(), linkto=URL(a=config.APP_NAME, c="appadmin", f="update"))
 
     return dict(table = table, links = links, table_name = table_name)
 
@@ -141,12 +141,12 @@ def update(evt, args=[], vars={}):
                 config.session.db_table[config.session.record_id].delete_record()
                 db.commit()
                 print "Record deleted"
-                config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="appadmin", f="select", args=[str(config.session.db_table)]))
+                config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="appadmin", f="select", args=[str(config.session.db_table)]))
             else:
                 config.session.db_table[config.session.record_id].update_record(**session.form.vars)
                 db.commit()
                 print "Form accepted"
-                config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="appadmin", f="read", args=[str(config.session.db_table), config.session.record_id]))
+                config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="appadmin", f="read", args=[str(config.session.db_table), config.session.record_id]))
 
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, update)
@@ -173,7 +173,7 @@ def create(evt, args=[], vars={}):
             config.session.record_id = config.session.db_table.insert(**config.session.form.vars)
             db.commit()
             print "Form accepted"
-            config.html_frame.window.OnLinkClicked(URL(a="gestionlibre", c="appadmin", f="read", args=[str(config.session.db_table), config.session.record_id]))
+            config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="appadmin", f="read", args=[str(config.session.db_table), config.session.record_id]))
 
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, create)
