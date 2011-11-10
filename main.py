@@ -33,6 +33,8 @@ import config
 
 import sys
 
+import datetime
+
 import gluon
 import gluon.shell
 import gluon.tools
@@ -218,8 +220,18 @@ config.menu = MENU([
 
 
 def menu_event(evt):
+
+    # check if html_frame was closed (throws wx._core.PyDeadObjectError)
+
     the_event = config.starting_frame.menu_events[evt.Id]
     if isinstance(the_event, basestring):
+        try:
+            is_active = config.html_frame.IsActive()
+        except wx._core.PyDeadObjectError:
+            # html window closed
+            # reinitialize it
+            gui.start_html_frame(config.starting_frame, the_event)
+
         config.html_frame.window.OnLinkClicked(the_event)
     elif callable(the_event):
         the_event(evt)
@@ -315,28 +327,6 @@ if __name__ == "__main__":
     wx.InitAllImageHandlers()
     config.starting_frame = MyFrame(None, -1, "")
     config.starting_frame.SetSize((640, 360))
-    
-    
-    config.html_frame = MyHTMLFrame(config.starting_frame, -1, "")
-
-    config.html_frame.window = gui.NewHtmlWindow(config.html_frame, \
-    style = config.WX_HTML_STYLE)
-
-    # html frame layout:
-    html_sizer_1 = wx.BoxSizer(wx.VERTICAL)
-    html_sizer_2 = wx.BoxSizer(wx.HORIZONTAL)
-    html_sizer_1.Add(config.html_frame.window, 1, wx.EXPAND|wx.ALL, 5)
-    html_sizer_2.Add(config.html_frame.button_6, 1, wx.ALIGN_CENTER|wx.ALL, 5)
-    html_sizer_2.Add(config.html_frame.button_7, 0, wx.ALIGN_CENTER|wx.ALL, 5)
-    html_sizer_1.Add(html_sizer_2, 0)
-    config.html_frame.SetSize((640, 480))
-    config.html_frame.SetSizer(html_sizer_1)
-    config.html_frame.Layout()
-    # end of html layout
-
-    # Previous and next button events
-    config.html_frame.Bind(wx.EVT_BUTTON, gui.OnPreviousClick, config.html_frame.button_6)
-    config.html_frame.Bind(wx.EVT_BUTTON, gui.OnNextClick, config.html_frame.button_7)
 
     # Main window button events
     config.starting_frame.Bind(wx.EVT_BUTTON, handlers.billing_button_click, config.starting_frame.button_1)
@@ -345,7 +335,6 @@ if __name__ == "__main__":
     config.starting_frame.Bind(wx.EVT_BUTTON, handlers.articles_button_click, config.starting_frame.button_4)
     config.starting_frame.Bind(wx.EVT_BUTTON, handlers.queries_button_click, config.starting_frame.button_5)
     config.starting_frame.Bind(wx.EVT_BUTTON, handlers.movements_button_click, config.starting_frame.button_8)
-    
     config.starting_frame.menu_events = dict()
 
     GestionLibre.SetTopWindow(config.starting_frame)
@@ -354,11 +343,12 @@ if __name__ == "__main__":
     submenu=config.MAIN_MENU, is_menu_bar = True)
 
     config.starting_frame.SetMenuBar(config.starting_frame.starting_menubar)
-
-    config.html_frame.window.OnLinkClicked("gestionlibre/default/index")
+    config.starting_frame.SetStatusText( \
+    str(datetime.date.today()))
 
     config.starting_frame.Show()
-    config.html_frame.Show()
+
+    gui.start_html_frame(config.starting_frame)
 
     # Gui-based user authentication
     # (incomplete)

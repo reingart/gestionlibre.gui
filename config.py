@@ -117,8 +117,8 @@ MAIN_MENU = {
                 "submenu":{
                     "crud": {
                         "position": 0, "label": "File CRUD",
-                        "visible": True, "enabled": False,
-                        "action": None,
+                        "visible": True, "enabled": True,
+                        "action": URL(a=APP_NAME, c="appadmin", f="index"),
                         "submenu":{}
                         }, # crud
                     "forms": {
@@ -160,21 +160,21 @@ MAIN_MENU = {
                                 "submenu":{
                                     "by_article": {
                                         "position": -1, "label": "By article",
-                                        "visible": True, "enabled": False,
-                                        "action": None,
+                                        "visible": True, "enabled": True,
+                                        "action": URL(a=APP_NAME, c="appadmin", f="select", args=["price", ]),
                                         "submenu":{}
                                     } # by_article
                                 } # price_list submenu
                             }, # price_list
                             "articles": {
                                 "position": 1, "label": "Articles",
-                                "visible": True, "enabled": False,
+                                "visible": True, "enabled": True,
                                 "action": None,
                                 "submenu":{
                                     "browse": {
                                         "position": -1, "label": "Browse",
-                                        "visible": True, "enabled": False,
-                                        "action": None,
+                                        "visible": True, "enabled": True,
+                                        "action": URL(a=APP_NAME, c="operations", f="articles"),
                                         "submenu":{}
                                     }, # browse
                                     "import": {
@@ -185,8 +185,8 @@ MAIN_MENU = {
                                     }, # import
                                     "prices": {
                                         "position": 1, "label": "Prices",
-                                        "visible": True, "enabled": False,
-                                        "action": None,
+                                        "visible": True, "enabled": True,
+                                        "action": URL(a=APP_NAME, c="appadmin", f="select", args=["price",]),
                                         "submenu":{}
                                     }, # prices
                                 } # articles submenu
@@ -312,8 +312,8 @@ MAIN_MENU = {
                         "submenu":{
                             "formats": {
                                 "position": 0, "label": "Options",
-                                "visible": True, "enabled": False,
-                                "action": None,
+                                "visible": True, "enabled": True,
+                                "action": URL(a=APP_NAME, c="setup", f="index"),
                                 "submenu":{},
                                 }, # formats
                             "reset": {
@@ -446,8 +446,8 @@ MAIN_MENU = {
                         }, # db_update
                     "change_user": {
                         "position": 9, "label": "Change user",
-                        "visible": True, "enabled": False,
-                        "action": None,
+                        "visible": True, "enabled": True,
+                        "action": URL(a=APP_NAME, c="default", f="user", args=["login",]),
                         "submenu":{},
                         }, # change_user
                     "change_password": {
@@ -486,8 +486,8 @@ MAIN_MENU = {
 
                         "create_order":{
                                 "position": -1, "label": "Create order",
-                                "visible": True, "enabled": False,
-                                "action": None,
+                                "visible": True, "enabled": True,
+                                "action": URL(a=APP_NAME, c='crm',f='customer_panel'),
                                 "submenu":{},
                             }, # create_order
 
@@ -500,16 +500,16 @@ MAIN_MENU = {
 
                         "create_invoice":{
                                 "position": -1, "label": "Create invoice",
-                                "visible": True, "enabled": False,
-                                "action": None,
+                                "visible": True, "enabled": True,
+                                "action": URL(a=APP_NAME, c="operations", f="movements_start"),
                                 "submenu":{},
                                 "separator": True 
                             }, # create_invoice
 
                         "order_allocation":{
                                 "position": -1, "label": "Order allocation",
-                                "visible": True, "enabled": False,
-                                "action": None,
+                                "visible": True, "enabled": True,
+                                "action": URL(a=APP_NAME, c='operations',f='order_allocation'),
                                 "submenu":{},
                             }, # order_allocation
 
@@ -530,15 +530,15 @@ MAIN_MENU = {
 
                         "current_accounts":{
                                 "position": -1, "label": "Current accounts",
-                                "visible": True, "enabled": False,
-                                "action": None,
+                                "visible": True, "enabled": True,
+                                "action": URL(a=APP_NAME, c='financials',f='current_accounts_type'),
                                 "submenu":{},
                             }, # current accounts
 
                         "queries":{
                                 "position": -1, "label": "Queries",
-                                "visible": True, "enabled": False,
-                                "action": None,
+                                "visible": True, "enabled": True,
+                                "action": URL(a=APP_NAME, c='appadmin',f='index'),
                                 "submenu":{},
                             }, # queries
 
@@ -559,8 +559,8 @@ MAIN_MENU = {
 
                         "price_lists":{
                                 "position": -1, "label": "Price lists",
-                                "visible": True, "enabled": False,
-                                "action": None,
+                                "visible": True, "enabled": True,
+                                "action": URL(a=APP_NAME, c='appadmin',f='select', args=["price_list",]),
                                 "submenu":{},
                                 "separator": True,
                             }, # price_lists
@@ -575,8 +575,8 @@ MAIN_MENU = {
                     "submenu":{
                         "create_invoice":{
                                 "position": -1, "label": "New invoice",
-                                "visible": True, "enabled": False,
-                                "action": None,
+                                "visible": True, "enabled": True,
+                                "action": URL(a=APP_NAME, c='operations',f='movements_start'),
                                 "submenu":{},
                             }, # create_invoice
 
@@ -597,8 +597,8 @@ MAIN_MENU = {
 
                         "apply_payment":{
                                 "position": -1, "label": "Apply payment",
-                                "visible": True, "enabled": False,
-                                "action": None,
+                                "visible": True, "enabled": True,
+                                "action": URL(a=APP_NAME, c='financials',f='current_accounts_type'),
                                 "submenu":{},
                                 "separator": True
                             }, # apply_payment
@@ -621,8 +621,8 @@ MAIN_MENU = {
 
                         "queries":{
                                 "position": -1, "label": "queries",
-                                "visible": True, "enabled": False,
-                                "action": None,
+                                "visible": True, "enabled": True,
+                                "action": URL(a=APP_NAME, c='appadmin',f='index'),
                                 "submenu":{},
                             }, # queries
 
@@ -650,24 +650,24 @@ MAIN_MENU = {
                         
                         "funds":{
                                 "position": -1, "label": "Funds",
-                                "visible": True, "enabled": False,
-                                "action": None,
+                                "visible": True, "enabled": True,
+                                "action": URL(a=APP_NAME, c='appadmin',f='select', args=["fund",]),
                                 "submenu":{
                                     }, # funds submenu
                             }, # funds
 
                         "checks":{
                                 "position": -1, "label": "Checks",
-                                "visible": True, "enabled": False,
-                                "action": None,
+                                "visible": True, "enabled": True,
+                                "action": URL(a=APP_NAME, c='appadmin',f='select', args=["bank_check",]),
                                 "submenu":{
                                     }, # checks submenu
                             }, # checks
 
                         "banks":{
                                 "position": -1, "label": "Banks",
-                                "visible": True, "enabled": False,
-                                "action": None,
+                                "visible": True, "enabled": True,
+                                "action": URL(a=APP_NAME, c='appadmin',f='select', args=["bank",]),
                                 "submenu":{
                                     }, # banks submenu
                             }, # banks
@@ -689,8 +689,8 @@ MAIN_MENU = {
                             }, # activate_deposit
                         "queries":{
                                 "position": -1, "label": "Queries",
-                                "visible": True, "enabled": False,
-                                "action": None,
+                                "visible": True, "enabled": True,
+                                "action": URL(a=APP_NAME, c='appadmin',f='select', args=["stock",]),
                                 "submenu":{
                                     }, # queries submenu
                             }, # queries
@@ -706,8 +706,8 @@ MAIN_MENU = {
 
                         "articles":{
                                 "position": -1, "label": "Articles",
-                                "visible": True, "enabled": False,
-                                "action": None,
+                                "visible": True, "enabled": True,
+                                "action": URL(a=APP_NAME, c='scm',f='ria_stock'),
                                 "submenu":{
                                     }, # articles submenu
                             }, # articles
@@ -755,8 +755,8 @@ MAIN_MENU = {
                             
                         "entries":{
                                 "position": -1, "label": "Entries",
-                                "visible": True, "enabled": False,
-                                "action": None,
+                                "visible": True, "enabled": True,
+                                "action": URL(a=APP_NAME, c='accounting',f='journal_entries'),
                                 "submenu":{
                                     }, # entries submenu
                             }, # entries
@@ -868,8 +868,8 @@ MAIN_MENU = {
 
                         "movements":{
                                 "position": -1, "label": "Movements",
-                                "visible": True, "enabled": False,
-                                "action": None,
+                                "visible": True, "enabled": True,
+                                "action": URL(a=APP_NAME, c='operations',f='movements_list'),
                                 "submenu":{
                                     }, # movements submenu
                             }, # movements
@@ -897,10 +897,16 @@ MAIN_MENU = {
                     "visible": True, "enabled": True,
                     "action": None,
                     "submenu":{
+                            "wiki":{
+                                    "position": -1, "label": "Wiki",
+                                    "visible": True, "enabled": True,
+                                    "action": "http://code.google.com/p/gestionlibre/w/list",
+                                    "submenu":{},
+                            }, # about
                             "about":{
                                     "position": -1, "label": "About",
                                     "visible": True, "enabled": True,
-                                    "action": "http://code.google.com/p/%s/" % APP_NAME,
+                                    "action": "http://code.google.com/p/gestionlibre/",
                                     "submenu":{},
                             }, # about
                         }, # help submenu

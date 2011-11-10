@@ -5,7 +5,6 @@ syntax: glob
 *.bak
 *.bak2
 *.directory
-*.png
 *.pdf
 *.ini
 cache/*

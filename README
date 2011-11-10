@@ -1,0 +1,10 @@
+# STARTING GestiónLibre DESKTOP INTERFACE
+
+From gestionlibre (desktop application) path run:
+
+>python main.py
+
+# GestionLibre WEB2PY INTERFACE:
+
+By default the web2py app is installed as "gestionlibre" in your web2py applications folder
+Some web2py implementations need to restart the web server to detect the new installed application.

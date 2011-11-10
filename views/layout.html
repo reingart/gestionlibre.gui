@@ -50,10 +50,13 @@
   {{ firm = None }}
 {{pass}}
 
-
 {{ =DIV(SPAN("Active user: " + user_mail), SPAN(" | "), SPAN(A("Register", _href="gestionlibre/default/user/register?_next=gestionlibre/default/index")), SPAN(" | "), SPAN(A("Specify firm (" + str(firm) + ")", _href="gestionlibre/registration/post_register_specify_firm")), SPAN(" | "), SPAN(A("Login", _href="gestionlibre/default/user/login?_next=gestionlibre/default/index")), SPAN(" | "), SPAN(A("Logout", _href="gestionlibre/default/user/logout?_next=gestionlibre/default/index")))}}
 {{=menu}}
-<h1>GestionLibre</h1>
+<br />
+<br />
+<img src="images/gestionlibre-logo-blue-small.png" />
+<br />
+<br />
 {{ include }}
 </body>
 </html>

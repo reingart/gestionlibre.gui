@@ -1,0 +1,40 @@
+# INSTALLATION INSTRUCTIONS
+
+# Application dependencies
+You must have the following software installed in order to
+install GestiónLibre:
+
+web2py - http://www.web2py.com
+wxPython (wx for short) for the desktop interface - http://sourceforge.net/projects/wxpython/
+gui2py -http://code.google.com/p/gui2py/
+
+# Installation with .zip archive
+
+1 Unzip archive in your system user home folder
+2 Open a terminal in your system (run -> cmd for win)
+3 From the new extracted application folder
+  run this command:
+
+>python setup.py --install
+
+If there are no errors in console output, you have now a working copy of GestiónLibre in your system
+
+# Installation from the mercurial repository
+1 make a clone of the project "gestionlibre_gui" in your system
+  From a terminal run:
+
+>hg clone https://code.google.com/p/gestionlibre.gui/ ./gestionlibre
+
+2 Inside the new created folder run:
+
+>python setup.py --install
+
+# Alternative no_gui installation
+
+There is an installation mode wich disables the gui interface for install GestiónLibre in case you
+cannot run a desktop environment. The target system still needs the before mentioned dependencies (wx, web2py and gui2py)
+and the script will exit with an error code if they are not satisfied. Note that this script waits for user input during installation
+
+from the gestionlibre unzipped/downloaded folder run:
+
+>python setup.py --install --no_gui

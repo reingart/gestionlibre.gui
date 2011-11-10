@@ -15,6 +15,8 @@ from url import get_function
 address = config.address
 import gluon.template
 
+from gestion_libre_wx import MyHTMLFrame, MyDialog, MyFrame
+
 """ IMPORTANT:
 replace the normal response, session, ... in web2py views with
 
@@ -24,7 +26,17 @@ config.session, config.response, config.session, ...
 # method overriding for handling click on links
 class NewHtmlWindow(wx.html.HtmlWindow):
     def OnLinkClicked(self, link, kind=None):
-        # reload html in html widget (incomplete)
+        # TODO: special gui function call
+        # APP_NAME/wx/module.function
+        # (arguments can be stored at session object
+        # but not passed to the handler)
+        # controller "wx" must be reserved
+        # (not used as a common controller module)
+        # For both basestring and link object URLs
+        # test if application is config.APP_NAME
+        # and controller is "wx". Then call function
+        # (replace module.function with arg1, arg2, ...)
+        
         if isinstance(link, basestring):
             if (link.startswith("/%s" % config.APP_NAME) or \
             link.startswith(config.APP_NAME)):
@@ -48,6 +60,46 @@ class NewHtmlWindow(wx.html.HtmlWindow):
                 config.html_frame.window.SetPage(xml)
 
             set_url(link.Href, kind=kind)
+
+
+def start_html_frame(starting_frame, url=None):
+    config.html_frame = MyHTMLFrame(starting_frame, -1, "")
+    config.html_frame.window = NewHtmlWindow(config.html_frame, \
+    style = config.WX_HTML_STYLE)
+
+    # html frame layout:
+    html_sizer_1 = wx.BoxSizer(wx.VERTICAL)
+    html_sizer_2 = wx.BoxSizer(wx.HORIZONTAL)
+    html_sizer_1.Add(config.html_frame.window, 1, wx.EXPAND|wx.ALL, 5)
+    html_sizer_2.Add(config.html_frame.button_6, -1, wx.ALIGN_CENTER|wx.ALL, 5)
+    html_sizer_2.Add(config.html_frame.button_9, -1, wx.ALIGN_CENTER|wx.ALL, 5)
+    html_sizer_2.Add(config.html_frame.button_7, -1, wx.ALIGN_CENTER|wx.ALL, 5)
+    html_sizer_1.Add(html_sizer_2, 0)
+    config.html_frame.SetSize((640, 480))
+    config.html_frame.SetSizer(html_sizer_1)
+    config.html_frame.Layout()
+    # end of html layout
+
+    # Previous and next button events
+    config.html_frame.Bind(wx.EVT_BUTTON, OnPreviousClick, config.html_frame.button_6)
+    config.html_frame.Bind(wx.EVT_BUTTON, OnNextClick, config.html_frame.button_7)
+    config.html_frame.Bind(wx.EVT_BUTTON, OnHomeClick, config.html_frame.button_9)
+
+    if url is None:
+        config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="default", f="index"))
+    else:
+        config.html_frame.window.OnLinkClicked(url)
+        
+    config.html_frame.Show()
+
+
+def test_or_create_html_frame():
+    try:
+        # config.html_frame has an Active property
+        is_active = config.html_frame.IsActive()
+    except wx._core.PyDeadObjectError:
+        # HTMLWindow was closed/deleted
+        start_html_frame(config.starting_frame)
 
 
 def action(url):
@@ -174,4 +226,7 @@ def OnNextClick(evt):
 def OnPreviousClick(evt):
     url = get_previous_url()
     if url is not None: return config.html_frame.window.OnLinkClicked(url, kind="previous")
+
+def OnHomeClick(evt):
+    return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="default", f="index"))
 
