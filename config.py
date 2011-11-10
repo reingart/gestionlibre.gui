@@ -14,11 +14,21 @@ APP_NAME = "gestionlibre"
 # used as reference for path construction
 SYSTEM_USER_NAME = "user"
 
+arg_counter = 0
+for arg in sys.argv:
+    arg_counter +=1
+    if arg == "--system_user_name":
+        try:
+            SYSTEM_USER_NAME = sys.argv[arg_counter]
+        except IndexError:
+            "No system user specified. Default is %s" % SYSTEM_USER_NAME
+
 # Gui app installation name
 # used for local URLs and titles
 WEB2PY_APP_NAME = "gestionlibre"
 
 # Change paths to match the system's configuration
+# Default values (overwritten with config.ini values)
 WEB2PY_FOLDER = r"/home/%s/web2py" % SYSTEM_USER_NAME
 GUI2PY_FOLDER = r"/home/%s/gui2py-hg" % SYSTEM_USER_NAME
 SQLITE_DB_FOLDER = r"/home/%s/web2py/applications/%s/databases/" % (SYSTEM_USER_NAME, WEB2PY_APP_NAME)
@@ -28,6 +38,21 @@ OUTPUT_FOLDER = r"/home/%s/gestionlibre_gui-hg/output/" % SYSTEM_USER_NAME
 
 SQLITE_DB_FILE = r'sqlite://storage.sqlite'
 HMAC_KEY = "sha512:3f00b793-28b8-4b3c-8ffb-081b57fac54a"
+
+# config.ini
+try:
+    with open("config.ini") as config_ini:
+        for line in config_ini.readlines():
+            values = line.strip().split("=")
+            if len(values) == 2:
+                locals()[values[0]] = values[1]
+except IOError, e:
+    print "Error accessing config.ini: " + str(e)
+
+# Parse config values
+# Loop trough configuration records
+# Change each value if specified or keep
+# defaults
 
 # import gui2py support -wxHTML FORM handling- (change the path!)
 sys.path.append(GUI2PY_FOLDER)

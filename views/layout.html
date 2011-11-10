@@ -10,6 +10,16 @@
   {{ pass }}
 {{ pass }}
 
+{{ if config.session.get("layout_colors_links", None) is not None: }}
+  {{ lnkcolor = config.session.layout_colors_links }}
+{{ else: }}
+  {{try:}}
+    {{ session.layout_colors_links = lnkcolor = db(db.option.name == "user_%s_layout_lnkcolor" % config.auth.user_id).select().first().value }}
+  {{ except (AttributeError, IndexError, KeyError): }}
+    {{ lnkcolor = "#777777" }}
+  {{ pass }}
+{{ pass }}
+
 {{ if config.session.get("layout_colors_foreground", None) is not None: }}
   {{ fgcolor = config.session.layout_colors_foreground }}
 {{ else: }}
@@ -20,7 +30,7 @@
   {{ pass }}
 {{ pass }}
 
-<body bgcolor="{{=bgcolor}}" text="{{=fgcolor}}">
+<body bgcolor="{{=bgcolor}}" text="{{=fgcolor}}" link="{{=lnkcolor}}">
 {{try:}}
   {{ user = config.auth.user }}
   {{ if user is None:}}

@@ -7,6 +7,7 @@ syntax: glob
 *.directory
 *.png
 *.pdf
+*.ini
 cache/*
 private/*
 uploads/*

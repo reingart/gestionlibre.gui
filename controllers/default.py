@@ -31,16 +31,18 @@ def index(evt, args = [], vars = {}):
 def change_layout_colors(evt, args=[], vars={}):
     if session.get("layout_colors", None) is None:
         session.layout_colors = ["#" + color for color in config.COLORS]
-    session.form = SQLFORM.factory(Field("background"), Field("foreground"), Field("random", "boolean"))
+    session.form = SQLFORM.factory(Field("background"), Field("foreground"), Field("links"), Field("random", "boolean"))
     if evt is not None:
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             if session.form.vars.random == True:
                 import random
                 session.layout_colors_background = "#" + str(random.choice(config.COLORS))
                 session.layout_colors_foreground = "#" + str(random.choice(config.COLORS))
+                session.layout_colors_links = "#" + str(random.choice(config.COLORS))
             else:
                 session.layout_colors_background = session.form.vars.background
                 session.layout_colors_foreground = session.form.vars.foreground
+                session.layout_colors_links = session.form.vars.links
 
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="default", f="change_layout_colors"))
     else:
@@ -54,17 +56,24 @@ def set_default_layout_colors(evt, args=[], vars={}):
         user_id = config.auth.user_id
         fg_option = db(db.option.name == "user_%s_layout_fgcolor" % user_id).select().first()
         bg_option = db(db.option.name == "user_%s_layout_bgcolor" % user_id).select().first()
+        lnk_option = db(db.option.name == "user_%s_layout_lnkcolor" % user_id).select().first()
 
         if fg_option is None:
             fg_option_id = db.option.insert(name="user_%s_layout_fgcolor" % user_id, value=config.session.layout_colors_foreground)
         else:
-            fg_option.update_record(value=session.layout_colors_foreground)
+            fg_option.update_record(value=config.session.layout_colors_foreground)
 
         if bg_option is None:
             db.option.insert(name="user_%s_layout_bgcolor" % user_id, value=config.session.layout_colors_background)
         else:
-            bg_option.update_record(value=session.layout_colors_background)
+            bg_option.update_record(value=config.session.layout_colors_background)
             
+        if lnk_option is None:
+            db.option.insert(name="user_%s_layout_lnkcolor" % user_id, value=config.session.layout_colors_links)
+        else:
+            lnk_option.update_record(value=config.session.layout_colors_links)
+
+
         db.commit()
 
     return dict(_redirect=config._urls[config._this_url])
@@ -99,6 +108,11 @@ def user(evt, args=[], vars={"_next": URL(a=config.APP_NAME, c="default", f="ind
         elif args[0] == "logout":
             # erease the user object
             config.auth.user = None
+
+            # erease customization
+            config.session.layout_colors_background \
+            = config.session.layout_colors_foreground \
+            = config.session.layout_colors_links = None
 
             # config.auth = None
             return dict(_redirect=URL(a=config.APP_NAME, c="default", f="index"))
