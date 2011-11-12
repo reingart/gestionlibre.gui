@@ -1,3 +1,4 @@
+#! /usr/bin/python
 # -*- coding: utf-8 -*-
 
 import sys, os
@@ -331,6 +332,7 @@ if ("install" in sys.argv) or ("--install" in sys.argv):
         starting_frame.SetSize((640, 360))
         GestionLibreSetup.SetTopWindow(starting_frame)
         starting_frame.Bind(wx.EVT_BUTTON, start_install, starting_frame.button_start)
+        starting_frame.SetStatusText("GestiónLibre installation utility. Press Install to start")
         starting_frame.Show()
         GestionLibreSetup.MainLoop()
 

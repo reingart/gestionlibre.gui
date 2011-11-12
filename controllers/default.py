@@ -24,8 +24,15 @@ def index(evt, args = [], vars = {}):
     
     Project's index page
     """
+    # Feedback for action redirections
+    
+    message = config.session.get("message", None)
+    if config.session.message is None:
+        message = "Desktop App"
+    else:
+        config.session.message = None
 
-    return dict(message='Desktop App')
+    return dict(message=message)
 
 
 def change_layout_colors(evt, args=[], vars={}):

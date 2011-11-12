@@ -164,7 +164,11 @@ def operation(evt, args=[], vars={}):
         f['customer_address'] = utftolatin(customer.address)
         f['customer_vat'] = utftolatin(customer.tax_identification)
         f['customer_phone'] = utftolatin(customer.telephone)
-        f['customer_city'] = utftolatin(customer.city_id.description)
+        
+        if customer.city_id is not None:
+            f['customer_city'] = utftolatin(customer.city_id.description)
+        else:
+            f['customer_city'] = None
         f['customer_taxid'] = utftolatin(customer.tax_identification)
 
         # print line item...

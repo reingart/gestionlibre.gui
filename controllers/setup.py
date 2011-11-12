@@ -63,9 +63,14 @@ def index(evt, args=[], vars={}):
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, index)
 
     actions = [
-        A("Options", _href=URL(a=config.APP_NAME, c="setup", f="options")), A("Load tables from CSV", _href=URL(a=config.APP_NAME, c="migration", f="import_csv_dir"))
+        A("Options", _href=URL(a=config.APP_NAME, c="setup", f="options")), A("Load example db from CSV", _href=URL(a=config.APP_NAME, c="migration", f="import_csv_dir"))
         ]
-    
+
+    # Redirection message
+    if config.session.get("message", None) is not None:
+        vars["message"] = config.session.message
+        config.session.message = None
+        
     return dict(actions = actions, first_run_form = first_run_form, vars = vars)
 
 

@@ -79,6 +79,7 @@ def movements_taxes(operation_id):
             if (tax is not None) and (amount is not None):
                 tax_amount = (float(amount) * float(tax.amount)) \
                 - float(amount)
+                print tax.description, ":", tax_amount
                 try:
                     taxes[tax.concept_id] += tax_amount
                 except KeyError:

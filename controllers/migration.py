@@ -107,13 +107,17 @@ def populate_with_legacy_db(legacy_tables_route, legacy_tables):
             spam_reader = csv.reader(open(os.path.join(legacy_tables_route, table_file_name), 'rb'))
         except IOError:
             continue
+        
         table = legacy_tables[table_file_name]["table_name"]
         fields = legacy_tables[table_file_name]["fields"]
 
         # delete table records
         db(db[table]).delete()
         db.commit()
-        
+
+        # reset the insertion counter
+        table_records = 0
+
         for n, table_record in enumerate(spam_reader):
             if n>0:
                 tmpdict = dict()
@@ -129,27 +133,32 @@ def populate_with_legacy_db(legacy_tables_route, legacy_tables):
 
                     if len(tmpdict) > 1:
                         the_id = db[table].insert(**tmpdict)
-                        print "Inserted", table, "record", the_id
-                        records += 1 
+                        table_records += 1
+                        records += 1
                 except Exception, e:
                     # TODO: catch common db exceptions
                     db.debugging.insert(msg="Populate_with_legacy_db Insert Error: Table %s, row %s: %s" % (table, str(n), str(e)))
                     errors += 1
-        if records > 0:
+
+        if table_records > 0:
             db.commit()
+            
+    print "Inserted", records, "db records"
+        
     return records, errors, voidstrings
 
 def index(): return dict(message="hello from migration.py")
 
 # Get legacy database records and insert them in the app's db
 def import_csv_dir(evt, args=[], vars={}):
-    config.session.form = FORM(H3("Load database from CSV"), INPUT(_value="Load from CSV", _type="submit"))
+    config.session.form = FORM(INPUT(_value="Load from CSV", _type="submit"))
     if evt is not None:
         if config.session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             legacytables = importcsvpattern(config.CSV_CONFIG_FILE)
             result = populate_with_legacy_db(config.CSV_TABLES_ROUTE, legacytables)
             print "Load tables from CSV (records, errors and voidstrings):", result
-            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="setup", f="index", vars={"message":"%s records inserted" % result[0]}))
+            config.session.message = "%s records inserted" % result[0]
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="setup", f="index"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, import_csv_dir)
 
