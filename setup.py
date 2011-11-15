@@ -92,14 +92,14 @@ def set_values(web2py_path, gui2py_path):
     WEB2PY_APP_NAME = WEB2PY_APP_NAME,
     WEB2PY_FOLDER = WEB2PY_PATH,
     GUI2PY_FOLDER = GUI2PY_PATH,
-    WEB2PY_APP_FOLDER = , os.path.join(WEB2PY_PATH, "applications", WEB2PY_APP_NAME),
+    WEB2PY_APP_FOLDER = os.path.join(WEB2PY_PATH, "applications", WEB2PY_APP_NAME),
     SQLITE_DB_FOLDER = os.path.join(WEB2PY_PATH, "applications", WEB2PY_APP_NAME, "databases"),
     TEMPLATES_FOLDER = os.path.join(cwd, "views"),
     PDF_TEMPLATES_FOLDER = os.path.join(cwd, "pdf_templates"),
     OUTPUT_FOLDER = os.path.join(cwd, "output"),
     SQLITE_DB_FILE = r'sqlite://storage.sqlite',
     HMAC_KEY = HMAC_KEY,
-    LANGUAGE = "en")
+    LANGUAGE = "")
 
     # write config values to config.ini
     print "Writing config values to config.ini"

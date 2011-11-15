@@ -1118,38 +1118,37 @@ if __name__ == "__main__":
     # language configuration values are forced
     # because of the non web2py execution environment
 
-    # test if language file exists or create it (except for default "en" value)
-
-    language_file_path = os.path.join(config.WEB2PY_FOLDER, "applications", \
-    config.WEB2PY_APP_NAME, "languages", "%s.py" % config.LANGUAGE)
-
-    """
-    if not ("%s.py" % config.LANGUAGE) in (os.listdir(os.path.join(config.WEB2PY_APP_FOLDER, "languages"))):
-        if config.LANGUAGE != "en":
-            # create file
-            with open(config.env["T"].language_file, "w") as language_file:
-                language_file.write("# -*- coding: utf-8 -*-")
-                language_file.write("\n")
-
-            print "Language file is", config.env["T"].language_file
-
-    """
-
-    # config.env["T"].set_current_languages([config.LANGUAGE,])
-
     T = config.env["T"]
-
     T.folder = config.WEB2PY_APP_FOLDER
-    T.language_file = language_file_path
-    T.accepted_language = config.LANGUAGE
-    T.http_accept_language = [config.LANGUAGE,]
-    T.requested_languages = [config.LANGUAGE,]
 
-    # force t dictionary load (otherwise translator would overwrite
-    # the language file
-    T.t = gluon.languages.read_dict(T.language_file)
+    # test if language file exists or create it (except for default "en" value)
+    if not (config.LANGUAGE in (None, "", "en")):
+        language_file_path = os.path.join(config.WEB2PY_FOLDER, "applications", \
+        config.WEB2PY_APP_NAME, "languages", "%s.py" % config.LANGUAGE)
 
-    # create DAL connection (and create DB if does not exists)
+        """
+        if not ("%s.py" % config.LANGUAGE) in (os.listdir(os.path.join(config.WEB2PY_APP_FOLDER, "languages"))):
+            if config.LANGUAGE != "en":
+                # create file
+                with open(config.env["T"].language_file, "w") as language_file:
+                    language_file.write("# -*- coding: utf-8 -*-")
+                    language_file.write("\n")
+
+                print "Language file is", config.env["T"].language_file
+
+        """
+
+        # config.env["T"].set_current_languages([config.LANGUAGE,])
+        T.language_file = language_file_path
+        T.accepted_language = config.LANGUAGE
+        T.http_accept_language = [config.LANGUAGE,]
+        T.requested_languages = [config.LANGUAGE,]
+
+        # force t dictionary load (otherwise translator would overwrite
+        # the language file)
+        T.t = gluon.languages.read_dict(T.language_file)
+
+    # create DAL connection (and create DB if it does not exists)
     config.db = DAL(config.SQLITE_DB_FILE, folder=config.SQLITE_DB_FOLDER)
     db = config.db
 

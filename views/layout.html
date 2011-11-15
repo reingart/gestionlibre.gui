@@ -58,34 +58,5 @@
 <br />
 <br />
 {{ include }}
-
-{{ =HR() }}
-
-{{=H3("Ta")}}
-{{ =T.t }}
-
-<br /><br />
-{{=T("Translate this text 1")}}
-{{=T("Translate this text 2")}}
-{{=T("Translate this text 3")}}
-{{=T("Translate this text 4")}}
-
-
-{{=H3("Tb")}}
-{{ =T.t }}
-
-{{ =HR() }}
-
-<h1>T</h1>
-<ul>
-{{ for attr in dir(T):}}
-  {{ if not callable(getattr(T, attr)): }}
-    <li>{{=attr}} {{=getattr(T, attr)}}</li>
-  {{ elif attr.startswith("get_"): }}
-    <li>{{=attr}} {{=getattr(T, attr)()}}</li>
-  {{ pass }}
-{{ pass }}
-</ul>
-
 </body>
 </html>
