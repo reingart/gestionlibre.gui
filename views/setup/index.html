@@ -9,7 +9,11 @@
   {{ =first_run_form }}
 {{ else: }}
   {{ if config.auth.user is not None:}}
+
+    {{=H5(T("Current language") + ": " + language)}}
     {{=BEAUTIFY(actions)}}
+
+
   {{ else: }}
     {{ =P("Please login as admin for setup options") }}
   {{ pass }}

@@ -13,7 +13,6 @@ session = config.session
 def index(evt, args=[], vars={}):
     return dict()
 
-
 def select(evt, args=[], vars={}):
     # get table
     # get limits or default limits

@@ -11,6 +11,8 @@ import os
 db = config.db
 session = config.session
 response = config.response
+auth = config.auth
+
 from url import get_function
 address = config.address
 import gluon.template
@@ -144,10 +146,14 @@ def action(url):
     else:
         if type(action_data) == dict:
             config.response._vars.update(**action_data)
+            
             action_data["menu"] = config.menu
             action_data["url_data"] = url_data
             action_data.update(**globals())
             config.context.update(**action_data)
+
+            # add environment names to context
+            config.context["T"] = config.env["T"]
 
     # search for templates for this action
     # if a view file was created, render action data with it

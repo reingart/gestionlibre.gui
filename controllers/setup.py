@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """ Setup for development db """
+import os
 
 from gluon import *
 import gluon
@@ -12,6 +13,8 @@ from gui2py.form import EVT_FORM_SUBMIT
 import config
 db = config.db
 session = config.session
+
+T = config.env["T"]
 
 def index(evt, args=[], vars={}):
 
@@ -63,7 +66,9 @@ def index(evt, args=[], vars={}):
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, index)
 
     actions = [
-        A("Options", _href=URL(a=config.APP_NAME, c="setup", f="options")), A("Load example db from CSV", _href=URL(a=config.APP_NAME, c="migration", f="import_csv_dir"))
+        A("Options", _href=URL(a=config.APP_NAME, c="setup", f="options")), \
+        A("Load example db from CSV", _href=URL(a=config.APP_NAME, c="migration", f="import_csv_dir")), \
+        A("Set App language", _href=URL(a=config.APP_NAME, c="setup", f="set_language")),
         ]
 
     # Redirection message
@@ -71,7 +76,7 @@ def index(evt, args=[], vars={}):
         vars["message"] = config.session.message
         config.session.message = None
         
-    return dict(actions = actions, first_run_form = first_run_form, vars = vars)
+    return dict(actions = actions, first_run_form = first_run_form, vars = vars, language = config.LANGUAGE)
 
 
 def setup(evt, args=[], vars={}):
@@ -108,6 +113,27 @@ def option(evt, args=[], vars={}):
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, option)
 
     return dict(form = session.form)
+
+
+def set_language(evt, args=[], vars={}):
+    session.form = SQLFORM.factory(Field("language", label=T("language")))
+    languages = []
+    for language in os.listdir(os.path.join(config.WEB2PY_APP_FOLDER, "languages")):
+        languages.append(language[:-3])
+
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            if session.form.vars.language is not None:
+                if len(session.form.vars.language) > 0:
+                    print "Changing config.ini language value to %s" % session.form.vars.language
+                    print "Please restart the desktop application"
+                    config.LANGUAGE = session.form.vars.language
+                    config.write_values()
+
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, set_language)
+    
+    return dict(form = session.form, languages = languages)
 
 
 def initialize():
