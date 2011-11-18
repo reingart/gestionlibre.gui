@@ -29,25 +29,12 @@ __copyright__ = "Copyright (C) 2011 Sistemas Ágiles"
 __license__ = "AGPLv3"
 
 # constants and common memmory storage
-import config
 
 import sys, os
-
 import datetime
-
-import gluon
-import gluon.shell
-import gluon.tools
-from gluon import *
 
 # import wxPython:
 import wx
-
-# gui2py
-from gui2py.form import EVT_FORM_SUBMIT
-
-# import wx auto generated classes
-from gestion_libre_wx import MyHTMLFrame, MyDialog, MyFrame
 
 # wx auto if __name ... code
 def action(url):
@@ -59,6 +46,7 @@ def action(url):
 
 def configure_main_menu():
     config.MAIN_MENU = {
+                "__rbac": { "requires": ["rbac.my_access_control",] }, # "rbac.my_access_control"
                 "file": {
                     "position": 0, "label": "File",
                     "visible": True, "enabled": True,
@@ -860,169 +848,241 @@ def configure_main_menu():
                                 }, # about
                             }, # help submenu
                 }, # help
-
         } # MAIN_MENU
-
 
 
 # bind actions to functions
 def configure_addresses():
     
-    import controllers.default, controllers.operations, controllers.crm, \
-    controllers.registration, controllers.fees, \
-    controllers.scm, controllers.accounting, controllers.financials, \
-    controllers.setup, controllers.file, controllers.migration, \
-    controllers.appadmin, controllers.output
-
+    # for rbac access control
+    # All the conditions for any object
+    # should be tested from the root to
+    # the object level
+    
     config.address = {
+        "__rbac": { "requires": ["rbac.my_access_control",] }, # special key for access control
         "appadmin": {
-            "index": {"action": controllers.appadmin.index},
-            "select": {"action": controllers.appadmin.select},
-            "read": {"action": controllers.appadmin.read},
-            "update": {"action": controllers.appadmin.update},
-            "create": {"action": controllers.appadmin.create},
+            "__rbac": { "requires": [] },
+            "index": {"action": "controllers.appadmin.index",},
+            "select": {"action": "controllers.appadmin.select"},
+            "read": {"action": "controllers.appadmin.read"},
+            "update": {"action": "controllers.appadmin.update"},
+            "create": {"action": "controllers.appadmin.create"},
             },
         "setup":{
-            "index": {"action": controllers.setup.index},
-            "options": {"action": controllers.setup.options},
-            "option": {"action": controllers.setup.option},
-            "set_language": {"action": controllers.setup.set_language},
+            "index": {"action": "controllers.setup.index"},
+            "options": {"action": "controllers.setup.options"},
+            "option": {"action": "controllers.setup.option"},
+            "set_language": {"action": "controllers.setup.set_language"},
             },
         "migration":{
-            "import_csv_dir": {"action": controllers.migration.import_csv_dir},
+            "import_csv_dir": {"action": "controllers.migration.import_csv_dir"},
             },
         "file":{
-            "quit": {"action": controllers.file.quit},
+            "quit": {"action": "controllers.file.quit"},
             },
         "output":{
-            "operation": {"action": controllers.output.operation},
+            "operation": {"action": "controllers.output.operation"},
             },
         "default":{
-            "index": {"action": controllers.default.index},
-            "new_function": {"action": controllers.default.new_function},
-            "user": {"action": controllers.default.user},
-            "change_layout_colors": {"action": controllers.default.change_layout_colors},
-            "set_default_layout_colors": {"action": controllers.default.set_default_layout_colors},
+            "index": {"action": "controllers.default.index"},
+            "new_function": {"action": "controllers.default.new_function"},
+            "user": {"action": "controllers.default.user"},
+            "change_layout_colors": {"action": "controllers.default.change_layout_colors", "__rbac": { "requires": [] }},
+            "set_default_layout_colors": {"action": "controllers.default.set_default_layout_colors"},
             },
         "scm":{
-            "ria_stock": {"action": controllers.scm.ria_stock},
-            "change_stock": {"action": controllers.scm.change_stock},
-            "stock_movement": {"action": controllers.scm.stock_movement},
-            "stock_item_update": {"action": controllers.scm.stock_item_update},
+            "ria_stock": {"action": "controllers.scm.ria_stock"},
+            "change_stock": {"action": "controllers.scm.change_stock"},
+            "stock_movement": {"action": "controllers.scm.stock_movement"},
+            "stock_item_update": {"action": "controllers.scm.stock_item_update"},
             },
         "accounting":{
-            "journal_entries": {"action": controllers.accounting.journal_entries},
-            "journal_entry": {"action": controllers.accounting.journal_entry},
-            "entry": {"action": controllers.accounting.entry},
+            "journal_entries": {"action": "controllers.accounting.journal_entries"},
+            "journal_entry": {"action": "controllers.accounting.journal_entry"},
+            "entry": {"action": "controllers.accounting.entry"},
             },
         "operations":{
-            # extended format:
-            # "movements_list": {"action": controllers.operations.movements_list, "window": None, "replace": False, "parent": html_frame},
-            "articles": {"action": controllers.operations.articles},
-            "articles_list": {"action": controllers.operations.articles_list},
-            "ria_product_billing_start": {"action": controllers.operations.ria_product_billing_start},
-            "ria_product_billing": {"action": controllers.operations.ria_product_billing},
-            "reset_packing_slip": {"action": controllers.operations.reset_packing_slip},
-            "reset_packing_slip": {"action": controllers.operations.reset_packing_slip},
-            "packing_slip": {"action": controllers.operations.packing_slip},
-            "update_order_allocation": {"action": controllers.operations.update_order_allocation},
-            "list_order_allocations": {"action": controllers.operations.list_order_allocations},
-            "order_allocation": {"action": controllers.operations.order_allocation},
-            "operation_installment": {"action": controllers.operations.operation_installment},
-            "index": {"action": controllers.operations.index},
-            "ria_movements": {"action": controllers.operations.ria_movements},
-            "ria_movements_reset": {"action": controllers.operations.ria_movements_reset},
-            "ria_movements_process": {"action": controllers.operations.ria_movements_process},
-            "movements_element": {"action": controllers.operations.movements_element},
-            "movements_modify_element": {"action": controllers.operations.movements_modify_element},
-            "movements_modify_check": {"action": controllers.operations.movements_modify_check},
-            "ria_new_customer_order_reset": {"action": controllers.operations.ria_new_customer_order_reset},
-            "ria_new_customer_order": {"action": controllers.operations.ria_new_customer_order},
-            "new_customer_order_element": {"action": controllers.operations.new_customer_order_element},
-            "new_customer_order_modify_element": {"action": controllers.operations.new_customer_order_modify_element},
-            "movements_list": {"action": controllers.operations.movements_list},
-            "movements_select": {"action": controllers.operations.movements_select},
-            "movements_detail": {"action": controllers.operations.movements_detail},
-            "movements_start": {"action": controllers.operations.movements_start},
-            "movements_header": {"action": controllers.operations.movements_header},
-            "movements_price_list": {"action": controllers.operations.movements_price_list},
-            "movements_add_item": {"action": controllers.operations.movements_add_item},
-            "movements_add_payment_method": {"action": controllers.operations.movements_add_payment_method},
-            "movements_articles": {"action": controllers.operations.movements_articles},
-            "movements_add_check": {"action": controllers.operations.movements_add_check},
-            "movements_add_tax": {"action": controllers.operations.movements_add_tax},
-            "movements_current_account_concept": {"action": controllers.operations.movements_current_account_concept},
-            "movements_current_account_quotas": {"action": controllers.operations.movements_current_account_quotas},
-            "movements_current_account_data": {"action": controllers.operations.movements_current_account_data},
-            "movements_add_discount_surcharge": {"action": controllers.operations.movements_add_discount_surcharge},
-            "movements_process": {"action": controllers.operations.movements_process},
-            "movements_option_update_stock": {"action": controllers.operations.movements_option_update_stock},
-            "movements_option_update_taxes": {"action": controllers.operations.movements_option_update_taxes},
-            "movements_select_warehouse": {"action": controllers.operations.movements_select_warehouse},
-            "movements_modify_item": {"action": controllers.operations.movements_modify_item},
+            "articles": {"action": "controllers.operations.articles"},
+            "articles_list": {"action": "controllers.operations.articles_list"},
+            "ria_product_billing_start": {"action": "controllers.operations.ria_product_billing_start"},
+            "ria_product_billing": {"action": "controllers.operations.ria_product_billing"},
+            "reset_packing_slip": {"action": "controllers.operations.reset_packing_slip"},
+            "reset_packing_slip": {"action": "controllers.operations.reset_packing_slip"},
+            "packing_slip": {"action": "controllers.operations.packing_slip"},
+            "update_order_allocation": {"action": "controllers.operations.update_order_allocation"},
+            "list_order_allocations": {"action": "controllers.operations.list_order_allocations"},
+            "order_allocation": {"action": "controllers.operations.order_allocation"},
+            "operation_installment": {"action": "controllers.operations.operation_installment"},
+            "index": {"action": "controllers.operations.index"},
+            "ria_movements": {"action": "controllers.operations.ria_movements"},
+            "ria_movements_reset": {"action": "controllers.operations.ria_movements_reset"},
+            "ria_movements_process": {"action": "controllers.operations.ria_movements_process"},
+            "movements_element": {"action": "controllers.operations.movements_element"},
+            "movements_modify_element": {"action": "controllers.operations.movements_modify_element"},
+            "movements_modify_check": {"action": "controllers.operations.movements_modify_check"},
+            "ria_new_customer_order_reset": {"action": "controllers.operations.ria_new_customer_order_reset"},
+            "ria_new_customer_order": {"action": "controllers.operations.ria_new_customer_order"},
+            "new_customer_order_element": {"action": "controllers.operations.new_customer_order_element"},
+            "new_customer_order_modify_element": {"action": "controllers.operations.new_customer_order_modify_element"},
+            "movements_list": {"action": "controllers.operations.movements_list"},
+            "movements_select": {"action": "controllers.operations.movements_select"},
+            "movements_detail": {"action": "controllers.operations.movements_detail"},
+            "movements_start": {"action": "controllers.operations.movements_start"},
+            "movements_header": {"action": "controllers.operations.movements_header"},
+            "movements_price_list": {"action": "controllers.operations.movements_price_list"},
+            "movements_add_item": {"action": "controllers.operations.movements_add_item"},
+            "movements_add_payment_method": {"action": "controllers.operations.movements_add_payment_method"},
+            "movements_articles": {"action": "controllers.operations.movements_articles"},
+            "movements_add_check": {"action": "controllers.operations.movements_add_check"},
+            "movements_add_tax": {"action": "controllers.operations.movements_add_tax"},
+            "movements_current_account_concept": {"action": "controllers.operations.movements_current_account_concept"},
+            "movements_current_account_quotas": {"action": "controllers.operations.movements_current_account_quotas"},
+            "movements_current_account_data": {"action": "controllers.operations.movements_current_account_data"},
+            "movements_add_discount_surcharge": {"action": "controllers.operations.movements_add_discount_surcharge"},
+            "movements_process": {"action": "controllers.operations.movements_process"},
+            "movements_option_update_stock": {"action": "controllers.operations.movements_option_update_stock"},
+            "movements_option_update_taxes": {"action": "controllers.operations.movements_option_update_taxes"},
+            "movements_select_warehouse": {"action": "controllers.operations.movements_select_warehouse"},
+            "movements_modify_item": {"action": "controllers.operations.movements_modify_item"},
+            "movements_modify_header": {"action": "controllers.operations.movements_modify_header"},
             },
         "registration":
             {
-            "post_register_specify_firm": {"action": controllers.registration.post_register_specify_firm},
+            "post_register_specify_firm": {"action": "controllers.registration.post_register_specify_firm"},
                 },
         "crm":
             {
-                "customer_current_account_status": {"action": controllers.crm.customer_current_account_status},
-                "customer_panel": {"action": controllers.crm.customer_panel},
-                "current_account_report": {"action": controllers.crm.current_account_report},
+                "customer_current_account_status": {"action": "controllers.crm.customer_current_account_status"},
+                "customer_panel": {"action": "controllers.crm.customer_panel"},
+                "current_account_report": {"action": "controllers.crm.current_account_report"},
                 },
         "financials":
             {
-                "current_accounts_type": {"action": controllers.financials.current_accounts_type},
-                "current_accounts_data": {"action": controllers.financials.current_accounts_data},
-                "current_accounts_detail": {"action": controllers.financials.current_accounts_detail},
-                "current_accounts_payment": {"action": controllers.financials.current_accounts_payment},
+                "current_accounts_type": {"action": "controllers.financials.current_accounts_type"},
+                "current_accounts_data": {"action": "controllers.financials.current_accounts_data"},
+                "current_accounts_detail": {"action": "controllers.financials.current_accounts_detail"},
+                "current_accounts_payment": {"action": "controllers.financials.current_accounts_payment"},
                 },
         "fees":
             {
-                "list_installments": {"action": controllers.fees.list_installments},
-                "update_installment": {"action": controllers.fees.update_installment},
-                "update_quota": {"action": controllers.fees.update_quota},
-                "update_fee": {"action": controllers.fees.update_fee},
-                "list_fees": {"action": controllers.fees.list_fees},
-                "create_fee": {"action": controllers.fees.create_fee},
+                "list_installments": {"action": "controllers.fees.list_installments"},
+                "update_installment": {"action": "controllers.fees.update_installment"},
+                "update_quota": {"action": "controllers.fees.update_quota"},
+                "update_fee": {"action": "controllers.fees.update_fee"},
+                "list_fees": {"action": "controllers.fees.list_fees"},
+                "create_fee": {"action": "controllers.fees.create_fee"},
                 },
     }
 
 
 # end of bind actions
 
+def configure_event_handlers():
+    config.event_handlers = {
+        "__rbac": {"requires": [],},
+        "handlers":{
+            }
+        }
 
-# HTMLWindow Default Layout menu
-config.menu = MENU([
-    ('Index', False, URL(config.APP_NAME,'default','index'), []),
-    ('Setup', False, URL(config.APP_NAME,'setup','index'), []),
-    ])
+
+def configure_layout_menu():
+    # HTMLWindow Default Layout menu
+    config.menu = MENU([
+        ('Index', False, URL(config.APP_NAME,'default','index'), []),
+        ('Setup', False, URL(config.APP_NAME,'setup','index'), []),
+        ])
+
+
+def handle_event(evt, event_handler):
+    """ searches handler options in a dictionary tree
+    for rbac
+    and redirects to the event handler function
+    """
+    route = (None, event_handler.__module__, event_handler.func_name)
+
+    requires_list = set()
+
+    handlers_item = config.event_handlers
+
+    for level in route:
+        if level is not None:
+            try:
+                handlers_item = handlers_item[level]
+            except KeyError:
+                break
+
+        if "__rbac" in handlers_item.keys():
+            for rb in handlers_item["__rbac"]["requires"]:
+                requires_list.add(rb)
+
+    if config.access_control(requires_list):
+        event_handler(evt)
+    else:
+        print "Access denied"
+
+    return
 
 
 def menu_event(evt):
 
     # check if html_frame was closed (throws wx._core.PyDeadObjectError)
+    # print "starting_frame.menu_events:"
+    # print config.starting_frame.menu_events
 
-    the_event = config.starting_frame.menu_events[evt.Id]
-    if isinstance(the_event, basestring):
+    # frame menu events: [ (event object, route tuple), ...]
+    
+    the_event = config.starting_frame.menu_events[evt.Id][0]
+    # check if string and is url-like
+    # TODO: complete url check (web2py validators)
+
+    requires_list = set()
+
+    # check access lists with gui.RBAC class
+
+    # search general menu rbac rules
+    menu_item = config.MAIN_MENU
+    if "__rbac" in menu_item.keys():
+        for rb in menu_item["__rbac"]["requires"]:
+            requires_list.add(rb)
+            
+    # search trough menu tree
+
+    for k in config.starting_frame.menu_events[evt.Id][1]:
         try:
-            is_active = config.html_frame.IsActive()
-        except wx._core.PyDeadObjectError:
-            # html window closed
-            # reinitialize it
-            gui.start_html_frame(config.starting_frame, the_event)
+            menu_item = menu_item["submenu"][k]
+        except:
+            menu_item = menu_item[k]
+            
+        if "__rbac" in menu_item.keys():
+            for rb in menu_item["__rbac"]["requires"]:
+                requires_list.add(rb)
 
-        config.html_frame.window.OnLinkClicked(the_event)
-    elif callable(the_event):
-        the_event(evt)
+    if config.access_control(requires_list):
+        if isinstance(the_event, basestring):
+            try:
+                is_active = config.html_frame.IsActive()
+            except wx._core.PyDeadObjectError:
+                # html window closed
+                # reinitialize it
+                gui.start_html_frame(config.starting_frame, the_event)
+
+            config.html_frame.window.OnLinkClicked(the_event)
+
+        elif callable(the_event):
+            the_event(evt)
+    else:
+        print "Access denied"
+            
     return None
+
 
 def main_menu_click(evt):
     # call action based on item widget address info
     return None
 
-def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu_bar=False):
+def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu_bar=False, route=[]):
+
     menu_item = None
     try:
         menu_items = getattr(parent_menu, "menu_items")
@@ -1033,11 +1093,13 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
     ordered_items = [(v.get("position", None), k, v) for k,v in submenu.iteritems()]
     ordered_items.sort()
 
-    # for k, v in submenu.iteritems()
     # loop replaced by list iteration
     # it follows menu item index position order
+    # route is the tree walk tuple (for hierarchical access lists)
     
     for item in ordered_items:
+
+        tmp_route = None
         k = item[1]
         v = item[2]
         pos = item[0]
@@ -1048,36 +1110,60 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
         except:
             parent_menu.menu_items = dict()
 
-
         if v.get("visible", False):
-            
             if is_menu_bar == True:
                 parent_menu.menu_items[k] = wx.Menu()
-                parent_menu.Append(parent_menu.menu_items[k], v["label"])
+                parent_menu.Append(parent_menu.menu_items[k], \
+                v["label"])
+                route = [k,]
+                tmp_route = tuple(route)
 
                 if v.has_key("submenu"):
                     if len(v["submenu"]) > 0:
-                        item_count = main_menu_elements(frame, parent_menu.menu_items[k], submenu=v["submenu"], item_count = item_count)
-
+                         item_count = main_menu_elements(frame, \
+                         parent_menu.menu_items[k], \
+                         submenu=v["submenu"], \
+                         item_count = item_count, \
+                         route = route)
+                route.pop()
+                
             else:
                 if v.has_key("submenu"):
                     if len(v["submenu"]) > 0:
+                        route.append(k)
+                        tmp_route = tuple(route)
                         parent_menu.menu_items[k] = wx.Menu()
-                        parent_menu.AppendMenu(item_count, v["label"], parent_menu.menu_items[k])
-                        item_count = main_menu_elements(frame, parent_menu.menu_items[k], submenu=v["submenu"], item_count = item_count)
-                    else:
-                        parent_menu.menu_items[k] = v
-                        menu_item = parent_menu.Append(item_count, v["label"])
+                        parent_menu.AppendMenu(item_count, \
+                        v["label"], parent_menu.menu_items[k])
+                        item_count = main_menu_elements(frame, \
+                        parent_menu.menu_items[k], \
+                        submenu=v["submenu"], \
+                        item_count = item_count, route = route)
+                        route.pop()
 
+                    else:
+                        route.append(k)
+                        parent_menu.menu_items[k] = v
+                        menu_item = parent_menu.Append(item_count, \
+                        v["label"])
+                        tmp_route = tuple(route)
+                        
                         # enable/disable
-                        parent_menu.Enable(item_count, v.get("enabled", True))
+                        parent_menu.Enable(item_count, \
+                        v.get("enabled", True))
+                        route.pop()
 
                 else:
+                    route.append(k)
                     parent_menu.menu_items[k] = v
-                    menu_item = parent_menu.Append(item_count, v["label"])
+                    menu_item = parent_menu.Append(item_count, \
+                    v["label"])
+                    tmp_route = tuple(route)
 
                     # enable/disable
-                    parent_menu.Enable(item_count, v.get("enabled", True))
+                    parent_menu.Enable(item_count, \
+                    v.get("enabled", True))
+                    route.pop(k)
 
                 if v.get("separator", False):
                     parent_menu.AppendSeparator()
@@ -1086,7 +1172,8 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
                 if menu_item is not None:
                     if v["action"] is not None:
                         frame.Bind(wx.EVT_MENU, menu_event, menu_item)
-                        frame.menu_events[menu_item.Id] = v["action"]
+                        frame.menu_events[menu_item.Id] = ( \
+                        v["action"], tmp_route)
 
             elif v.has_key("handler"):
                 if menu_item is not None:
@@ -1095,23 +1182,48 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
                         the_obj = globals()[handler_list[0]]
                         for x in range(len(handler_list)):
                             if x > 0:
-                                the_obj = getattr(the_obj, handler_list[x])
+                                the_obj = getattr(the_obj, \
+                                handler_list[x])
 
                         frame.Bind(wx.EVT_MENU, menu_event, menu_item)
-                        frame.menu_events[menu_item.Id] = the_obj
+                        frame.menu_events[menu_item.Id] = ( \
+                        the_obj, tmp_route)
 
     return item_count
 
 
 if __name__ == "__main__":
+    import config
+
+    # import gui2py support -wxHTML FORM handling- (change the path!)
+    sys.path.append(config.GUI2PY_FOLDER)
+
+    # import web2py (change the path!)
+    sys.path.append(config.WEB2PY_FOLDER)
+
+    # load web2py package
+    import gluon
+    import gluon.shell
+    import gluon.tools
+    from gluon import *
+
+    # gui2py
+    from gui2py.form import EVT_FORM_SUBMIT
+
+    # import wx auto generated classes
+    from gestion_libre_wx import MyHTMLFrame, \
+    MyDialog, MyFrame, MyLoginDialog
+
+    config.WX_HTML_STYLE = wx.html.HW_DEFAULT_STYLE | wx.TAB_TRAVERSAL
+
     # load web2py app env object for GestionLibre
-
-    config.env = gluon.shell.env(config.WEB2PY_APP_NAME, dir=config.WEB2PY_FOLDER)
-
-    config.request = config.current.response = config.env["request"]
-    config.response = config.current.response = config.env["response"]
+    config.env = gluon.shell.env(config.WEB2PY_APP_NAME, \
+    dir=config.WEB2PY_FOLDER)
+    config.current = config.env
+    config.request  = config.env["request"]
+    config.response  = config.env["response"]
     config.response._vars = gluon.storage.Storage()
-    config.session = config.current.session = config.env["session"]
+    config.session  = config.env["session"]
     config.context = gluon.storage.Storage()
 
     # set translation options
@@ -1123,8 +1235,10 @@ if __name__ == "__main__":
 
     # test if language file exists or create it (except for default "en" value)
     if not (config.LANGUAGE in (None, "", "en")):
-        language_file_path = os.path.join(config.WEB2PY_FOLDER, "applications", \
-        config.WEB2PY_APP_NAME, "languages", "%s.py" % config.LANGUAGE)
+        language_file_path = os.path.join( \
+        config.WEB2PY_FOLDER, "applications", \
+        config.WEB2PY_APP_NAME, \
+        "languages", "%s.py" % config.LANGUAGE)
 
         """
         if not ("%s.py" % config.LANGUAGE) in (os.listdir(os.path.join(config.WEB2PY_APP_FOLDER, "languages"))):
@@ -1164,7 +1278,11 @@ if __name__ == "__main__":
 
     # custom auth_user definition is required to prevent the "auth_user not
     # found" error
-    import applications.gestionlibre.modules.db_gestionlibre as db_gestionlibre
+    # import applications.gestionlibre.modules.db_gestionlibre as db_gestionlibre
+
+    modules = __import__('applications.%s.modules' % config.WEB2PY_APP_NAME, \
+    globals(), locals(), ['db_gestionlibre',], -1)
+    db_gestionlibre = modules.db_gestionlibre
 
     # define the database tables
     # web2py = False forces db.define_table("auth_user"..)
@@ -1187,18 +1305,45 @@ if __name__ == "__main__":
     # app modules
     import gui
     import handlers
+    import rbac
+
+    # import controller modules
+    import controllers.default, controllers.operations, controllers.crm, \
+    controllers.registration, controllers.fees, \
+    controllers.scm, controllers.accounting, controllers.financials, \
+    controllers.setup, controllers.file, controllers.migration, \
+    controllers.appadmin, controllers.output
+
 
     # Main window button events
-    config.starting_frame.Bind(wx.EVT_BUTTON, handlers.billing_button_click, config.starting_frame.button_1)
-    config.starting_frame.Bind(wx.EVT_BUTTON, handlers.current_accounts_button_click, config.starting_frame.button_2)
-    config.starting_frame.Bind(wx.EVT_BUTTON, handlers.customers_button_click, config.starting_frame.button_3)
-    config.starting_frame.Bind(wx.EVT_BUTTON, handlers.articles_button_click, config.starting_frame.button_4)
-    config.starting_frame.Bind(wx.EVT_BUTTON, handlers.queries_button_click, config.starting_frame.button_5)
-    config.starting_frame.Bind(wx.EVT_BUTTON, handlers.movements_button_click, config.starting_frame.button_8)
-    config.starting_frame.menu_events = dict()
+    # use lambda event: handle_event(event, function)
+    # for rbac
 
+    config.starting_frame.Bind(wx.EVT_BUTTON, lambda event: handle_event(event, \
+    handlers.billing_button_click), config.starting_frame.button_1)
+    
+    config.starting_frame.Bind(wx.EVT_BUTTON, lambda event: handle_event(event, \
+    handlers.current_accounts_button_click), config.starting_frame.button_2)
+    
+    config.starting_frame.Bind(wx.EVT_BUTTON, lambda event: handle_event(event, \
+    handlers.customers_button_click), config.starting_frame.button_3)
+    
+    config.starting_frame.Bind(wx.EVT_BUTTON, lambda event: handle_event(event, \
+    handlers.articles_button_click), config.starting_frame.button_4)
+    
+    config.starting_frame.Bind(wx.EVT_BUTTON, lambda event: handle_event(event, \
+    handlers.queries_button_click), config.starting_frame.button_5)
+    
+    config.starting_frame.Bind(wx.EVT_BUTTON, lambda event: handle_event(event, \
+    handlers.movements_button_click), config.starting_frame.button_8)
+    
+    config.starting_frame.menu_events = dict()
+    
     # populate main menu
     configure_main_menu()
+
+    # populate html layout menu
+    configure_layout_menu()
 
     GestionLibre.SetTopWindow(config.starting_frame)
 
@@ -1212,6 +1357,14 @@ if __name__ == "__main__":
 
     # bind web2py like actions to module functions
     configure_addresses()
+
+    # set the event handler options
+    configure_event_handlers()
+
+    gui.load_actions()
+
+    config.access_control = gui.RBAC(config.db, config.auth, config.request, \
+    config.session, config.starting_frame)
 
     gui.start_html_frame(config.starting_frame)
 

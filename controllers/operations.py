@@ -20,6 +20,8 @@ operations = modules.operations
 
 from gui2py.form import EVT_FORM_SUBMIT
 
+T = config.env["T"]
+
 ####################################################################
 ##   Auxiliar functions
 ####################################################################
@@ -171,8 +173,14 @@ def movements_difference(operation_id):
     difference = None
     invert_value = 1
     operation = db.operation[operation_id]
+
     document = operation.document_id
-    if document.invert: invert_value = -1
+
+    try:
+        if document.invert: invert_value = -1
+    except AttributeError:
+        # no document specified
+        return None
 
     # draft movements algorithm:
     # difference = exit concepts - entry c.
@@ -231,6 +239,11 @@ def movements_amount(operation_id):
     """ Calculate the total amount of the operation"""
 
     amount = None
+
+    if db.operation[operation_id].document_id == None:
+        # no document specified (operation header is incomplete)
+        print T("Operation header incomplete. Please select a document type")
+        return None
 
     if db.operation[operation_id].document_id.receipts != True:
         
@@ -1267,6 +1280,46 @@ def movements_price_list(evt, args=[], vars={}):
     return dict(form = session.form)
 
 
+def movements_modify_header(evt, args=[], vars={}):
+    """ Modify document initial data"""
+
+    fields = ["code", "description", "customer_id", "supplier_id", \
+    "detail", "payment_terms_id", "term", "amount", "balance", \
+    "posted", "issue", "document_id", "branch", "number", \
+    "due_date", "type", "canceled", "processed", "voided", \
+    "fund_id", "cost_center_id", "module", "observations", \
+    "cancellation", "avoidance", "hour", "replicated", \
+    "subcustomer_id", "salesperson_id", "printed", \
+    "jurisdiction_id", "replica"]
+
+    readonly = config.session.get("_submitted_form_show", False)
+    
+    # erease stock update values
+    operation_id = session.operation_id
+    session.form = SQLFORM(db.operation, operation_id, \
+    fields = fields, readonly = readonly
+    )
+    
+    if readonly:
+        session._submitted_form_show = False
+
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            operation = db.operation[operation_id]
+            operation.update_record(**session.form.vars)
+            db.commit()
+            message = T("Operation modified")
+
+            session._submitted_form_message = message
+            session._submitted_form_show = True
+            
+            config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_modify_header"))
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, movements_modify_header)
+
+    return dict(form = session.form, message = config.session._submitted_form_message)
+
+
 def movements_detail(evt, args=[], vars={}):
     """ List of operation items
     
@@ -1423,14 +1476,13 @@ def on_movements_add_item_submit(evt):
             # No price list or item value
             amount = None
 
-        print request.now
-
         # Create the new operation item
         if is_editable(operation_id):
             movement_id = db.movement.insert(operation_id = operation_id, \
             amount = amount, value = value, concept_id = concept_id, \
             quantity = quantity)
             print "Operation: %s. Amount: %s. Value: %s. Concept: %s, Quantity: %s, Movement: %s" % (operation_id, amount, value, concept_id, quantity, movement_id)
+            
         else:
             "Operation %s is not editable" % operation_id
 

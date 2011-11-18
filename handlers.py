@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import config
-URL = config.URL
 import gui
+URL = gui.URL
 
 # Example event handler ( Set config.MAIN_MENU
 # dictionary item with "handler": "handlers.MyHandler")

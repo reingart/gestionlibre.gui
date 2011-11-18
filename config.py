@@ -10,6 +10,7 @@ import sys, os
 # The name given to the installed web2py app
 APP_NAME = "gestionlibre"
 
+
 # System user (optional)
 # used as reference for path construction
 SYSTEM_USER_NAME = "user"
@@ -22,6 +23,7 @@ for arg in sys.argv:
             SYSTEM_USER_NAME = sys.argv[arg_counter]
         except IndexError:
             "No system user specified. Default is %s" % SYSTEM_USER_NAME
+
 
 # Gui app installation name
 # used for local URLs and titles
@@ -36,14 +38,20 @@ TEMPLATES_FOLDER = r"/home/%s/gestionlibre_gui-hg/views/" % SYSTEM_USER_NAME
 PDF_TEMPLATES_FOLDER = r"/home/%s/gestionlibre_gui-hg/pdf_templates/" % SYSTEM_USER_NAME
 OUTPUT_FOLDER = r"/home/%s/gestionlibre_gui-hg/output/" % SYSTEM_USER_NAME
 WEB2PY_APP_FOLDER = r"/home/%s/web2py/applications/%s/" % (SYSTEM_USER_NAME, WEB2PY_APP_NAME)
-
 SQLITE_DB_FILE = r'sqlite://storage.sqlite'
 HMAC_KEY = "sha512:3f00b793-28b8-4b3c-8ffb-081b57fac54a"
 
 # default language
 LANGUAGE="en"
 
+
 # config.ini
+
+# Parse config values
+# Loop trough configuration records
+# Change each value if specified or keep
+# defaults
+
 try:
     with open("config.ini") as config_ini:
         for line in config_ini.readlines():
@@ -60,24 +68,13 @@ def write_values():
                 # static value
                 config_file.write(name + "=" + value + "\n")
 
-# Parse config values
-# Loop trough configuration records
-# Change each value if specified or keep
-# defaults
+# import wx
+# import wx.html
 
-# import gui2py support -wxHTML FORM handling- (change the path!)
-sys.path.append(GUI2PY_FOLDER)
+# import gluon
+# from gluon import *
 
-# import web2py (change the path!)
-sys.path.append(WEB2PY_FOLDER)
-
-import wx
-import wx.html
-
-import gluon
-from gluon import *
-
-WX_HTML_STYLE = wx.html.HW_DEFAULT_STYLE | wx.TAB_TRAVERSAL
+WX_HTML_STYLE = None
 
 # CSV first run data for examples (optional)
 CSV_CONFIG_FILE = os.path.join(os.getcwd(), "example_db", "spanish.csv")
@@ -100,8 +97,10 @@ address = None
 response = None
 request = None
 session = None
-
 after_submission = dict()
+actions = dict()
+event_handlers = dict()
+access_control = None
 
 _auth_next = None
 _auth_source = None

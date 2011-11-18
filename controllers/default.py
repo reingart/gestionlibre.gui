@@ -9,6 +9,10 @@ from gui2py.form import EVT_FORM_SUBMIT
 import config
 db = config.db
 session = config.session
+auth = config.auth
+request = config.request
+response = config.response
+
 #########################################################################
 ## This is a samples controller
 ## - index is the default action of any application
@@ -16,6 +20,7 @@ session = config.session
 ## - download is for downloading files uploaded in the db (does streaming)
 ## - call exposes all registered services (none by default)
 #########################################################################  
+
 
 def index(evt, args = [], vars = {}):
     """
@@ -86,7 +91,7 @@ def set_default_layout_colors(evt, args=[], vars={}):
     return dict(_redirect=config._urls[config._this_url])
 
 
-def user(evt, args=[], vars={"_next": URL(a=config.APP_NAME, c="default", f="index")}):
+def user(evt, args=[], vars={"_next": None}):
     """
     exposes:
     http://..../[app]/default/user/login 
@@ -100,11 +105,18 @@ def user(evt, args=[], vars={"_next": URL(a=config.APP_NAME, c="default", f="ind
         @auth.requires_permission('read','table name',record_id)
     to decorate functions that need access control
     """
+
+    if vars["_next"] is not None:
+        config._auth_next = vars["_next"]
+
+    # Default redirection:
+    default_url = URL(a=config.APP_NAME, c="default", f="index")
+
     current = config.current
 
     if evt is None:
-        current.request.args = args
-        current.request.vars = vars
+        request.args = args
+        request.vars = vars
 
         if args[0] == "login":
             session.form = SQLFORM.factory(
@@ -122,7 +134,7 @@ def user(evt, args=[], vars={"_next": URL(a=config.APP_NAME, c="default", f="ind
             = config.session.layout_colors_links = None
 
             # config.auth = None
-            return dict(_redirect=URL(a=config.APP_NAME, c="default", f="index"))
+            return dict(_redirect=default_url)
 
         elif args[0] == "register":
             session.form = SQLFORM.factory(Field("first_name", requires=IS_NOT_EMPTY()),
@@ -137,19 +149,27 @@ def user(evt, args=[], vars={"_next": URL(a=config.APP_NAME, c="default", f="ind
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, user)
 
     else:
-        if current.request.args[0] == "login":
+        if request.args[0] == "login":
             if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
                 the_user = db(db.auth_user.email == session.form.vars.email).select().first()
                 if the_user is not None:
                     user_data = config.auth.login_bare(session.form.vars.email, session.form.vars.password)
                     if user_data != False:
                         print "Login accepted"
-                        config.html_frame.window.OnLinkClicked(current.request.vars["_next"])
+                        
+                        if config._auth_next is not None:
+                            # reset auth redirection
+                            # and redirect
+                            next_url = config._auth_next
+                            config._auth_next = None
+                            config._auth_source = None
+                            config.html_frame.window.OnLinkClicked(next_url)
+
                     else: print "Authentication failed"
                 else: print "The user entered does not exist"
             else: print "The form did not validate"
 
-        elif current.request.args[0] == "register":
+        elif request.args[0] == "register":
             if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
                 # password encryption web2py builtin method
                 # validate identical passwords

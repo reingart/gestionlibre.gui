@@ -48,3 +48,20 @@ def get_function(url):
                 vars[tmp_kv[0]] = tmp_kv[1]
                 
     return a, c, f, args, vars
+
+
+def create_address(data):
+    # returns a relative project
+    # url as a string from url
+    # data
+    url = None
+    if len(data) == 5:
+        address = [data[0], data[1], data[2]] + [arg for arg in data[3]]
+        url = "/".join(address)
+        if len(data[4]) > 0:
+            url += "?"
+            for k, v in data[4].iteritems():
+                url += k + "=" + v + "&"
+            url = url[:-1]
+
+    return url

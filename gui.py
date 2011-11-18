@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import wx
 import wx.html
 
@@ -13,17 +14,148 @@ session = config.session
 response = config.response
 auth = config.auth
 
-from url import get_function
+from url import get_function, create_address
 address = config.address
 import gluon.template
 
-from gestion_libre_wx import MyHTMLFrame, MyDialog, MyFrame
+from gestion_libre_wx import MyHTMLFrame, MyDialog, MyFrame, MyLoginDialog
+
+T = config.env["T"]
 
 """ IMPORTANT:
 replace the normal response, session, ... in web2py views with
 
 config.session, config.response, config.session, ...
 """
+
+class RBAC(object):
+    """ Object to handle application wide control access """
+    def __init__(self, db, auth, request, session, frame, htmlwindow=None, times = 3):
+        self.frame = frame
+        self.db = db
+        self.auth = auth
+        self.request = request
+        self.session = session
+        self.times = times
+        self.htmlwindow = htmlwindow
+        self.email = None
+        self.password = None
+        
+        # load rbac module functions
+        # for access control tests
+
+        # Access control functions
+        self.acf = dict(rbac = dict())
+        import rbac
+
+        for f in dir(rbac):
+            if not f.startswith("_"):
+                tmp_object = getattr(rbac, f)
+                if callable(tmp_object):
+                    if tmp_object.__module__ == "rbac":
+                        # add function to the module
+                        # dict
+                        try:
+                            message = rbac._messages[f]
+                            if message != None:
+                                message = T(message)
+
+                        except KeyError:
+                            message = None
+
+                        self.acf["rbac"][f] = dict(function = getattr(rbac, f), message = message)
+
+    def __call__(self, requires, times = None):
+        # requires set must be
+        # collected by the calling object
+
+        # map requires to a dict of name, True/False values
+
+        self.email = self.password = None
+
+        if times == None:
+            times = self.times
+
+        requires_rights = dict()
+        for require in requires:
+            requires_rights[require] = False
+
+        rights = False
+        
+        while rights == False:
+            if not False in requires_rights.values():
+                rights = True
+                return (rights, T("No errors"))
+
+            else:
+                for require in requires:
+                    if requires_rights[require] != True:
+                        # module, function as strings
+                        name_list = require.split(".")
+                        
+                        condition = self.acf[name_list[0]][name_list[1]]["function"]( \
+                        db = self.db, auth = self.auth, \
+                        session = self.session, request = self.request)
+                        
+                        message = self.acf[name_list[0]][name_list[1]]["message"]
+
+                        if condition is False:
+                            authenticated = False
+                            
+                            rbac_window = MyLoginDialog(self.frame)
+                            rbac_window.label_1.SetLabel(str(T(message)))
+                            rbac_window.label_3.SetLabel(str(T("email")))
+                            rbac_window.label_2.SetLabel(str(T("password")))
+
+                            for x in range(self.times):
+                                result = rbac_window.ShowModal()
+                                
+                                self.email = rbac_window.text_ctrl_1.GetValue()
+                                self.password = rbac_window.text_ctrl_2.GetValue()
+                                
+                                if (result == wx.ID_OK) and (self.validate_user(self.email, self.password)):
+                                    authenticated = True
+                                    break
+                                else:
+                                    rbac_window.label_1.SetLabel(str(T("User or password did not validate")))
+
+                            # if authentication failed or window is cancelled
+                            #     exit with error message and return False
+
+                            if authenticated == False:
+                                return (False, "Authentication failed")
+                            else:
+                                # else set requirement name as True
+                                requires_rights[require] = True
+                        else:
+                            requires_rights[require] = True
+
+        #     if rights is True
+        #         return True with message
+
+        if rights == True:
+            return (rights, "No errors")
+        else:
+            # return False with message
+            return (rights, "Errors on authentication")
+
+
+    def validate_user(self, email, password):
+        # compare ciphered password text for the given user email
+        crypt = gluon.validators.CRYPT(key=auth.settings.hmac_key)
+        the_user = db(db.auth_user.email == email).select().first()
+        
+        # if data is correct, authenticate user
+        # if data is not correct, return error/False
+        if the_user is None:
+            return False
+        else:
+            # call the web2py password service
+            processed_password = crypt(password)[0]
+            if config.auth.login_bare(email, processed_password) != False:
+                return True
+
+        return False
 
 # method overriding for handling click on links
 class NewHtmlWindow(wx.html.HtmlWindow):
@@ -106,20 +238,46 @@ def test_or_create_html_frame():
 
 def action(url):
     url_data = get_function(url)
+    
+    # TODO: unify access_control
+    # dictionary examination and RBAC call for any source
+    # (RBAC instance method)
+    
     # arguments: evt (form submission), controller, function
+    
+    # access control
+    requires_list = set()
+    address_item = config.address
+
+    for level in (None, url_data[1], url_data[2]):
+        if level is not None:
+            address_item = address_item[level]
+        if "__rbac" in address_item.keys():
+            for rb in address_item["__rbac"]["requires"]:
+                requires_list.add(rb)
+
     try:
-        action_data = config.address[url_data[1]][url_data[2]]["action"](None, url_data[3], url_data[4])
+        # Check if access_control is available
+        if config.access_control is not None:
+            if not config.access_control(requires_list):
+                raise gluon.http.HTTP(403)
+            
+        action_data = config.actions["controllers"][url_data[1]][url_data[2]](None, url_data[3], url_data[4])
+        
     except gluon.http.HTTP, e:
         # redirection for auth
         if e.status == 303:
             print "Redirection from", url, "to", e.headers["Location"]
             # incomplete:
             new_url_data = get_function(e.headers["Location"])
-            
+
+            # auth redirection
             if "user" in new_url_data[2]:
                 if config._auth_next is None:
                     config._auth_next = url
-                    config._auth_source = "/".join((new_url_data[0], new_url_data[1], new_url_data[2], new_url_data[3][0]))
+                    # tmp_url = get_function(new_url_data)
+                    new_url_data[4]["_next"] = config._auth_next
+                    config._auth_source = create_address(new_url_data)
 
                 return action(config._auth_source)
 
@@ -137,7 +295,7 @@ def action(url):
             # TODO: if e.status ...
             # catch not authorized and other codes
             pass
-            
+
         raise
 
     if "_redirect" in action_data:
@@ -224,6 +382,29 @@ def get_previous_url():
         return None
 
 
+def load_actions():
+    """ Loads controller functions for address/action binding """
+    config.actions["controllers"] = dict()
+    controllers = __import__('controllers', globals(), locals(),
+    ['accounting', 'appadmin', 'crm', 'default', 'fees', 'file',
+    'financials', 'migration', 'operations', 'output', 'registration',
+    'scm', 'setup'], -1)
+
+    for ct in dir(controllers):
+        if not ct.startswith("_"):
+            # add to controllers dict
+            config.actions["controllers"][ct] = dict()
+            tmp_module = getattr(controllers, ct)
+            for f in dir(tmp_module):
+                if not f.startswith("_"):
+                    tmp_object = getattr(tmp_module, f)
+                    if callable(tmp_object):
+                        if tmp_object.__module__ == "%s.%s" % ("controllers", ct):
+                            # add function to the sub-module
+                            # dict
+                            config.actions["controllers"][ct][f] = getattr(tmp_module, f)
+
+
 def OnNextClick(evt):
     url = get_next_url()
     if url is not None: return config.html_frame.window.OnLinkClicked(url, kind="next")
@@ -235,4 +416,5 @@ def OnPreviousClick(evt):
 
 def OnHomeClick(evt):
     return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="default", f="index"))
+
 

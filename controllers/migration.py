@@ -142,7 +142,7 @@ def populate_with_legacy_db(legacy_tables_route, legacy_tables):
 
         if table_records > 0:
             db.commit()
-            
+
     print "Inserted", records, "db records"
         
     return records, errors, voidstrings
