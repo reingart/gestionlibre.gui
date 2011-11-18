@@ -77,7 +77,7 @@ def set_values(web2py_path, gui2py_path):
     try:
         login = os.getlogin()
     except AttributeError:
-        login = None
+        login = ""
 
     # demo key
     HMAC_KEY = "sha512:3f00b793-28b8-4b3c-8ffb-081b57fac54a"
