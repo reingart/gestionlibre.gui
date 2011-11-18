@@ -253,15 +253,24 @@ def action(url):
         if level is not None:
             address_item = address_item[level]
         if "__rbac" in address_item.keys():
-            for rb in address_item["__rbac"]["requires"]:
-                requires_list.add(rb)
+            # look for override top level requirements parameter
+            if "override" in address_item["__rbac"].keys():
+                if address_item["__rbac"]["override"]:
+                    requires_list = set()
+            if "requires" in address_item["__rbac"].keys():
+                for rb in address_item["__rbac"].get("requires", []):
+                    requires_list.add(rb)
 
     try:
         # Check if access_control is available
         if config.access_control is not None:
-            if not config.access_control(requires_list):
+            result = config.access_control(requires_list)
+            if not result[0]:
+                # next line on failed authentication
+                # should redirect to an error page or
+                # default action
                 raise gluon.http.HTTP(403)
-            
+
         action_data = config.actions["controllers"][url_data[1]][url_data[2]](None, url_data[3], url_data[4])
         
     except gluon.http.HTTP, e:
@@ -292,9 +301,9 @@ def action(url):
             #    ...
 
         else:
-            # TODO: if e.status ...
-            # catch not authorized and other codes
-            pass
+            if e.status == 403:
+                # catch not authorized and other codes
+                return action(URL(a=config.APP_NAME, c="default", f="user", args=["not_authorized",]))
 
         raise
 
@@ -303,8 +312,10 @@ def action(url):
 
     else:
         if type(action_data) == dict:
+            # do not acumulate objects trough actions
+            config.response._vars = gluon.storage.Storage()
             config.response._vars.update(**action_data)
-            
+
             action_data["menu"] = config.menu
             action_data["url_data"] = url_data
             action_data.update(**globals())

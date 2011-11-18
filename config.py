@@ -61,10 +61,10 @@ try:
 except IOError, e:
     print "Error accessing config.ini: " + str(e)
 
-def write_values():
+def write_values(data):
     with open(os.path.join(os.getcwd(), "config.ini"), "w") as config_file:
-        for name, value in locals():
-            if name[0].isupper():
+        for name, value in data.iteritems():
+            if isinstance(value, basestring) and name.isupper():
                 # static value
                 config_file.write(name + "=" + value + "\n")
 

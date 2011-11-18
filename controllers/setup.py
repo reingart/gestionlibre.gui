@@ -126,9 +126,11 @@ def set_language(evt, args=[], vars={}):
             if session.form.vars.language is not None:
                 if len(session.form.vars.language) > 0:
                     print "Changing config.ini language value to %s" % session.form.vars.language
-                    print "Please restart the desktop application"
                     config.LANGUAGE = session.form.vars.language
-                    config.write_values()
+                    data = dict([(d, getattr(config, d)) for d in dir(config) \
+                    if isinstance(getattr(config, d), basestring)])
+                    config.write_values(data)
+                    print "Please restart the desktop application"
 
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, set_language)

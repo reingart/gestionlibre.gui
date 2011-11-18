@@ -46,7 +46,7 @@ def action(url):
 
 def configure_main_menu():
     config.MAIN_MENU = {
-                "__rbac": { "requires": ["rbac.my_access_control",] }, # "rbac.my_access_control"
+                "__rbac": { "requires": [] }, # "rbac.my_access_control"
                 "file": {
                     "position": 0, "label": "File",
                     "visible": True, "enabled": True,
@@ -870,24 +870,38 @@ def configure_addresses():
             "create": {"action": "controllers.appadmin.create"},
             },
         "setup":{
+            "__rbac": { "requires": [], "override": True },
             "index": {"action": "controllers.setup.index"},
-            "options": {"action": "controllers.setup.options"},
+            "options": {
+                "action": "controllers.setup.options",
+                "__rbac": { "requires": ["rbac.my_access_control",]},
+                },
             "option": {"action": "controllers.setup.option"},
-            "set_language": {"action": "controllers.setup.set_language"},
+            "set_language": {
+                "action": "controllers.setup.set_language",
+                "__rbac": { "requires": ["rbac.my_access_control",]},
+                },
             },
         "migration":{
-            "import_csv_dir": {"action": "controllers.migration.import_csv_dir"},
+            "import_csv_dir": {
+                "action": "controllers.migration.import_csv_dir",
+                "__rbac": { "requires": ["rbac.my_access_control",]},
+                },
             },
         "file":{
-            "quit": {"action": "controllers.file.quit"},
+            "quit": {
+                "action": "controllers.file.quit",
+                "__rbac": { "requires": [], "override": True },
+                },
             },
         "output":{
             "operation": {"action": "controllers.output.operation"},
             },
         "default":{
+            "__rbac": { "requires": [], "override": True },
             "index": {"action": "controllers.default.index"},
             "new_function": {"action": "controllers.default.new_function"},
-            "user": {"action": "controllers.default.user"},
+            "user": {"action": "controllers.default.user", "__rbac":{"override": True}},
             "change_layout_colors": {"action": "controllers.default.change_layout_colors", "__rbac": { "requires": [] }},
             "set_default_layout_colors": {"action": "controllers.default.set_default_layout_colors"},
             },
@@ -1013,13 +1027,17 @@ def handle_event(evt, event_handler):
                 break
 
         if "__rbac" in handlers_item.keys():
-            for rb in handlers_item["__rbac"]["requires"]:
+            if "override" in handlers_item["__rbac"].keys():
+                if handlers_item["__rbac"]["override"]:
+                    requires_list = set()
+            for rb in handlers_item["__rbac"].get("requires", []):
                 requires_list.add(rb)
 
-    if config.access_control(requires_list):
+    result = config.access_control(requires_list)
+    if result[0]:
         event_handler(evt)
     else:
-        print "Access denied"
+        print result[1]
 
     return
 
@@ -1043,6 +1061,9 @@ def menu_event(evt):
     # search general menu rbac rules
     menu_item = config.MAIN_MENU
     if "__rbac" in menu_item.keys():
+        if "override" in menu_item["__rbac"].keys():
+            if menu_item["__rbac"]["override"]:
+                requires_list = set()
         for rb in menu_item["__rbac"]["requires"]:
             requires_list.add(rb)
             
@@ -1055,10 +1076,14 @@ def menu_event(evt):
             menu_item = menu_item[k]
             
         if "__rbac" in menu_item.keys():
-            for rb in menu_item["__rbac"]["requires"]:
+            if "override" in menu_item["__rbac"].keys():
+                if menu_item["__rbac"]["override"]:
+                    requires_list = set()
+            for rb in menu_item["__rbac"].get("requires", []):
                 requires_list.add(rb)
 
-    if config.access_control(requires_list):
+    result = config.access_control(requires_list)
+    if result[0]:
         if isinstance(the_event, basestring):
             try:
                 is_active = config.html_frame.IsActive()
@@ -1072,7 +1097,7 @@ def menu_event(evt):
         elif callable(the_event):
             the_event(evt)
     else:
-        print "Access denied"
+        print result[1]
             
     return None
 

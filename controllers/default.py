@@ -13,6 +13,8 @@ auth = config.auth
 request = config.request
 response = config.response
 
+T = config.env["T"]
+
 #########################################################################
 ## This is a samples controller
 ## - index is the default action of any application
@@ -106,8 +108,13 @@ def user(evt, args=[], vars={"_next": None}):
     to decorate functions that need access control
     """
 
+    vars["_next"] = vars.get("_next", None)
     if vars["_next"] is not None:
         config._auth_next = vars["_next"]
+
+    if len(args) > 0:
+        if args[0] == "not_authorized":
+            return dict(message = T("Access denied"), form = None)
 
     # Default redirection:
     default_url = URL(a=config.APP_NAME, c="default", f="index")
@@ -195,7 +202,7 @@ def user(evt, args=[], vars={"_next": None}):
             # return error message
             print "Not implemented"
 
-    return dict(form = session.form)
+    return dict(form = session.form, message = None)
 
 
 def download():
@@ -218,6 +225,6 @@ def call():
 
 
 
-def new_function(args = [], vars = {}):
+def new_function(evt, args = [], vars = {}):
     return dict(three_size_header = H3("A 3 size header"))
     
