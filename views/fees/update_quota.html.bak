@@ -1,3 +1,0 @@
-{{extend 'layout.html'}}
-<h1>Update quota</h1>
-{{=quota}}

@@ -170,12 +170,15 @@ class NewHtmlWindow(wx.html.HtmlWindow):
         # test if application is config.APP_NAME
         # and controller is "wx". Then call function
         # (replace module.function with arg1, arg2, ...)
+
+        # TODO: support for multiple encodings in HTMLWindow input
+        # by default utf-8
         
         if isinstance(link, basestring):
             if (link.startswith("/%s" % config.APP_NAME) or \
             link.startswith(config.APP_NAME)):
                 xml = action(link)
-                config.html_frame.window.SetPage(xml)
+                config.html_frame.window.SetPage(unicode(xml, "utf-8"))
             else:
                 # non application url
                 config.html_frame.window.LoadPage(link)
@@ -191,7 +194,7 @@ class NewHtmlWindow(wx.html.HtmlWindow):
             else:
                 # application action address
                 xml = action(link.Href)
-                config.html_frame.window.SetPage(xml)
+                config.html_frame.window.SetPage(unicode(xml, "utf-8"))
 
             set_url(link.Href, kind=kind)
 

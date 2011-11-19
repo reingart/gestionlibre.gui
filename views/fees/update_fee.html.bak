@@ -1,4 +1,0 @@
-
-{{extend 'layout.html'}}
-<h1>Esta es la plantilla fees/update_fee.html</h1>
-{{=BEAUTIFY(response._vars)}}
