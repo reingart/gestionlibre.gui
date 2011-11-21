@@ -35,7 +35,13 @@ def operation(evt, args=[], vars={}):
     document = db(db.document.document_id == operation.document_id).select().first()
     payment_terms = db(db.payment_terms.payment_terms_id == operation.payment_terms_id).select().first()
     customer = db(db.customer.customer_id == operation.customer_id).select().first()
-    
+
+    vat_q = db.movement.operation_id == operation_id
+    vat_q &= db.movement.concept_id == db.concept.concept_id
+    vat_q &= db.concept.tax == True
+
+    vat_amount = sum([amountorzero(row.movement.amount) for row in db(vat_q).select()], 0.00)
+
     if payment_terms is not None:
         payment_terms = payment_terms.code
         
@@ -196,8 +202,8 @@ def operation(evt, args=[], vars={}):
                     f['item_amount%02d' % li] = "%0.2f" % float(it['amount'])
 
         if pages == page:
-            f['net'] = "%0.2f" % amountorzero(operation.amount)
-            f['vat'] = "%0.2f" % amountorzero(0.00)
+            f['net'] = "%0.2f" % (amountorzero(operation.amount) -vat_amount)
+            f['vat'] = "%0.2f" % vat_amount
             f['total_label'] = 'Total:'
         else:
             f['total_label'] = 'SubTotal:'
