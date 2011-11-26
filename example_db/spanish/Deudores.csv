@@ -1,5 +1,5 @@
 "DeudorID","Codigo","Deudor","Razon","IVA","CUIT","DNI","Direccion","CP","Localidad","ProvinciaID","Pais","Fax","Telefono","CondicionPagoID","ListaPrecioID","VendedorID","CtaCte","SituacionID","GrupoID","Observaciones","LugarEntrega","AcreedorIDTransporte","Transporte","Contacto","NroProveedor","Factura","Alta","Replica","Baja","LimiteCC","LimiteCH","JurisdiccionID"
--1,-1,"Emporio Nacional de la Madera S.A.","Plasticos Glago",1,"20-05776488-8",,"Av. Gral. Paz 3883",2000,1,0,,,,1,1,,"S",1,1,,,,,,,,,"0",,,,
+-1,-1,"Emporio Nacional de la Madera S.A.","Emporio nacional de la Madera S.A.",1,"20-05776488-8",,"Av. Gral. Paz 3883",2000,1,0,,,,1,1,,"S",1,1,,,,,,,,,"0",,,,
 0,0,"Consumidor Final",,1,,,,2000,1,0,,,,1,,,"S",1,1,,,,,,,,,"0",,,,
 1,1,"FABRICA","FABRICA",1,"30-58650747-1",,"AV GRAL PAZ 3883 CIUDAD DE LA PAZ",2000,1,0,,,,1,1,,"S",1,1,,,,,,,,,"0",,,,
 100,100,"AZCU ENARGAS S.A","AZCU Y ENARGAS S.A",1,"30-10259541-8",,"CORRIENTES 4403 - CAP FED",2000,1,0,,,,1,1,,"S",1,1,,,,,,,,,"0",,,,

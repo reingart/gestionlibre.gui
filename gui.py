@@ -7,7 +7,7 @@ from gluon import *
 import gluon
 import config
 
-import os
+import os, sys
 
 db = config.db
 session = config.session
@@ -20,6 +20,8 @@ import gluon.template
 
 from gestion_libre_wx import MyHTMLFrame, MyDialog, MyFrame, MyLoginDialog
 
+# from AuiNotebook_Demo_2 import TabPanel, AUIManager, AUINotebook, DemoFrame
+
 T = config.env["T"]
 
 """ IMPORTANT:
@@ -27,6 +29,18 @@ replace the normal response, session, ... in web2py views with
 
 config.session, config.response, config.session, ...
 """
+
+# This output redirection code was taken from
+# Mouse vs. Python blog (Mike Driscoll)
+# The source Licence is L-GPL
+
+class RedirectText(object):
+    def __init__(self,aWxTextCtrl):
+        self.out=aWxTextCtrl
+
+    def write(self,string):
+        self.out.WriteText(string)
+
 
 class RBAC(object):
     """ Object to handle application wide control access """
@@ -240,6 +254,7 @@ def test_or_create_html_frame():
 
 
 def action(url):
+    # get the address/parameters tuple
     url_data = get_function(url)
     
     # TODO: unify access_control
@@ -274,7 +289,11 @@ def action(url):
                 # default action
                 raise gluon.http.HTTP(403)
 
-        action_data = config.actions["controllers"][url_data[1]][url_data[2]](None, url_data[3], url_data[4])
+        # look for function bound to input address and call it
+        # controller functions are called with (evt, args=[], vars={})
+
+        action_data = config.actions["controllers"][url_data[1] \
+        ][url_data[2]](None, url_data[3], url_data[4])
         
     except gluon.http.HTTP, e:
         # redirection for auth
@@ -432,3 +451,13 @@ def OnHomeClick(evt):
     return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="default", f="index"))
 
 
+def OnActivatedTool(evt):
+    return None
+
+# add tools to the action tool bar
+def action_tools(links):
+    # erease tools
+    for link in links:
+        print "is a web2py A helper"
+        my_bitmap = wx.Bitmap("images/report.png")
+        the_tool = config.html_frame.action_tool_bar.AddLabelTool(0, "a link", my_bitmap)

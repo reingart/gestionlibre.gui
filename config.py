@@ -107,7 +107,6 @@ _auth_source = None
 _this_url = -1
 _urls = []
 
-
 # Dictiary with menu items and event binding
 # replace "action"... with "handler": "module.handler" for no URL event handlers
 #

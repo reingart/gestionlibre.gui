@@ -406,6 +406,7 @@ def ria_movements(evt, args=[], vars={}):
     if evt is not None:
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             db.operation[session.operation_id].update_record(**session.form.vars)
+            db.commit()
             print "Form accepted"
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="ria_movements"))
     else:
@@ -1142,21 +1143,20 @@ def ria_product_billing(evt, args=[], vars={}):
 
 
 def on_movements_start_submit(evt):
-    if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+    if session.form.accepts(evt.args, formname=None, \
+    keepvalues=False, dbio=False):
         # new operation
         session.operation_id = db.operation.insert( \
         type=session.form.vars.type, \
         description = session.form.vars.description)
 
         print "New operation: " + str(session.operation_id)
-
-        # call action if redirect
-        # (incomplete)
-        print "Redirecting from event"
-
         db.commit()
         
-        config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_header"))
+        # call action if redirect
+        print "Redirecting from event"
+        config.html_frame.window.OnLinkClicked(URL( \
+        a=config.APP_NAME, c="operations", f="movements_header"))
 
 def movements_start(evt, args=[], vars={}):
     """ Initial operation form """
@@ -1168,17 +1168,9 @@ def movements_start(evt, args=[], vars={}):
     requires=IS_IN_SET({"T": "Stock", "S": \
     "Sales", "P": "Purchases"}), \
     comment="Select an operation type"), Field("description"))
-    
-    """
-    if form.accepts(request.vars, session):
-        # new operation
-        session.operation_id = db.operation.insert( \
-        type=request.vars.type, \
-        description = request.vars.description)
-        return dict(_redirect=URL(f="movements_header"))
-    """
 
-    config.html_frame.window.Bind(EVT_FORM_SUBMIT, on_movements_start_submit)
+    config.html_frame.window.Bind(EVT_FORM_SUBMIT, \
+    on_movements_start_submit)
 
     return dict(form = session.form)
 
@@ -1197,7 +1189,6 @@ def on_movements_header_submit(evt):
             config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations" ,f="movements_price_list"))
         else:
             config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations" ,f="movements_detail"))
-
 
 
 def movements_header(evt, args=[], vars={}):
@@ -1356,11 +1347,14 @@ def movements_detail(evt, args=[], vars={}):
 
     # Get the operation dal objects
     operation = db.operation[operation_id]
-    customer = db(db.customer.customer_id == operation.customer_id).select().first()
-    subcustomer = db(db.subcustomer.subcustomer_id == operation.subcustomer_id).select().first()
-    supplier = db(db.supplier.supplier_id == operation.supplier_id).select().first()
+    customer = db(db.customer.customer_id == operation.customer_id \
+    ).select().first()
+    subcustomer = db( \
+    db.subcustomer.subcustomer_id == operation.subcustomer_id \
+    ).select().first()
+    supplier = db(db.supplier.supplier_id == operation.supplier_id \
+    ).select().first()
 
-    # { header:table, ... h:t} dictionary
     movements = dict()
 
     if warehouse_id is not None:
@@ -1392,7 +1386,8 @@ def movements_detail(evt, args=[], vars={}):
     
     rows = s.select()
     movements["items"] = SQLTABLE(rows, \
-    columns = columns, headers = headers, linkto=URL(a=config.APP_NAME, c="operations", f="movements_modify_item"))
+    columns = columns, headers = headers, linkto=URL( \
+    a=config.APP_NAME, c="operations", f="movements_modify_item"))
    
     # Payments
     q = db.movement.concept_id == db.concept.concept_id
@@ -1405,7 +1400,8 @@ def movements_detail(evt, args=[], vars={}):
     
     rows = s.select()
     movements["payments"] = SQLTABLE(rows, \
-    columns = columns, headers = headers, linkto=URL(a=config.APP_NAME, c="operations", f="movements_modify_item"))
+    columns = columns, headers = headers, linkto=URL( \
+    a=config.APP_NAME, c="operations", f="movements_modify_item"))
 
     # Checks
     q = db.bank_check.operation_id == operation_id
@@ -1423,7 +1419,8 @@ def movements_detail(evt, args=[], vars={}):
         "bank_check.due_date": "Due date", \
         "bank_check.number": "Number", \
         "bank_check.amount": "Amount"
-        }, linkto=URL(a=config.APP_NAME, c="operations", f="movements_modify_check"))
+        }, linkto=URL(a=config.APP_NAME, c="operations", \
+        f="movements_modify_check"))
     
     # Taxes
     q = db.movement.concept_id == db.concept.concept_id
@@ -1433,7 +1430,8 @@ def movements_detail(evt, args=[], vars={}):
     
     rows = s.select()
     movements["taxes"] = SQLTABLE(rows, \
-    columns = columns, headers = headers, linkto=URL(a=config.APP_NAME, c="operations", f="movements_modify_item"))
+    columns = columns, headers = headers, linkto=URL( \
+    a=config.APP_NAME, c="operations", f="movements_modify_item"))
 
     return dict(operation = operation, \
     movements = movements, price_list = price_list, \
@@ -1443,7 +1441,8 @@ def movements_detail(evt, args=[], vars={}):
 
 
 def on_movements_add_item_submit(evt):
-    if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+    if session.form.accepts(evt.args, formname=None, \
+    keepvalues=False, dbio=False):
         # Get the concept record
 
         # update stock option
@@ -1466,7 +1465,8 @@ def on_movements_add_item_submit(evt):
         # Calculate price
         if (price_list_id is not None) and (value is None):
             price = db((db.price.price_list_id == price_list_id \
-            ) & (db.price.concept_id == concept_id)).select().first()
+            ) & (db.price.concept_id == concept_id) \
+            ).select().first()
             value = price.value
 
         # calculated amount for the movement
@@ -1481,7 +1481,8 @@ def on_movements_add_item_submit(evt):
             movement_id = db.movement.insert(operation_id = operation_id, \
             amount = amount, value = value, concept_id = concept_id, \
             quantity = quantity)
-            print "Operation: %s. Amount: %s. Value: %s. Concept: %s, Quantity: %s, Movement: %s" % (operation_id, amount, value, concept_id, quantity, movement_id)
+            print "Operation: %s. Amount: %s. Value: %s. Concept: %s, Quantity: %s, Movement: %s" \
+            % (operation_id, amount, value, concept_id, quantity, movement_id)
             
         else:
             "Operation %s is not editable" % operation_id
@@ -1494,7 +1495,8 @@ def on_movements_add_item_submit(evt):
 
         db.commit()
 
-        config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_detail"))
+        config.html_frame.window.OnLinkClicked(URL( \
+        a=config.APP_NAME, c="operations", f="movements_detail"))
 
 
 def movements_add_item(evt, args=[], vars={}):
@@ -2159,12 +2161,18 @@ def movements_add_tax(evt, args=[], vars={}):
 
 # self-submitted form (stores post form query in config.py)
 def movements_articles(evt, args=[], vars={}):
-    session.form = SQLFORM.factory(Field("category", "reference category", requires = IS_IN_DB(db, db.category, "%(description)s")), Field("subcategory", "reference subcategory", requires = IS_IN_DB(db, db.subcategory, "%(description)s")), Field("supplier", "reference supplier", requires = IS_IN_DB(db, db.supplier, "%(legal_name)s")))
+    session.form = SQLFORM.factory(Field("category", \
+    "reference category", requires = IS_IN_DB(db, db.category, \
+    "%(description)s")), Field("subcategory", \
+    "reference subcategory", requires = IS_IN_DB(db, db.subcategory, \
+    "%(description)s")), Field("supplier", "reference supplier", \
+    requires = IS_IN_DB(db, db.supplier, "%(legal_name)s")))
     table = None
 
     # form submitted
     if evt is not None:
-        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+        if session.form.accepts(evt.args, formname=None, \
+        keepvalues=False, dbio=False):
             # list items for selection
             q = db.concept.category_id == session.form.vars.category
             q &= db.concept.subcategory_id == session.form.vars.subcategory
@@ -2173,11 +2181,20 @@ def movements_articles(evt, args=[], vars={}):
 
             print "Records: ", db(q).count()
 
-            columns = ["concept.concept_id", "concept.code", "concept.description", "concept.family_id", "concept.color_id"]
-            headers = {"concept.concept_id": "Select", "concept.code": "Code", "concept.description": "Description", "concept.family_id": "Family", "concept.color_id": "Color"}
+            columns = ["concept.concept_id", "concept.code", \
+            "concept.description", "concept.family_id", \
+            "concept.color_id"]
+            headers = {"concept.concept_id": "Select", \
+            "concept.code": "Code", \
+            "concept.description": "Description", \
+            "concept.family_id": "Family", \
+            "concept.color_id": "Color"}
 
-            config.after_submission["table"] = SQLTABLE(rows, columns = columns, headers = headers, linkto = URL(a=config.APP_NAME, c="operations", f="movements_add_item"))
-            config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_articles"))
+            config.after_submission["table"] = SQLTABLE(rows, \
+            columns = columns, headers = headers, linkto = URL( \
+            a=config.APP_NAME, c="operations", f="movements_add_item"))
+            config.html_frame.window.OnLinkClicked(URL( \
+            a=config.APP_NAME, c="operations", f="movements_articles"))
 
     if "table" in config.after_submission:
         table = config.after_submission["table"]

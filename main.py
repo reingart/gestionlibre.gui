@@ -1042,15 +1042,23 @@ def handle_event(evt, event_handler):
     return
 
 
+# Go to HTML Window action after tree pane item double click
+def tree_pane_event(evt):
+    config.html_frame.window.OnLinkClicked( \
+    config.html_frame.tree_pane.GetItemData( \
+    evt.GetItem()).GetData()["action"])
+    return None
+
+
 def menu_event(evt):
 
     # check if html_frame was closed (throws wx._core.PyDeadObjectError)
     # print "starting_frame.menu_events:"
-    # print config.starting_frame.menu_events
+    # print config.html_frame.menu_events
 
     # frame menu events: [ (event object, route tuple), ...]
     
-    the_event = config.starting_frame.menu_events[evt.Id][0]
+    the_event = config.html_frame.menu_events[evt.Id][0]
     # check if string and is url-like
     # TODO: complete url check (web2py validators)
 
@@ -1069,7 +1077,7 @@ def menu_event(evt):
             
     # search trough menu tree
 
-    for k in config.starting_frame.menu_events[evt.Id][1]:
+    for k in config.html_frame.menu_events[evt.Id][1]:
         try:
             menu_item = menu_item["submenu"][k]
         except:
@@ -1090,7 +1098,8 @@ def menu_event(evt):
             except wx._core.PyDeadObjectError:
                 # html window closed
                 # reinitialize it
-                gui.start_html_frame(config.starting_frame, the_event)
+                print str(e)
+                # gui.start_html_frame(config.html_frame, the_event)
 
             config.html_frame.window.OnLinkClicked(the_event)
 
@@ -1151,7 +1160,15 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
                          item_count = item_count, \
                          route = route)
                 route.pop()
-                
+
+                if k.lower() == "file":
+                    # insert AUI default menus
+                    
+                    # frame.starting_menubar.Append(frame.view_menu, "View")
+                    
+                    frame.starting_menubar.Append(frame._perspectives_menu, "Perspectives")
+                    frame.starting_menubar.Append(frame.options_menu, "Options")
+
             else:
                 if v.has_key("submenu"):
                     if len(v["submenu"]) > 0:
@@ -1217,6 +1234,45 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
     return item_count
 
 
+def configure_tree_pane(frame):
+
+    tree = frame.tree_pane
+    root = tree.AddRoot("Actions")
+    items = []
+
+    imglist = wx.ImageList(16, 16, True, 2)
+    
+    folder_icon_id = imglist.Add(wx.ArtProvider_GetBitmap(wx.ART_FOLDER, wx.ART_OTHER, wx.Size(16,16)))
+    default_icon_id = imglist.Add(wx.ArtProvider_GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, wx.Size(16,16)))
+    
+    tree.AssignImageList(imglist)
+
+    item_counter = 0
+    for k, v in config.address.iteritems():
+        if not k.startswith("_"):
+            icon_id = folder_icon_id
+            if "__icon" in v:
+                icon_id = imglist.Add(wx.Bitmap(v["__icon"]))
+
+            the_item = tree.AppendItem(root, k, icon_id)
+
+            for j, w in v.iteritems():
+                if not j.startswith("_"):
+                    icon_id = default_icon_id
+                    if "__icon" in w:
+                        icon_id = imglist.Add(wx.Bitmap(w["__icon"]))
+
+                    sub_item = tree.AppendItem(the_item, j.replace("_", " ").capitalize(), icon_id)
+
+                    tree.GetItemData(sub_item).SetData({"action": URL(a=config.APP_NAME, c=k, f=j)})
+                    frame.Bind(wx.EVT_TREE_ITEM_ACTIVATED, tree_pane_event, tree)
+
+            item_counter += 1
+    tree.Expand(root)
+
+    return None
+
+
 if __name__ == "__main__":
     import config
 
@@ -1278,6 +1334,7 @@ if __name__ == "__main__":
         """
 
         # config.env["T"].set_current_languages([config.LANGUAGE,])
+        
         T.language_file = language_file_path
         T.accepted_language = config.LANGUAGE
         T.http_accept_language = [config.LANGUAGE,]
@@ -1324,8 +1381,11 @@ if __name__ == "__main__":
 
     GestionLibre = wx.PySimpleApp(0)
     wx.InitAllImageHandlers()
-    config.starting_frame = MyFrame(None, -1, "")
-    config.starting_frame.SetSize((640, 360))
+
+    import gestion_libre_aui
+    config.html_frame = gestion_libre_aui.PyAUIFrame(None, -1, u"GestiónLibre")
+
+    config.html_frame.SetSize((800, 600))
 
     # app modules
     import gui
@@ -1344,44 +1404,73 @@ if __name__ == "__main__":
     # use lambda event: handle_event(event, function)
     # for rbac
 
-    config.starting_frame.Bind(wx.EVT_BUTTON, lambda event: handle_event(event, \
-    handlers.billing_button_click), config.starting_frame.button_1)
+    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+    handlers.billing_button_click), config.html_frame.button_1)
     
-    config.starting_frame.Bind(wx.EVT_BUTTON, lambda event: handle_event(event, \
-    handlers.current_accounts_button_click), config.starting_frame.button_2)
+    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+    handlers.current_accounts_button_click), config.html_frame.button_2)
     
-    config.starting_frame.Bind(wx.EVT_BUTTON, lambda event: handle_event(event, \
-    handlers.customers_button_click), config.starting_frame.button_3)
+    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+    handlers.customers_button_click), config.html_frame.button_3)
     
-    config.starting_frame.Bind(wx.EVT_BUTTON, lambda event: handle_event(event, \
-    handlers.articles_button_click), config.starting_frame.button_4)
+    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+    handlers.articles_button_click), config.html_frame.button_4)
     
-    config.starting_frame.Bind(wx.EVT_BUTTON, lambda event: handle_event(event, \
-    handlers.queries_button_click), config.starting_frame.button_5)
+    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+    handlers.queries_button_click), config.html_frame.button_5)
     
-    config.starting_frame.Bind(wx.EVT_BUTTON, lambda event: handle_event(event, \
-    handlers.movements_button_click), config.starting_frame.button_8)
-    
-    config.starting_frame.menu_events = dict()
-    
+    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+    handlers.movements_button_click), config.html_frame.button_8)
+
+    # user tab events
+
+    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+    handlers.user_login), config.html_frame.button_10)
+
+    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+    handlers.user_logout), config.html_frame.button_11)
+
+    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+    handlers.user_register), config.html_frame.button_12)
+
+    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+    handlers.user_specify_tin), config.html_frame.button_13)
+
+    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+    handlers.user_index), config.html_frame.button_14)
+
+    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+    handlers.user_setup), config.html_frame.button_15)
+
+
+    config.html_frame.menu_events = dict()
+
+    # Previous and next button events
+    config.html_frame.Bind(wx.EVT_TOOL, gui.OnPreviousClick, config.html_frame.button_6)
+    config.html_frame.Bind(wx.EVT_TOOL, gui.OnNextClick, config.html_frame.button_7)
+    config.html_frame.Bind(wx.EVT_TOOL, gui.OnHomeClick, config.html_frame.button_9)
+
     # populate main menu
     configure_main_menu()
 
     # populate html layout menu
     configure_layout_menu()
 
-    GestionLibre.SetTopWindow(config.starting_frame)
+    GestionLibre.SetTopWindow(config.html_frame)
 
-    main_menu_elements(config.starting_frame, config.starting_frame.starting_menubar, \
+    main_menu_elements(config.html_frame, config.html_frame.starting_menubar, \
     submenu=config.MAIN_MENU, is_menu_bar = True)
 
-    config.starting_frame.SetMenuBar(config.starting_frame.starting_menubar)
-    config.starting_frame.SetStatusText("")
+    config.html_frame.SetMenuBar(config.html_frame.starting_menubar)
+    config.html_frame.SetStatusText("")
 
-    config.starting_frame.Show()
+    config.html_frame.Show()
 
     # bind web2py like actions to module functions
     configure_addresses()
+
+    # add items to the action tree pane
+    configure_tree_pane(config.html_frame)
 
     # set the event handler options
     configure_event_handlers()
@@ -1389,9 +1478,10 @@ if __name__ == "__main__":
     gui.load_actions()
 
     config.access_control = gui.RBAC(config.db, config.auth, config.request, \
-    config.session, config.starting_frame)
+    config.session, config.html_frame)
 
-    gui.start_html_frame(config.starting_frame)
+    # gui.start_html_frame(config.html_frame)
+    config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="default", f="index"))
 
     # Gui-based user authentication
     # (incomplete)
