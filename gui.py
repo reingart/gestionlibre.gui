@@ -9,6 +9,8 @@ import config
 
 import os, sys
 
+import urllib
+
 db = config.db
 session = config.session
 response = config.response
@@ -187,7 +189,12 @@ class NewHtmlWindow(wx.html.HtmlWindow):
 
         # TODO: support for multiple encodings in HTMLWindow input
         # by default utf-8
-        
+
+        # TODO: move this command to an application specific
+        # class or function
+
+        config.html_frame.SetActionTools([])
+
         if isinstance(link, basestring):
             if (link.startswith("/%s" % config.APP_NAME) or \
             link.startswith(config.APP_NAME)):
@@ -202,6 +209,7 @@ class NewHtmlWindow(wx.html.HtmlWindow):
         else:
             if not (link.Href.startswith("/%s" % config.APP_NAME) or \
             link.Href.startswith(config.APP_NAME)):
+                
                 # web source
                 wx.html.HtmlWindow.OnLinkClicked(self, link)
 
@@ -256,7 +264,13 @@ def test_or_create_html_frame():
 def action(url):
     # get the address/parameters tuple
     url_data = get_function(url)
-    
+
+    # url decode encoded url slashes
+    if len(url_data) >= 5:
+        if "_next" in url_data[4]:
+            if "%2F" in url_data[4]["_next"]:
+                url_data[4]["_next"] = urllib.unquote(url_data[4]["_next"])
+
     # TODO: unify access_control
     # dictionary examination and RBAC call for any source
     # (RBAC instance method)
@@ -454,10 +468,3 @@ def OnHomeClick(evt):
 def OnActivatedTool(evt):
     return None
 
-# add tools to the action tool bar
-def action_tools(links):
-    # erease tools
-    for link in links:
-        print "is a web2py A helper"
-        my_bitmap = wx.Bitmap("images/report.png")
-        the_tool = config.html_frame.action_tool_bar.AddLabelTool(0, "a link", my_bitmap)

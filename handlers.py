@@ -37,7 +37,7 @@ def movements_button_click(evt):
 
 def user_login(evt):
     # gui.test_or_create_html_frame()
-    config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c='default',f='user', args=["login",]))
+    config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c='default',f='user', args=["login",], vars={"_next": URL(a=config.APP_NAME, c="default", f="index")}))
 
 def user_logout(evt):
     # gui.test_or_create_html_frame()
@@ -45,7 +45,7 @@ def user_logout(evt):
 
 def user_register(evt):
     # gui.test_or_create_html_frame()
-    config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c='default',f='user', args=["register",]))
+    config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c='default',f='user', args=["register",], vars={"_next": URL(a=config.APP_NAME, c="default", f="index")}))
 
 def user_specify_tin(evt):
     # gui.test_or_create_html_frame()

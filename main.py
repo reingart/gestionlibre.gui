@@ -1044,9 +1044,14 @@ def handle_event(evt, event_handler):
 
 # Go to HTML Window action after tree pane item double click
 def tree_pane_event(evt):
-    config.html_frame.window.OnLinkClicked( \
-    config.html_frame.tree_pane.GetItemData( \
-    evt.GetItem()).GetData()["action"])
+    the_data = config.html_frame.tree_pane.GetItemData( \
+    evt.GetItem()).GetData()
+
+    if type(the_data) == dict:
+        if "action" in the_data:
+            config.html_frame.window.OnLinkClicked( \
+            the_data["action"])
+            
     return None
 
 

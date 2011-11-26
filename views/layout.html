@@ -54,13 +54,18 @@
 =DIV(
 SPAN("Active user: " + user_mail),
 SPAN(" | "),
-SPAN(A("Register", _href=URL(a=config.APP_NAME, c="default", f="user", args=["register", ], vars={"_next" : URL(a=config.APP_NAME, c="default", f="index")}))),
+SPAN(A("Register", _href=URL(a=config.APP_NAME, c="default", f="user", args=["register", ],
+vars={"_next": URL(a=config.APP_NAME, c="default", f="index", encode_embedded_slash=False)}, encode_embedded_slash=False ))),
 SPAN(" | "),
 SPAN(A("Specify firm (" + str(firm) + ")", _href=URL(a=config.APP_NAME, c="registration", f="post_register_specify_firm"))),
 SPAN(" | "),
-SPAN(A("Login", _href=URL(a=config.APP_NAME, c="default", f="user", args=["login", ], vars={"_next" : URL(a=config.APP_NAME, c="default", f="index")}))),
+SPAN(A("Login", _href=URL(a=config.APP_NAME, c="default", f="user", args=["login", ],
+vars={"_next": URL(a=config.APP_NAME, c="default", f="index", encode_embedded_slash=False)}, encode_embedded_slash=False 
+))),
 SPAN(" | "),
-SPAN(A("Logout", _href=URL(a=config.APP_NAME, c="default", f="user", args=["logout", ], vars={"_next": URL(a=config.APP_NAME, c="default", f="index")}))))
+SPAN(A("Logout", _href=URL(a=config.APP_NAME, c="default", f="user", args=["logout", ],
+vars={"_next": URL(a=config.APP_NAME, c="default", f="index", encode_embedded_slash=False)}, encode_embedded_slash=False
+))))
 }}
 
 {{=menu}}

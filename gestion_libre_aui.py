@@ -2,6 +2,8 @@
 
 import sys
 
+import datetime
+
 import wx
 import wx.grid
 import wx.html
@@ -95,8 +97,11 @@ class PyAUIFrame(wx.Frame):
         self._perspectives = []
         self.n = 0
         self.x = 0
+
+        icon = wx.EmptyIcon()
+        icon.CopyFromBitmap(wx.Bitmap("images/iso-sa.png"))
         
-        self.SetIcon(GetMondrianIcon())
+        self.SetIcon(icon)
 
         # create menu
         self.starting_menubar = wx.MenuBar()
@@ -157,47 +162,47 @@ class PyAUIFrame(wx.Frame):
         self.SetMinSize(wx.Size(400, 300))
 
         # create some toolbars
-        tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
+        self.tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
-        tb1.SetToolBitmapSize(wx.Size(48,48))
-        tb1.AddLabelTool(101, "Test", wx.ArtProvider_GetBitmap(wx.ART_ERROR))
-        tb1.AddSeparator()
-        tb1.AddLabelTool(102, "Test", wx.ArtProvider_GetBitmap(wx.ART_QUESTION))
-        tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
-        tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_WARNING))
-        tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
-        tb1.Realize()
+        self.tb1.SetToolBitmapSize(wx.Size(48,48))
+        self.tb1.AddLabelTool(101, "Test", wx.ArtProvider_GetBitmap(wx.ART_ERROR))
+        self.tb1.AddSeparator()
+        self.tb1.AddLabelTool(102, "Test", wx.ArtProvider_GetBitmap(wx.ART_QUESTION))
+        self.tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
+        self.tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_WARNING))
+        self.tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
+        self.tb1.Realize()
 
-        tb2 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
+        self.tb2 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
-        tb2.SetToolBitmapSize(wx.Size(16,16))
-        tb2_bmp1 = wx.ArtProvider_GetBitmap(wx.ART_GO_BACK, wx.ART_OTHER, wx.Size(32, 32))
-        tb2_bmp2 = wx.ArtProvider_GetBitmap(wx.ART_GO_FORWARD, wx.ART_OTHER, wx.Size(32, 32))
-        tb2_bmp3 = wx.ArtProvider_GetBitmap(wx.ART_GO_HOME, wx.ART_OTHER, wx.Size(32, 32))
+        self.tb2.SetToolBitmapSize(wx.Size(16,16))
+        self.tb2_bmp1 = wx.ArtProvider_GetBitmap(wx.ART_GO_BACK, wx.ART_OTHER, wx.Size(32, 32))
+        self.tb2_bmp2 = wx.ArtProvider_GetBitmap(wx.ART_GO_FORWARD, wx.ART_OTHER, wx.Size(32, 32))
+        self.tb2_bmp3 = wx.ArtProvider_GetBitmap(wx.ART_GO_HOME, wx.ART_OTHER, wx.Size(32, 32))
         
         # GestionLibre main shortcuts
         
-        self.button_6 = tb2.AddLabelTool(10006, "Test", tb2_bmp1)
-        self.button_7 = tb2.AddLabelTool(10007, "Test", tb2_bmp2)
-        self.button_9 = tb2.AddLabelTool(10009, "Test", tb2_bmp3)
+        self.button_6 = self.tb2.AddLabelTool(10006, "Test", self.tb2_bmp1)
+        self.button_7 = self.tb2.AddLabelTool(10007, "Test", self.tb2_bmp2)
+        self.button_9 = self.tb2.AddLabelTool(10009, "Test", self.tb2_bmp3)
         """
-        self.button_4 = tb2.AddLabelTool(10004, "Test", tb2_bmp1)
-        tb2.AddSeparator()
-        self.button_5 = tb2.AddLabelTool(10005, "Test", tb2_bmp1)
-        self.button_8 = tb2.AddLabelTool(10008, "Test", tb2_bmp1)
+        self.button_4 = self.tb2.AddLabelTool(10004, "Test", self.tb2_bmp1)
+        self.tb2.AddSeparator()
+        self.button_5 = self.tb2.AddLabelTool(10005, "Test", self.tb2_bmp1)
+        self.button_8 = self.tb2.AddLabelTool(10008, "Test", self.tb2_bmp1)
         """
 
         # End of GestionLibre main shortcuts
 
         """
-        tb2.AddSeparator()
-        tb2.AddLabelTool(101, "Test", tb2_bmp1)
-        tb2.AddLabelTool(101, "Test", tb2_bmp1)
-        tb2.AddLabelTool(101, "Test", tb2_bmp1)
-        tb2.AddLabelTool(101, "Test", tb2_bmp1)
+        self.tb2.AddSeparator()
+        self.tb2.AddLabelTool(101, "Test", self.tb2_bmp1)
+        self.tb2.AddLabelTool(101, "Test", self.tb2_bmp1)
+        self.tb2.AddLabelTool(101, "Test", self.tb2_bmp1)
+        self.tb2.AddLabelTool(101, "Test", self.tb2_bmp1)
         """
         
-        tb2.Realize()
+        self.tb2.Realize()
        
         tb3 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
@@ -272,7 +277,7 @@ class PyAUIFrame(wx.Frame):
 
         # auto completed action toolbar
         self.action_tool_bar = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
-                         wx.TB_FLAT | wx.TB_NODIVIDER | wx.TB_VERTICAL)
+                         wx.TB_FLAT | wx.TB_NODIVIDER | wx.TB_HORZ_TEXT)
         self.action_tool_bar.SetToolBitmapSize(wx.Size(16, 16))
         self.action_tool_bar.Realize()
 
@@ -362,24 +367,24 @@ class PyAUIFrame(wx.Frame):
                                 
         # add the toolbars to the manager
                         
-        self._mgr.AddPane(tb1, wx.aui.AuiPaneInfo().
+        self._mgr.AddPane(self.tb1, wx.aui.AuiPaneInfo().
                           Name("tb1").Caption("Big Toolbar").
                           ToolbarPane().Top().
                           LeftDockable(False).RightDockable(False))
 
-        self._mgr.AddPane(tb2, wx.aui.AuiPaneInfo().
+        self._mgr.AddPane(self.tb2, wx.aui.AuiPaneInfo().
                           Name("tb2").Caption("Toolbar 2").
-                          ToolbarPane().Top().Row(2).
+                          ToolbarPane().Top().Row(2).Position(0).
                           LeftDockable(False).RightDockable(False))
                       
         self._mgr.AddPane(tb3, wx.aui.AuiPaneInfo().
                           Name("tb3").Caption("Toolbar 3").
-                          ToolbarPane().Top().Row(1).
+                          ToolbarPane().Top().Row(1).Position(0).
                           LeftDockable(False).RightDockable(False))
                       
         self._mgr.AddPane(tb4, wx.aui.AuiPaneInfo().
                           Name("tb4").Caption("Sample Bookmark Toolbar").
-                          ToolbarPane().Top().Row(1).
+                          ToolbarPane().Top().Row(1).Position(1).
                           LeftDockable(False).RightDockable(False))
 
         self._mgr.AddPane(tb5, wx.aui.AuiPaneInfo().
@@ -389,13 +394,15 @@ class PyAUIFrame(wx.Frame):
 
         self._mgr.AddPane(wx.Button(self, -1, "Test Button"),
                           wx.aui.AuiPaneInfo().Name("tb5").
-                          ToolbarPane().Top().Row(2).Position(1).
+                          ToolbarPane().Top().Row(2).Position(2).
                           LeftDockable(False).RightDockable(False))
 
+        """
         self._mgr.AddPane(self.action_tool_bar,
                           wx.aui.AuiPaneInfo().Name("Action tool bar").
                           ToolbarPane().Top().Row(2).Position(1).LeftDockable(False).
                           RightDockable(False))
+        """
 
         # make some default perspectives
 
@@ -653,11 +660,30 @@ class PyAUIFrame(wx.Frame):
         # erease and re-complete the action tools pane
         # links to other actions
 
-        self.action_tool_bar.ClearTools()
+        # auto completed action toolbar
 
         if not type(links) in (list, set, tuple):
             print "Liks object is not a sequence. "
             return
+            
+        elif len(links) == 0:
+            self.action_tool_bar.ClearTools()
+            self.action_tool_bar.SetSize((-1, -1))
+            return
+
+        # This closes the frame with a wx error ("segment violation")
+        # self.action_tool_bar.Destroy()
+        
+        if hasattr(self, "action_tool_bar"):
+            if self.action_tool_bar is not None:
+                # remove old action buttons
+                self.action_tool_bar.ClearTools()
+        else:
+            # first time toolbar creation
+            self.action_tool_bar = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
+                            wx.TB_FLAT | wx.TB_NODIVIDER | wx.TB_HORZ_TEXT)
+                            
+            self.action_tool_bar.SetToolBitmapSize(wx.Size(32,32))
 
         for link in links:
             # search bitmap in directory or assign a default icon
@@ -667,19 +693,36 @@ class PyAUIFrame(wx.Frame):
                     the_bitmap = wx.Bitmap(config.address[link_list[0]][link_list[1]]["__icon"])
                 except KeyError:
                     # default icon bitmap
-                    the_bitmap = wx.ArtProvider_GetBitmap(wx.ART_QUESTION)
+                    the_bitmap = wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE)
 
                 # create new action with label from link data and the icon
                 the_action_tool = self.action_tool_bar.AddLabelTool(wx.NewId(), str(link.flatten()), the_bitmap)
 
-        self.action_tool_bar.Realize()
+                # append url reference to the tool
+                the_action_tool.SetClientData(link.attributes["_href"])
 
+                # bind tool activation with the event handler
+                self.Bind(wx.EVT_TOOL, self.OnActionToolLink, the_action_tool)
+
+        # Create a new AUI dockable pane for the action links if it was not added
+        if not hasattr(self, "the_action_pane"):
+            self.the_action_pane = self._mgr.AddPane(self.action_tool_bar, wx.aui.AuiPaneInfo().
+                            Name("action tool bar").Caption("Action tool bar").
+                            ToolbarPane().Top().Row(2).Position(1).
+                            LeftDockable(False).RightDockable(False))
+
+        # update the AUI manager and widget
+        self.action_tool_bar.Realize()
+        self._mgr.Update()
         return
 
 
     def OnActionToolLink(self, evt):
         # retrieve url from event data
-        # self.window.OnLinkClicked(url)
+        action_tool_id = evt.GetId()
+
+        # print str(self.action_tool_bar.GetToolClientData())
+        self.window.OnLinkClicked(self.action_tool_bar.GetToolClientData(action_tool_id))
         return
 
 
