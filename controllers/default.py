@@ -60,6 +60,13 @@ def change_layout_colors(evt, args=[], vars={}):
 
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="default", f="change_layout_colors"))
     else:
+        if session.layout_colors_background is not None:
+            session.form.vars.background = session.layout_colors_background
+        if session.layout_colors_background is not None:
+            session.form.vars.foreground = session.layout_colors_foreground
+        if session.layout_colors_background is not None:
+            session.form.vars.links = session.layout_colors_links
+            
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, change_layout_colors)
     
     return dict(form = session.form)
@@ -67,26 +74,25 @@ def change_layout_colors(evt, args=[], vars={}):
 def set_default_layout_colors(evt, args=[], vars={}):
 
     if config.auth.user is not None:
-        user_id = config.auth.user_id
-        fg_option = db(db.option.name == "user_%s_layout_fgcolor" % user_id).select().first()
-        bg_option = db(db.option.name == "user_%s_layout_bgcolor" % user_id).select().first()
-        lnk_option = db(db.option.name == "user_%s_layout_lnkcolor" % user_id).select().first()
+        user_email = config.auth.user.email
+        fg_option = db(db.option.name == "user_%s_layout_fgcolor" % user_email).select().first()
+        bg_option = db(db.option.name == "user_%s_layout_bgcolor" % user_email).select().first()
+        lnk_option = db(db.option.name == "user_%s_layout_lnkcolor" % user_email).select().first()
 
         if fg_option is None:
-            fg_option_id = db.option.insert(name="user_%s_layout_fgcolor" % user_id, value=config.session.layout_colors_foreground)
+            fg_option_id = db.option.insert(name="user_%s_layout_fgcolor" % user_email, value=config.session.layout_colors_foreground)
         else:
             fg_option.update_record(value=config.session.layout_colors_foreground)
 
         if bg_option is None:
-            db.option.insert(name="user_%s_layout_bgcolor" % user_id, value=config.session.layout_colors_background)
+            db.option.insert(name="user_%s_layout_bgcolor" % user_email, value=config.session.layout_colors_background)
         else:
             bg_option.update_record(value=config.session.layout_colors_background)
             
         if lnk_option is None:
-            db.option.insert(name="user_%s_layout_lnkcolor" % user_id, value=config.session.layout_colors_links)
+            db.option.insert(name="user_%s_layout_lnkcolor" % user_email, value=config.session.layout_colors_links)
         else:
             lnk_option.update_record(value=config.session.layout_colors_links)
-
 
         db.commit()
 

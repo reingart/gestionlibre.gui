@@ -13,6 +13,8 @@ session = config.session
 
 import os, csv, datetime
 
+# import psycopg2
+
 """
 Migration module for legacy databases
 This is an experiment to transfer ms-access and other csv exportable sources to a DAL managed database
@@ -33,7 +35,7 @@ PRIVATE_ROUTE = None
 # Input csv file: a list of records in the following syntax:
 # tablearchive.csv, db_table_name, db_field_name, csv_record_field_index,
 # data type (web2py dal), default value
-def importcsvpattern(path):
+def import_csv_pattern(path):
     csvfilename = ""
     tmpdict = {}
     spam_reader = csv.reader(open(path, "rb"))
@@ -132,12 +134,23 @@ def populate_with_legacy_db(legacy_tables_route, legacy_tables):
                             voidstrings +=1
 
                     if len(tmpdict) > 1:
+                        """
+                        # exclude table_id fields
+                        if (table + "_id") in tmpdict:
+                            tmpdict.pop(table + "_id")
+                        elif "id" in tmpdict: tmpdict.pop("id")
+                        """
+                        print "Inserting", [v for k, v in tmpdict.iteritems()], "in", table
+
                         the_id = db[table].insert(**tmpdict)
                         table_records += 1
                         records += 1
+
                 except Exception, e:
                     # TODO: catch common db exceptions
-                    db.debugging.insert(msg="Populate_with_legacy_db Insert Error: Table %s, row %s: %s" % (table, str(n), str(e)))
+                    print str(e)
+                    raise
+                    # db.debugging.insert(msg="Populate_with_legacy_db Insert Error: Table %s, row %s: %s" % (table, str(n), str(e)))
                     errors += 1
 
         if table_records > 0:
@@ -154,8 +167,8 @@ def import_csv_dir(evt, args=[], vars={}):
     config.session.form = FORM(INPUT(_value="Load from CSV", _type="submit"))
     if evt is not None:
         if config.session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
-            legacytables = importcsvpattern(config.CSV_CONFIG_FILE)
-            result = populate_with_legacy_db(config.CSV_TABLES_ROUTE, legacytables)
+            legacy_tables = import_csv_pattern(config.CSV_CONFIG_FILE)
+            result = populate_with_legacy_db(config.CSV_TABLES_ROUTE, legacy_tables)
             print "Load tables from CSV (records, errors and voidstrings):", result
             config.session.message = "%s records inserted" % result[0]
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="setup", f="index"))
@@ -164,3 +177,63 @@ def import_csv_dir(evt, args=[], vars={}):
 
     return dict(form = session.form)
 
+
+def db_to_csv(evt, args=[], vars={}):
+    session.form = SQLFORM.factory(Field("path", comment="Storage folder", requires=IS_NOT_EMPTY()), Field("file", comment="File name"))
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            f = open(os.path.join(session.form.vars.path, session.form.vars.file), "wb")
+            print "Exporting to CSV format file", f.name
+
+            db.export_to_csv_file(f)
+            f.close()
+            print "Done"
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="setup", f="index"))
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, db_to_csv)
+    return dict()
+
+
+def csv_to_db(evt, args=[], vars={}):
+    is_pg = False
+    is_pg = ("postgres" in config.db["_uri"])
+    session.form = SQLFORM.factory(Field("path", comment="Storage folder", requires=IS_NOT_EMPTY()), Field("file", comment="File name"), Field("suspend_integrity_check", "boolean", comment="For PostgreSQL databases. Use this option with care. A superuser database conection is required"))
+    
+    if evt is not None:
+        
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            print "PostgreSQL database", is_pg
+            print "Disable integrity check", (is_pg and session.form.vars.suspend_integrity_check == True)
+
+            if is_pg and session.form.vars.suspend_integrity_check == True:
+                # disable integrity triggers (and all others) in PostgreSQL
+                print "Altering tables to disable PostgreSQL triggers temporarily"
+                for table in db.tables:
+                    try:
+                        db.executesql("ALTER TABLE %s DISABLE TRIGGER ALL;" % table)
+                    except Exception, e:
+                        print str(e)
+
+            f = open(os.path.join(session.form.vars.path, session.form.vars.file), "r")
+            print "Importing from CSV format file", f.name
+            try:
+                db.import_from_csv_file(f)
+                db.commit()
+            except Exception, e:
+                print str(e)
+            f.close()
+
+            if is_pg and session.form.vars.suspend_integrity_check == True:
+                # enable integrity triggers (and all others) in PostgreSQL
+                print "Altering tables to re-enable PostgreSQL triggers"
+                for table in db.tables:
+                    try:
+                        db.executesql("ALTER TABLE %s ENABLE TRIGGER ALL;" % table)
+                    except Exception, e:
+                        print str(e)
+            db.commit()
+            print "Done"
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="setup", f="index"))
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, csv_to_db)
+    return dict()

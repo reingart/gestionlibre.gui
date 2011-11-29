@@ -122,14 +122,14 @@ def current_accounts_data(evt, args=[], vars={}):
 def current_accounts_detail(evt, args=[], vars={}):
     """ List of current accounts operations"""
     if session.current_accounts_type == "C":
-        supplier_id = db(db.option.name == "default_supplier_id").select().first().value
+        supplier_id = db(db.supplier.code == db(db.option.name == "default_supplier_code").select().first().value).select().first().supplier_id
         session.current_accounts_supplier = supplier_id
         customer_id = session.current_accounts_customer
         payment_label = "Collect"
 
     elif session.current_accounts_type == "S":
         supplier_id = session.current_accounts_supplier
-        customer_id = db(db.option.name == "default_customer_id").select().first().value
+        customer_id = db(db.customer.code == db(db.option.name == "default_customer_code").select().first().value).select().first().customer_id
         session.current_accounts_customer = customer_id
         payment_label = "Pay"
 
@@ -212,17 +212,17 @@ def current_accounts_detail(evt, args=[], vars={}):
 
 def current_accounts_payment(evt, args=[], vars={}):
     if session.current_accounts_type == "S":
-        point_of_sale_id = db(db.option.name == "purchases_payment_point_of_sale_id").select().first().value
+        point_of_sale_id = db(db.point_of_sale.code == db(db.option.name == "purchases_payment_point_of_sale_code").select().first().value).select().first().point_of_sale_id
         operation_type = "P"
         invert_value = -1
 
     elif session.current_accounts_type == "C":
-        point_of_sale_id = db(db.option.name == "sales_payment_point_of_sale_id").select().first().value
+        point_of_sale_id = db(db.point_of_sale.code == db(db.option.name == "sales_payment_point_of_sale_code").select().first().value).select().first().point_of_sale_id
         operation_type = "S"
         invert_value = 1
 
     # get the default payment terms for current accounts
-    payment_terms_id = db(db.option.name == "current_account_payment").select().first().value
+    payment_terms_id = db(db.payment_terms.code == db(db.option.name == "current_account_payment").select().first().value).select().first().payment_terms_id
 
     # document widget settings
     s = db(db.document.point_of_sale_id == point_of_sale_id)

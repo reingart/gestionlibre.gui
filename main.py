@@ -887,6 +887,14 @@ def configure_addresses():
                 "action": "controllers.migration.import_csv_dir",
                 "__rbac": { "requires": ["rbac.my_access_control",]},
                 },
+            "csv_to_db": {
+                "action": "controllers.migration.csv_to_db",
+                "__rbac": { "requires": ["rbac.my_access_control",]},
+                },
+            "db_to_csv": {
+                "action": "controllers.migration.db_to_csv",
+                "__rbac": { "requires": ["rbac.my_access_control",]},
+                },
             },
         "file":{
             "quit": {
@@ -1351,6 +1359,11 @@ if __name__ == "__main__":
 
     # create DAL connection (and create DB if it does not exists)
     config.db = DAL(config.SQLITE_DB_FILE, folder=config.SQLITE_DB_FOLDER)
+
+    # PostgreSQL database
+    # specify folder path as webapp path + "databases"
+    # config.db = DAL("postgres://gestionlibre:gestionlibre@localhost:5432/gestionlibre", folder=config.SQLITE_DB_FOLDER)
+
     db = config.db
 
     # TODO: Authenticate with wx widgets.
@@ -1374,11 +1387,11 @@ if __name__ == "__main__":
     # define the database tables
     # web2py = False forces db.define_table("auth_user"..)
 
-    db_gestionlibre.define_tables(db, config.auth, config.env, web2py = False)
-
     # define the auth tables (this goes after app tables definition)
     config.auth.settings.hmac_key = config.HMAC_KEY       # before define_tables()
-    config.auth.define_tables()                           # creates all needed tables
+
+    # custom db initialization for GestiónLibre
+    db_gestionlibre.define_tables(db, config.auth, config.env, web2py = False)
 
     # crud (buggy: form submission and database transactions problems)
     config.crud = gluon.tools.Crud(config.env, db=db)

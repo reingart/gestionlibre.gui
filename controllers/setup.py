@@ -68,6 +68,8 @@ def index(evt, args=[], vars={}):
     actions = [
         A("Options", _href=URL(a=config.APP_NAME, c="setup", f="options")), \
         A("Load example db from CSV", _href=URL(a=config.APP_NAME, c="migration", f="import_csv_dir")), \
+        A("Load db records from a CSV file", _href=URL(a=config.APP_NAME, c="migration", f="csv_to_db")), \
+        A("Export db records to a CSV file", _href=URL(a=config.APP_NAME, c="migration", f="db_to_csv")), \
         A("Set App language", _href=URL(a=config.APP_NAME, c="setup", f="set_language")),
         ]
 

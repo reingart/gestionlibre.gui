@@ -127,13 +127,17 @@ def movements_checks(operation_id):
     document = db.document[operation.document_id]
 
     if operation.type == "S":
-        concept_id = db( \
+        
+        concept_id = db(db.concept.code == db( \
         db.option.name == "sales_check_input_concept" \
-        ).select().first().value
+        ).select().first().value).select().first().concept_id
+        
     elif operation.type == "P":
-        concept_id = db( \
+
+        concept_id = db(db.concept.code == db( \
         db.option.name == "purchases_check_input_concept" \
-        ).select().first().value
+        ).select().first().value).select().first().concept_id
+        
     else:
         # Do not input checks if it is a stock operation
         return 0
@@ -372,7 +376,9 @@ def ria_movements_process(evt, args=[], vars={}):
     # do not expose if operation was already processed
     # process/validate the operation
     if operations.process(db, session, session.operation_id):
+        db.commit()
         print "Operation processed"
+        
     else:
         print "Could not process the operation"
     return dict(_redirect=URL(a=config.APP_NAME, c="operations", f="ria_movements"))
@@ -572,15 +578,18 @@ def ria_new_customer_order(evt, args=[], vars={}):
     # Look for allowed orders in options db
     customer_allowed_orders = db(db.option.name == \
     "customer_allowed_orders").select().first()
+    
     if customer_allowed_orders and  isinstance( \
     customer_allowed_orders.value, basestring):
-        allowed_orders_list = [int(o) for o in \
+        allowed_orders_list = [str(o).strip() for o in \
         customer_allowed_orders.value.split("|") if len(o) > 0]
     else:
         allowed_orders_list = []
+        
     # Get the default order
-    default_order = db(db.option.name == \
-    "customer_default_order").select().first()
+    default_order = db(db.document.code == db(db.option.name == \
+    "customer_default_order").select().first()).select().first().document_id
+    
     if isinstance(default_order, basestring): \
     default_order = int(default_order)
 
@@ -630,7 +639,7 @@ def ria_new_customer_order(evt, args=[], vars={}):
             checked = True
         else:
             checked = False
-        if order_document.document_id in allowed_orders_list:
+        if order_document.code in allowed_orders_list:
             order_options[order_document.document_id] = dict()
             order_options[order_document.document_id]["label"] = order_document.description
             order_options[order_document.document_id]["name"] = "order_type"
@@ -1198,8 +1207,8 @@ def movements_header(evt, args=[], vars={}):
     operation = db.operation[operation_id]
 
     # default form data
-    default_supplier_option = db(db.option.name == "default_supplier_id").select().first()
-    default_customer_option = db(db.option.name == "default_customer_id").select().first()
+    default_supplier_option = db(db.option.name == "default_supplier_code").select().first()
+    default_customer_option = db(db.option.name == "default_customer_code").select().first()
     customer_option = supplier_option = None
 
     if operation.type == "S":
@@ -1245,13 +1254,13 @@ def movements_header(evt, args=[], vars={}):
     # auto-complete header form
     if supplier_option is not None:
         try:
-            session.form.vars.supplier_id = int(supplier_option.value)
-        except (ValueError, TypeError):
+            session.form.vars.supplier_id = db(db.supplier.code == supplier_option.value).select().first().supplier_id
+        except (ValueError, TypeError, AttributeError):
             session.form.vars.supplier_id = None
     elif customer_option is not None:
         try:
-            session.form.vars.customer_id = int(customer_option.value)
-        except (ValueError, TypeError):
+            session.form.vars.customer_id = db(db.customer.code == customer_option.value).select().first().customer_id
+        except (ValueError, TypeError, AttributeError):
             session.form.vars.customer_id = None
 
     config.html_frame.window.Bind(EVT_FORM_SUBMIT, on_movements_header_submit)
@@ -1490,7 +1499,7 @@ def on_movements_add_item_submit(evt):
         # add movement to temporary stock update list
         if session.form.vars.update_stock:
             update_stock_list.add(int(movement_id))
-            print "Update stock temporary list: %s" % update_stock_list
+            # print "Update stock temporary list: %s" % update_stock_list
             session.update_stock_list = update_stock_list
 
         db.commit()
@@ -1874,7 +1883,7 @@ def movements_process(evt, args=[], vars={}):
 
     # Purchases offset custom concept
     try:
-        purchases_payment_terms_concept_id = db((db.option.name == "purchases_payment_terms_concept_id") & (db.option.args == str(payment_terms.payment_terms_id))).select().first().value
+        purchases_payment_terms_concept_id = db(db.concept.code == db((db.option.name == "purchases_payment_terms_concept_code") & (db.option.args == str(payment_terms.code))).select().first().value).select().first().concept_id
     except AttributeError, e:
         print str(e)
         purchases_payment_terms_concept_id = None
@@ -1885,16 +1894,16 @@ def movements_process(evt, args=[], vars={}):
 
     # receipt documents movement and offset change
     if document.receipts == True:
-        receipt_default_offset_concept_id = db(db.option.name == \
-        "receipt_default_offset_concept_id").select().first().value
+        receipt_default_offset_concept_id = db(db.concept.code == db(db.option.name == \
+        "receipt_default_offset_concept_code").select().first().value).select().first().concept_id
         
         if operation.type == "S":
-            receipt_offset_concept_id = db(db.option.name == \
-            "sales_receipt_offset_concept_id").select().first().value
+            receipt_offset_concept_id = db(db.concept.code == db(db.option.name == \
+            "sales_receipt_offset_concept_code").select().first().value).select().first().concept_id
             
         elif operation.type == "P":
-            receipt_offset_concept_id = db(db.option.name == \
-            "purchases_receipt_offset_concept_id").select().first().value
+            receipt_offset_concept_id = db(db.concept.code == db(db.option.name == \
+            "purchases_receipt_offset_concept_code").select().first().value).select().first().concept_id
 
         receipt_offset_concept = db.concept[receipt_offset_concept_id]
 
@@ -1938,12 +1947,14 @@ def movements_process(evt, args=[], vars={}):
             offset_concept_id = receipt_default_offset_concept_id
         else:
             offset_concept_id = receipt_offset_concept_id
+            
         print "Setting offset concept to %s" % db.concept[receipt_offset_concept_id].description
         
     else:
         if operation.type == "P" and (purchases_payment_terms_concept_id is not None) and document.invoices:
             offset_concept_id = purchases_payment_terms_concept_id
         else:
+            print "offset concept id", payment_terms.concept_id
             offset_concept_id = payment_terms.concept_id
 
     # end of receipt documents movement and offset change
@@ -1954,12 +1965,13 @@ def movements_process(evt, args=[], vars={}):
     print "Movements process. Operation: %s" % operation_id
     print "session.difference :%s" % session.difference
 
-
     if abs(session.difference) > 0.01:
         # Wich offset / payment concept to record
         # option based offset concept
 
         offset_concept = db.concept[offset_concept_id]
+
+        print "Offset concept", str(offset_concept)
 
         # TODO: validate current account limit if offset concept is
         # current account. Move validation to auxiliar function
@@ -2039,7 +2051,6 @@ def movements_process(evt, args=[], vars={}):
         message = "The operation processing failed. Booking ok: %s. Stock ok: %s" % (result, stock_updated)
     else:
         message = "Operation successfully processed"
-
         db.commit()
 
     # TODO: rollback on errors

@@ -140,9 +140,9 @@ def switch_value():
         for k__v in tmp_str_2:
             # Get the k, v pair stored as k__v string
             tmp_str_3 = k__v.split("__")
-            fields_values[tmp_str_3[0]] = int(tmp_str_3[1])
+            fields_values[tmp_str_3[0]] = str(tmp_str_3[1]).strip()
             # Get the offset account stored value
-            fields_values["value"] = int(option.value)
+            fields_values["value"] = str(option.value).strip()
             
     switch_form = SQLFORM.factory(
     Field("account", requires=IS_IN_DB(db(db.account), \
@@ -215,17 +215,17 @@ def offset_concept():
         for k__v in tmp_str_2:
             # Get the k, v pair stored as k__v string
             tmp_str_3 = k__v.split("__")
-            fields_values[tmp_str_3[0]] = int(tmp_str_3[1])
+            fields_values[tmp_str_3[0]] = str(tmp_str_3[1]).strip()
             # Get the offset concept stored value
-            fields_values["offset"] = int(option.value)
+            fields_values["offset"] = str(option.value).strip()
             
     offset_form = SQLFORM.factory(
     Field("document", requires=IS_IN_DB(db(db.document), \
-    "document.document_id", "%(description)s")), \
+    "document.code", "%(description)s")), \
     Field("payment_terms", requires=IS_IN_DB(db(db.payment_terms), \
-    "payment_terms.payment_terms_id", "%(description)s")), \
+    "payment_terms.code", "%(description)s")), \
     Field("offset", requires=IS_IN_DB(db(db.concept), \
-    "concept.concept_id", "%(description)s")), \
+    "concept.code", "%(description)s")), \
     Field("type", requires=IS_IN_SET({"S": "Sales", \
     "P": "Purchases", "T": "Stock"})), \
     )
@@ -249,15 +249,15 @@ def offset_concept():
         option = db(db.option.name == tmp_text_value).select().first()
             
         # the offset concept
-        offset_id = int(request.vars["offset"])
+        offset_code = str(request.vars["offset"]).strip()
         
         # create record if empty or modify current
         if option is None:
             db.option.insert(name = tmp_text_value, \
-            value = offset_id)
+            value = offset_code)
             response.flash = "New option created."
         else:
-            option.update_record(name = tmp_text_value, value = offset_id)
+            option.update_record(name = tmp_text_value, value = offset_code)
             response.flash = "Option modified."
     
     return dict(offset_form = offset_form)

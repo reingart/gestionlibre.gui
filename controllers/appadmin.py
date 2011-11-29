@@ -144,9 +144,8 @@ def update(evt, args=[], vars={}):
             else:
                 config.session.db_table[config.session.record_id].update_record(**session.form.vars)
                 db.commit()
-                print "Form accepted"
+                print "Record updated"
                 config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="appadmin", f="read", args=[str(config.session.db_table), config.session.record_id]))
-
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, update)
 

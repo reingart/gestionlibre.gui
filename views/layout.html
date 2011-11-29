@@ -4,7 +4,7 @@
   {{ bgcolor = config.session.layout_colors_background }}
 {{ else: }}
   {{try:}}
-    {{ session.layout_colors_background = bgcolor = db(db.option.name == "user_%s_layout_bgcolor" % config.auth.user_id).select().first().value }}
+    {{ session.layout_colors_background = bgcolor = db(db.option.name == "user_%s_layout_bgcolor" % config.auth.user.email).select().first().value }}
   {{ except (AttributeError, IndexError, KeyError): }}
     {{ bgcolor = "#FFFFFF" }}
   {{ pass }}
@@ -14,7 +14,7 @@
   {{ lnkcolor = config.session.layout_colors_links }}
 {{ else: }}
   {{try:}}
-    {{ session.layout_colors_links = lnkcolor = db(db.option.name == "user_%s_layout_lnkcolor" % config.auth.user_id).select().first().value }}
+    {{ session.layout_colors_links = lnkcolor = db(db.option.name == "user_%s_layout_lnkcolor" % config.auth.user.email).select().first().value }}
   {{ except (AttributeError, IndexError, KeyError): }}
     {{ lnkcolor = "#777777" }}
   {{ pass }}
@@ -24,7 +24,7 @@
   {{ fgcolor = config.session.layout_colors_foreground }}
 {{ else: }}
   {{try:}}
-    {{ session.layout_colors_foreground = fgcolor = db(db.option.name == "user_%s_layout_fgcolor" % config.auth.user_id).select().first().value }}
+    {{ session.layout_colors_foreground = fgcolor = db(db.option.name == "user_%s_layout_fgcolor" % config.auth.user.email).select().first().value }}
   {{ except (AttributeError, IndexError, KeyError): }}
     {{ fgcolor = "#000000" }}
   {{ pass }}
@@ -77,3 +77,4 @@ vars={"_next": URL(a=config.APP_NAME, c="default", f="index", encode_embedded_sl
 {{ include }}
 </body>
 </html>
+
