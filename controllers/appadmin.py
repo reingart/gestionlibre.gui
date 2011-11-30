@@ -13,11 +13,21 @@ session = config.session
 def index(evt, args=[], vars={}):
     return dict()
 
+
 def select(evt, args=[], vars={}):
     # get table
     # get limits or default limits
-
     table_name = args[0]
+
+    """
+
+    # This section does not work
+    # properly with PostgreSQL
+    # (default orderby parameters misconfigure
+    # the list of items shown)
+
+    # TODO: imitate web2py appadmin select action
+    
     table = None
     links = None
     q = None
@@ -115,12 +125,24 @@ def select(evt, args=[], vars={}):
                 page_links.append(a)
 
         links = [SPAN(link) for link in page_links]
+    """
+
+    links = []
+
+    db_table = db[table_name]
+    q = db_table
+
+    if table_name + "_id" in db_table.fields:
+        orderby = table_name + "_id"
+    else:
+        orderby = "id"
 
     # create table
     if q is not None:
-        table = SQLTABLE(db(q).select(), linkto=URL(a=config.APP_NAME, c="appadmin", f="update"))
+        table = SQLTABLE(db(q).select(orderby=orderby), linkto=URL(a=config.APP_NAME, c="appadmin", f="update"))
 
     return dict(table = table, links = links, table_name = table_name)
+
 
 def update(evt, args=[], vars={}):
 

@@ -297,6 +297,11 @@ def movements_amount(operation_id):
 
 
 def movements_stock(operation_id):
+    """ Process stock values.
+
+    TODO: detect stock errors, rollback
+    transactions and return False """
+    
     update_stock_list = session.get("update_stock_list", set())
     result = False
     movements = db(db.movement.operation_id == operation_id).select()
@@ -325,8 +330,7 @@ def movements_stock(operation_id):
                 stock.update_record(value = value)
 
                 items += 1
-
-    if items > 0: result = True
+    result = True
     return result
 
 

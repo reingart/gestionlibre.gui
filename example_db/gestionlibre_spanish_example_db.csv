@@ -75,17 +75,18 @@ TABLE state
 state.state_id,state.code,state.description,state.country_id,state.replica
 1,1,Ciudad de Buenos Aires,54,False
 2,2,Provincia de Buenos Aires,54,False
+3,á,á,1,False
+4,áéíóúñ,áéŕ´ió´u,1,False
 
 
 TABLE city
 city.city_id,city.code,city.description,city.city,city.state_id,city.replica
-2,2,Avellaneda,<NULL>,2,False
-3,3,Tigre,<NULL>,2,False
-4,4,Lomas de Zamora,<NULL>,2,False
-5,5,Hurlingham,<NULL>,2,False
-6,6,San Justo,<NULL>,2,False
-1,1,Ciudad de Buenos Aires,CABA,1,False
-7,dslakfjslkdj,lkjflkasdjfaslk,lkdjflaksjdflkdasf,1,False
+1,2,Avellaneda,<NULL>,2,False
+2,3,Tigre,<NULL>,2,False
+3,4,Lomas de Zamora,<NULL>,2,False
+4,5,Hurlingham,<NULL>,2,False
+5,6,San Justo,<NULL>,2,False
+6,1,Ciudad de Buenos Aires,CABA,1,False
 
 
 TABLE address
@@ -123,7 +124,6 @@ option.option_id,option.name,option.args,option.description,option.type,option.r
 8,offset_concept____document__30___type__P___payment_terms__2,<NULL>,<NULL>,string,<NULL>,<NULL>,110101
 9,sales_check_input_concept,<NULL>,Concept record to apply to check payments in sales,integer,<NULL>,<NULL>,110101
 10,quota_frequence,<NULL>,Number of days for current account quotas,integer,<NULL>,<NULL>,30
-11,default_supplier_code,<NULL>,Default supplier (for sistem's owner),integer,,,-1
 12,default_customer_code,<NULL>,Default customer (for system owner),integer,,,-1
 13,purchases_check_input_concept,<NULL>,Concept id for checks in purchase operations,integer,<NULL>,<NULL>,111305
 14,purchases_payment_point_of_sale_code,<NULL>,Purchases point of sale for payments,integer,,,5
@@ -134,6 +134,10 @@ option.option_id,option.name,option.args,option.description,option.type,option.r
 19,purchases_receipt_offset_concept_code,<NULL>,Offset concept id for purchases receipts,integer,,,140000
 20,receipt_default_offset_concept_code,<NULL>,Default offset concept id for receipts,integer,,,110001
 21,purchases_payment_terms_concept_code,1,Purchases Concept id for a given payment terms record,integer,,,140000
+11,default_supplier_code,,Default supplier (for system's owner),integer,,,-1
+22,user_admin@example.com_layout_fgcolor,<NULL>,<NULL>,string,<NULL>,<NULL>,<NULL>
+23,user_admin@example.com_layout_bgcolor,<NULL>,<NULL>,string,<NULL>,<NULL>,<NULL>
+24,user_admin@example.com_layout_lnkcolor,<NULL>,<NULL>,string,<NULL>,<NULL>,<NULL>
 
 
 TABLE customer_group
@@ -170,57 +174,57 @@ bank.bank_id,bank.code,bank.description,bank.bank_check,bank.concept_id,bank.rep
 7,7-94102,CIUDAD,<NULL>,<NULL>,False
 8,8,STANDARDT BANK,<NULL>,<NULL>,False
 9,9,CITIBANK N.A.,<NULL>,<NULL>,False
-11,11,MACRO,<NULL>,<NULL>,False
-12,12-52221,PROVINCIA DE CORDOBA,<NULL>,<NULL>,False
-13,13-06453,SOCIETE GENERALE S.A.,<NULL>,<NULL>,False
-14,14-56429,ITAU,<NULL>,<NULL>,False
-15,15-12192,SUDAMERIS,<NULL>,<NULL>,False
-16,16,DE LA PAMPA,<NULL>,<NULL>,False
-17,17,SANTANDER RIO,<NULL>,<NULL>,False
-18,18-28060,HIPOTECARIO,<NULL>,<NULL>,False
-19,19,DE SAN JUAN S.A.,<NULL>,<NULL>,False
-20,20-23292,DE ENTRE RIOS S. A.,<NULL>,<NULL>,False
-21,21,DEL TUCUMAN S.A.,<NULL>,<NULL>,False
-22,22-13223,MUNICIPAL DE ROSARIO,<NULL>,<NULL>,False
-23,23,BANSUD,<NULL>,<NULL>,False
-24,24,SUPERVILLE,<NULL>,<NULL>,False
-25,25-61142,REGIONAL DE CUYO S.A.,<NULL>,<NULL>,False
-26,26,DEL CHUBUT S.A.,<NULL>,<NULL>,False
-27,27,DE SANTA CRUZ S.A.,<NULL>,<NULL>,False
-28,28,DE LA PAMPA,<NULL>,<NULL>,False
-29,29,DE CORRIENTES S.A.,<NULL>,<NULL>,False
-30,30,DE LA PROVINCIA DEL NEUQUEN,<NULL>,<NULL>,False
-31,31-87477,ABN-AMRO,<NULL>,<NULL>,False
-32,32,DE LA EDIFICADORA DE OLAVARRIA S.A,<NULL>,<NULL>,False
-33,33,AZUL,<NULL>,<NULL>,False
-34,34,PCIA DE CORDOBA,<NULL>,<NULL>,False
-35,35,MUNICIPAL DE LA PLATA,<NULL>,<NULL>,False
-36,36,HSBC,<NULL>,<NULL>,False
-37,37,GENERAL DE NEGOCIOS S.A.,<NULL>,<NULL>,False
-38,38,PATAGONIA,<NULL>,<NULL>,False
-39,39,BANCO DE VALORES S.A.,<NULL>,<NULL>,False
-40,40-57799,BANCO ROELA S.A.,<NULL>,<NULL>,False
-41,41,BANCO MARIVA S.A.,<NULL>,<NULL>,False
-42,42,SUQUIA,<NULL>,<NULL>,False
-43,43,ITAU,<NULL>,<NULL>,False
-44,44,COMPANIA FINANCIERA,<NULL>,<NULL>,False
-45,45-02023,BNL,<NULL>,<NULL>,False
-46,46,BNP PARIBAS,<NULL>,<NULL>,False
-47,47-24419,PCIA DE TIERRA DEL FUEGO,<NULL>,<NULL>,False
-48,48,VELOX,<NULL>,<NULL>,False
-49,49,PROVIDIAN,<NULL>,<NULL>,False
-50,50-71270,MACRO,<NULL>,<NULL>,False
-51,51-24039,MERCURIO,<NULL>,<NULL>,False
-52,52-78316,COMAFI,<NULL>,<NULL>,False
-53,53,SAENZ,<NULL>,<NULL>,False
-54,54,BANCO PIANO S.A.,<NULL>,<NULL>,False
-55,55,BANCO FINANSUR S.A.,<NULL>,<NULL>,False
-56,56,BANCO PRIVADO,<NULL>,<NULL>,False
-57,57,NUEVO BANCO DEL CHACO S. A.,<NULL>,<NULL>,False
-58,58,ITAU,<NULL>,<NULL>,False
-59,59,PATAGONIA,<NULL>,<NULL>,False
-60,60,CMF,<NULL>,<NULL>,False
-10,10-427136,FRANCES,,<NULL>,False
+10,11,MACRO,<NULL>,<NULL>,False
+11,12-52221,PROVINCIA DE CORDOBA,<NULL>,<NULL>,False
+12,13-06453,SOCIETE GENERALE S.A.,<NULL>,<NULL>,False
+13,14-56429,ITAU,<NULL>,<NULL>,False
+14,15-12192,SUDAMERIS,<NULL>,<NULL>,False
+15,16,DE LA PAMPA,<NULL>,<NULL>,False
+16,17,SANTANDER RIO,<NULL>,<NULL>,False
+17,18-28060,HIPOTECARIO,<NULL>,<NULL>,False
+18,19,DE SAN JUAN S.A.,<NULL>,<NULL>,False
+19,20-23292,DE ENTRE RIOS S. A.,<NULL>,<NULL>,False
+20,21,DEL TUCUMAN S.A.,<NULL>,<NULL>,False
+21,22-13223,MUNICIPAL DE ROSARIO,<NULL>,<NULL>,False
+22,23,BANSUD,<NULL>,<NULL>,False
+23,24,SUPERVILLE,<NULL>,<NULL>,False
+24,25-61142,REGIONAL DE CUYO S.A.,<NULL>,<NULL>,False
+25,26,DEL CHUBUT S.A.,<NULL>,<NULL>,False
+26,27,DE SANTA CRUZ S.A.,<NULL>,<NULL>,False
+27,28,DE LA PAMPA,<NULL>,<NULL>,False
+28,29,DE CORRIENTES S.A.,<NULL>,<NULL>,False
+29,30,DE LA PROVINCIA DEL NEUQUEN,<NULL>,<NULL>,False
+30,31-87477,ABN-AMRO,<NULL>,<NULL>,False
+31,32,DE LA EDIFICADORA DE OLAVARRIA S.A,<NULL>,<NULL>,False
+32,33,AZUL,<NULL>,<NULL>,False
+33,34,PCIA DE CORDOBA,<NULL>,<NULL>,False
+34,35,MUNICIPAL DE LA PLATA,<NULL>,<NULL>,False
+35,36,HSBC,<NULL>,<NULL>,False
+36,37,GENERAL DE NEGOCIOS S.A.,<NULL>,<NULL>,False
+37,38,PATAGONIA,<NULL>,<NULL>,False
+38,39,BANCO DE VALORES S.A.,<NULL>,<NULL>,False
+39,40-57799,BANCO ROELA S.A.,<NULL>,<NULL>,False
+40,41,BANCO MARIVA S.A.,<NULL>,<NULL>,False
+41,42,SUQUIA,<NULL>,<NULL>,False
+42,43,ITAU,<NULL>,<NULL>,False
+43,44,COMPANIA FINANCIERA,<NULL>,<NULL>,False
+44,45-02023,BNL,<NULL>,<NULL>,False
+45,46,BNP PARIBAS,<NULL>,<NULL>,False
+46,47-24419,PCIA DE TIERRA DEL FUEGO,<NULL>,<NULL>,False
+47,48,VELOX,<NULL>,<NULL>,False
+48,49,PROVIDIAN,<NULL>,<NULL>,False
+49,50-71270,MACRO,<NULL>,<NULL>,False
+50,51-24039,MERCURIO,<NULL>,<NULL>,False
+51,52-78316,COMAFI,<NULL>,<NULL>,False
+52,53,SAENZ,<NULL>,<NULL>,False
+53,54,BANCO PIANO S.A.,<NULL>,<NULL>,False
+54,55,BANCO FINANSUR S.A.,<NULL>,<NULL>,False
+55,56,BANCO PRIVADO,<NULL>,<NULL>,False
+56,57,NUEVO BANCO DEL CHACO S. A.,<NULL>,<NULL>,False
+57,58,ITAU,<NULL>,<NULL>,False
+58,59,PATAGONIA,<NULL>,<NULL>,False
+59,60,CMF,<NULL>,<NULL>,False
+60,10-427136,FRANCES,,<NULL>,False
 
 
 TABLE plant
@@ -475,8 +479,8 @@ supplier.supplier_id,supplier.code,supplier.description,supplier.legal_name,supp
 8,10,Merlin,Merlin,0,<NULL>,<NULL>,<NULL>,<NULL>,2,<NULL>,<NULL>,<NULL>,<NULL>,1,<NULL>,<NULL>,<NULL>,0,False
 9,11,Spam,Spam,0,<NULL>,<NULL>,<NULL>,<NULL>,0,<NULL>,<NULL>,<NULL>,<NULL>,1,<NULL>,<NULL>,<NULL>,0,False
 10,12,El pescado,El pescado,1,<NULL>,<NULL>,<NULL>,<NULL>,0,<NULL>,<NULL>,<NULL>,<NULL>,1,<NULL>,<NULL>,<NULL>,0,False
-11,<NULL>,Emporio nacional de la madera S.A.,Emporio nacional de la madera (uso interno),1,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,1,<NULL>,<NULL>,<NULL>,0,False
 12,<NULL>,Proveedores Varios,Proveedores Varios,0,<NULL>,<NULL>,<NULL>,<NULL>,0,<NULL>,<NULL>,<NULL>,<NULL>,1,<NULL>,<NULL>,<NULL>,0,False
+11,-1,Emporio nacional de la madera S.A.,Emporio nacional de la madera (uso interno),1,,,,6,1,,,1,,1,,<NULL>,1,2,False
 
 
 TABLE family
@@ -488,56 +492,56 @@ family.family_id,family.code,family.description,family.collection_id,family.amou
 
 TABLE concept
 concept.concept_id,concept.code,concept.description,concept.category_id,concept.subcategory_id,concept.family_id,concept.color_id,concept.size_id,concept.quantity,concept.amount,concept.addition,concept.deletion,concept.tax_id,concept.supplier_id,concept.customer_id,concept.account_id,concept.measure,concept.desired,concept.presentation,concept.entry,concept.exit,concept.taxed,concept.stock,concept.unitary,concept.internal,concept.payment_method,concept.tax,concept.current_account,concept.cash_box,concept.extra,concept.cash,concept.banks,concept.receipt,concept.statement,concept.abbr,concept.stock_quantity,concept.collection_id,concept.floor,concept.suspended,concept.discounts,concept.surcharges,concept.replica,concept.orderable
-2,48,Producto 48,2,2,1,6,0,0,0.0,<NULL>,<NULL>,120001,0,<NULL>,0,<NULL>,0.0,<NULL>,False,True,True,True,False,False,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,5,<NULL>,False,False,False,False,True
-3,49,Producto 49,2,2,1,6,0,0,0.0,<NULL>,<NULL>,0,0,<NULL>,411,<NULL>,0.0,<NULL>,True,True,True,True,True,False,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,5,<NULL>,False,False,False,False,True
-4,60,Producto 60,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,0,<NULL>,0.0,<NULL>,True,True,True,True,True,False,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-5,84,Producto 84,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,0,<NULL>,0.0,<NULL>,True,True,True,True,True,False,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-6,85,Producto 85,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,0,<NULL>,0.0,<NULL>,True,True,True,True,True,False,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-8,110002,Dólares en Efectivo,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,111,<NULL>,0.0,<NULL>,True,True,False,False,True,True,True,False,False,True,False,True,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-11,110054,Cabal,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,111,<NULL>,0.0,<NULL>,True,True,False,False,True,True,True,False,False,True,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-12,110055,Dinners,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,111,<NULL>,0.0,<NULL>,True,True,False,False,True,True,True,False,False,True,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-13,110057,Tarjeta Shopping,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,111,<NULL>,0.0,<NULL>,True,True,False,False,True,True,True,False,False,True,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-14,110058,Maestro,202,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,111,<NULL>,0.0,<NULL>,True,True,False,False,True,True,True,False,False,True,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-16,110101,Cheque,1,1,1,6,0,0,0.0,<NULL>,<NULL>,120004,0,<NULL>,112,<NULL>,0.0,<NULL>,True,False,False,False,False,True,True,False,False,True,False,False,True,<NULL>,<NULL>,<NULL>,<NULL>,5,<NULL>,False,False,False,False,False
-17,110102,Valores a Depositar,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,112,<NULL>,0.0,<NULL>,True,True,False,False,False,True,False,False,False,True,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-18,111301,Débito Automatico - Banco XX,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,113,<NULL>,0.0,<NULL>,False,True,False,False,True,False,True,False,False,False,False,False,True,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-19,111303,Extracciones - Banco XX,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,113,<NULL>,0.0,<NULL>,False,True,True,False,True,False,True,False,False,False,False,False,True,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-20,111304,Débitos Banco - Banco XX,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,113,<NULL>,0.0,<NULL>,False,True,True,False,True,False,True,False,False,False,False,False,True,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-21,111305,Cheque Propio - Banco XX,1,1,1,6,0,0,0.0,<NULL>,<NULL>,120004,0,<NULL>,113,<NULL>,0.0,<NULL>,True,False,False,False,True,False,True,False,False,False,False,False,True,<NULL>,<NULL>,<NULL>,<NULL>,5,<NULL>,False,False,False,False,False
-23,120003,Ingresos Brutos,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,222,<NULL>,0.0,<NULL>,True,True,True,False,True,False,False,True,False,False,False,False,False,<NULL>,<NULL>,Imp. Int.,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-24,120004,Otros Impuestos,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,223,<NULL>,0.0,<NULL>,True,True,True,False,True,False,False,True,False,False,False,False,False,<NULL>,<NULL>,Otros Imp.,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-25,120005,Retenciones IVA,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,141,<NULL>,0.0,<NULL>,True,True,False,False,True,False,False,True,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-26,120006,Percepciones IVA,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,144,<NULL>,0.0,<NULL>,True,True,False,False,True,False,False,True,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-27,120007,Retenciones Ingresos Brutos,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,23,63,142,<NULL>,0.0,<NULL>,True,True,False,False,True,False,False,True,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-28,120008,Percepción Ingresos Brutos,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,63,145,<NULL>,0.0,<NULL>,True,True,False,False,True,False,False,True,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-29,120009,Retención Ganancias,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,63,141,<NULL>,0.0,<NULL>,True,True,False,False,True,False,False,True,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-31,130001,Cobros de Cuenta Corriente,1,1,1,29,4,0,0.0,<NULL>,<NULL>,4,0,<NULL>,114,<NULL>,0.0,<NULL>,False,True,False,False,False,False,False,False,True,False,False,False,False,Cobro de C/C,Su Pago,<NULL>,<NULL>,5,<NULL>,False,False,False,False,False
-32,130003,Señas,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,0,<NULL>,0.0,<NULL>,True,False,True,False,True,True,True,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-33,130004,Señas,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,0,<NULL>,0.0,<NULL>,True,False,True,False,True,False,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-34,130005,Descuentos,1,1,1,12,0,0,0.0,<NULL>,<NULL>,120004,0,<NULL>,0,<NULL>,0.0,<NULL>,True,False,False,False,True,False,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,5,<NULL>,False,True,False,False,False
-35,130006,Saldo Inicial / Ajuste,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,0,<NULL>,0.0,<NULL>,True,False,True,False,True,False,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-36,130007,Recargos,1,1,1,6,0,0,0.0,<NULL>,<NULL>,120004,0,<NULL>,0,<NULL>,0.0,<NULL>,False,True,False,False,True,False,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,5,<NULL>,False,False,True,False,False
-37,130009,Deudores por Ventas,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,114,<NULL>,0.0,<NULL>,False,False,False,False,False,True,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-39,140001,Pagos de Cuentas Corrientes,1,1,1,6,0,0,0.0,<NULL>,<NULL>,120004,0,<NULL>,211,<NULL>,0.0,<NULL>,False,True,False,False,True,False,False,False,True,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,5,<NULL>,False,False,False,False,False
-40,150009,Seguros,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,999,<NULL>,510,<NULL>,0.0,<NULL>,False,True,False,False,True,False,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-41,150015,Sindicato,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,999,<NULL>,510,<NULL>,0.0,<NULL>,False,True,False,False,True,False,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-42,150017,Reparacion de Inmueble,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,999,<NULL>,400,<NULL>,0.0,<NULL>,False,True,False,False,True,False,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-43,150019,Publicidad,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,999,<NULL>,510,<NULL>,0.0,<NULL>,False,True,False,False,True,False,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-44,150020,Tramites Especiales,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,999,<NULL>,510,<NULL>,0.0,<NULL>,False,True,False,False,True,False,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-45,150051,Sueldos,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,540,<NULL>,0.0,<NULL>,False,False,False,False,True,False,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-46,150052,Viáticos,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,540,<NULL>,0.0,<NULL>,False,False,False,False,True,False,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-47,160001,IVA Crédito Fiscal,0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,133,<NULL>,0.0,<NULL>,False,True,False,False,True,False,False,True,False,False,False,False,False,<NULL>,IVA,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-48,160002,IVA Crédito Fiscal (Otras Tasas),0,<NULL>,<NULL>,<NULL>,<NULL>,0,0.0,<NULL>,<NULL>,<NULL>,0,<NULL>,133,<NULL>,0.0,<NULL>,False,True,False,False,True,False,False,True,False,False,False,False,False,<NULL>,IVA,<NULL>,<NULL>,<NULL>,<NULL>,False,False,False,False,False
-49,160004,DESCUENTO,1,1,1,15,0,1,1.0,<NULL>,<NULL>,120004,0,<NULL>,0,<NULL>,0.0,<NULL>,True,False,False,False,False,False,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,5,<NULL>,False,True,False,False,False
-10,110053,MasterCard,2,2,1,6,1,0,0.0,<NULL>,<NULL>,47,2,<NULL>,1,,0.0,,True,True,False,False,True,True,True,False,False,True,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
-1,1,Producto 1,1,2,1,29,1,0,0.0,<NULL>,<NULL>,22,11,<NULL>,43,,0.0,,False,True,True,True,False,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,True
-7,110001,Pesos en Efectivo,1,1,1,6,1,1,1.0,<NULL>,<NULL>,24,11,<NULL>,3,,0.0,,True,False,False,False,False,True,True,False,False,True,False,True,False,Contado Efectivo en Pesos,Pago en Pesos,Cdo./Efvo.,<NULL>,1,<NULL>,False,False,False,False,False
-50,0,Producto 0,2,2,1,6,1,0,0.0,<NULL>,<NULL>,22,11,<NULL>,43,,0.0,,False,True,True,True,True,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,True
-9,110051,Visa,1,1,1,6,1,0,0.0,<NULL>,<NULL>,24,11,<NULL>,5,,0.0,,True,True,False,False,True,True,True,False,False,True,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
-15,110059,Electrón/Visa,1,1,1,6,1,0,0.0,<NULL>,<NULL>,24,11,<NULL>,5,,0.0,,True,False,False,False,True,True,True,False,False,True,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
-30,130000,Ventas por Cuenta Corriente,2,2,1,12,3,0,0.0,<NULL>,<NULL>,24,11,<NULL>,6,,0.0,,True,False,False,False,False,True,False,False,True,False,False,False,False,Venta en C/C,Venta en C/C,,<NULL>,1,<NULL>,False,False,False,False,False
-38,140000,Compras en Cuentas Corrientes,1,1,1,6,1,0,0.0,<NULL>,<NULL>,24,11,<NULL>,27,,0.0,,True,False,False,False,True,True,False,False,True,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
-22,120001,IVA Ventas 21 %,1,1,1,6,1,0,1.21,<NULL>,<NULL>,24,11,<NULL>,29,,0.0,,False,True,False,False,True,False,False,True,False,False,False,True,False,,IVA,IVA 21%,<NULL>,1,<NULL>,False,False,False,False,False
+41,160004,DESCUENTO,1,1,1,15,0,1,1.0,<NULL>,<NULL>,120004,0,<NULL>,0,<NULL>,0.0,<NULL>,True,False,False,False,False,False,False,False,False,False,False,False,False,<NULL>,<NULL>,<NULL>,<NULL>,5,<NULL>,False,True,False,False,False
+42,110053,MasterCard,2,2,1,6,1,0,0.0,<NULL>,<NULL>,47,2,<NULL>,1,,0.0,,True,True,False,False,True,True,True,False,False,True,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+43,1,Producto 1,1,2,1,29,1,0,0.0,<NULL>,<NULL>,22,11,<NULL>,43,,0.0,,False,True,True,True,False,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,True
+44,110001,Pesos en Efectivo,1,1,1,6,1,1,1.0,<NULL>,<NULL>,24,11,<NULL>,3,,0.0,,True,False,False,False,False,True,True,False,False,True,False,True,False,Contado Efectivo en Pesos,Pago en Pesos,Cdo./Efvo.,<NULL>,1,<NULL>,False,False,False,False,False
+46,110051,Visa,1,1,1,6,1,0,0.0,<NULL>,<NULL>,24,11,<NULL>,5,,0.0,,True,True,False,False,True,True,True,False,False,True,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+47,110059,Electrón/Visa,1,1,1,6,1,0,0.0,<NULL>,<NULL>,24,11,<NULL>,5,,0.0,,True,False,False,False,True,True,True,False,False,True,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+48,130000,Ventas por Cuenta Corriente,2,2,1,12,3,0,0.0,<NULL>,<NULL>,24,11,<NULL>,6,,0.0,,True,False,False,False,False,True,False,False,True,False,False,False,False,Venta en C/C,Venta en C/C,,<NULL>,1,<NULL>,False,False,False,False,False
+49,140000,Compras en Cuentas Corrientes,1,1,1,6,1,0,0.0,<NULL>,<NULL>,24,11,<NULL>,27,,0.0,,True,False,False,False,True,True,False,False,True,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+50,120001,IVA Ventas 21 %,1,1,1,6,1,0,1.21,<NULL>,<NULL>,24,11,<NULL>,29,,0.0,,False,True,False,False,True,False,False,True,False,False,False,True,False,,IVA,IVA 21%,<NULL>,1,<NULL>,False,False,False,False,False
+1,48,Producto 48,2,2,1,6,1,0,0.0,<NULL>,<NULL>,50,11,<NULL>,43,,0.0,,False,True,True,True,False,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,True
+2,49,Producto 49,2,2,1,6,1,0,0.0,<NULL>,<NULL>,50,11,<NULL>,43,,0.0,,True,True,True,True,True,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,True
+3,60,Producto 60,2,2,1,6,1,0,0.0,<NULL>,<NULL>,50,11,<NULL>,43,,0.0,,True,True,True,True,True,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+4,84,Producto 84,2,2,1,6,1,0,0.0,<NULL>,<NULL>,50,11,<NULL>,43,,0.0,,True,True,True,True,True,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+5,85,Producto 85,1,1,1,6,1,0,0.0,<NULL>,<NULL>,50,11,<NULL>,43,,0.0,,True,True,True,True,True,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+6,110002,Dólares en Efectivo,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,3,,0.0,,True,True,False,False,True,True,True,False,False,True,False,True,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+7,110054,Cabal,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,5,,0.0,,True,True,False,False,True,True,True,False,False,True,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+8,110055,Dinners,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,5,,0.0,,True,True,False,False,True,True,True,False,False,True,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+9,110057,Tarjeta Shopping,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,5,,0.0,,True,True,False,False,True,True,True,False,False,True,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+10,110058,Maestro,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,5,,0.0,,True,True,False,False,True,True,True,False,False,True,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+11,110101,Cheque,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,4,,0.0,,True,False,False,False,False,True,True,False,False,True,False,False,True,,,,<NULL>,1,<NULL>,False,False,False,False,False
+12,110102,Valores a Depositar,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,4,,0.0,,True,True,False,False,False,True,False,False,False,True,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+13,111301,Débito Automatico - Banco XX,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,5,,0.0,,False,True,False,False,True,False,True,False,False,False,False,False,True,,,,<NULL>,1,<NULL>,False,False,False,False,False
+14,111303,Extracciones - Banco XX,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,5,,0.0,,False,True,True,False,True,False,True,False,False,False,False,False,True,,,,<NULL>,1,<NULL>,False,False,False,False,False
+15,111304,Débitos Banco - Banco XX,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,5,,0.0,,False,True,True,False,True,False,True,False,False,False,False,False,True,,,,<NULL>,1,<NULL>,False,False,False,False,False
+16,111305,Cheque Propio - Banco XX,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,5,,0.0,,True,False,False,False,True,False,True,False,False,False,False,False,True,,,,<NULL>,1,<NULL>,False,False,False,False,False
+17,120003,Ingresos Brutos,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,13,,0.0,,True,True,True,False,True,False,False,True,False,False,False,False,False,,,Imp. Int.,<NULL>,1,<NULL>,False,False,False,False,False
+18,120004,Otros Impuestos,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,41,,0.0,,True,True,True,False,True,False,False,True,False,False,False,False,False,,,Otros Imp.,<NULL>,1,<NULL>,False,False,False,False,False
+19,120005,Retenciones IVA,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,29,,0.0,,True,True,False,False,True,False,False,True,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+20,120006,Percepciones IVA,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,10,,0.0,,True,True,False,False,True,False,False,True,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+22,120008,Percepción Ingresos Brutos,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,63,16,,0.0,,True,True,False,False,True,False,False,True,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+23,120009,Retención Ganancias,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,63,14,,0.0,,True,True,False,False,True,False,False,True,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+24,130001,Cobros de Cuenta Corriente,1,1,1,29,4,0,0.0,<NULL>,<NULL>,18,11,<NULL>,5,,0.0,,False,True,False,False,False,False,False,False,True,False,False,False,False,Cobro de C/C,Su Pago,,<NULL>,1,<NULL>,False,False,False,False,False
+25,130003,Señas,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,3,,0.0,,True,False,True,False,True,True,True,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+26,130004,Señas,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,3,,0.0,,True,False,True,False,True,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+28,130006,Saldo Inicial / Ajuste,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,1,,0.0,,True,False,True,False,True,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+29,130007,Recargos,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,36,,0.0,,False,True,False,False,True,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,True,False,False
+30,130009,Deudores por Ventas,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,6,,0.0,,False,False,False,False,False,True,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+31,140001,Pagos de Cuentas Corrientes,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,5,,0.0,,False,True,False,False,True,False,False,False,True,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+32,150009,Seguros,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,27,,0.0,,False,True,False,False,True,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+34,150017,Reparacion de Inmueble,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,40,,0.0,,False,True,False,False,True,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+35,150019,Publicidad,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,26,,0.0,,False,True,False,False,True,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+36,150020,Tramites Especiales,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,39,,0.0,,False,True,False,False,True,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+38,150052,Viáticos,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,39,,0.0,,False,False,False,False,True,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+39,160001,IVA Crédito Fiscal,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,10,,0.0,,False,True,False,False,True,False,False,True,False,False,False,False,False,,IVA,,<NULL>,1,<NULL>,False,False,False,False,False
+45,0,Producto 0,2,2,1,6,1,0,0.0,<NULL>,<NULL>,50,11,<NULL>,43,,0.0,,False,True,True,True,True,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,True
+21,120007,Retenciones Ingresos Brutos,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,63,13,,0.0,,True,True,False,False,True,False,False,True,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+27,130005,Descuentos,1,1,1,12,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,11,,0.0,,True,False,False,False,True,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,True,False,False,False
+33,150015,Sindicato,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,40,,0.0,,False,True,False,False,True,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+37,150051,Sueldos,1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,42,,0.0,,False,False,False,False,True,False,False,False,False,False,False,False,False,,,,<NULL>,1,<NULL>,False,False,False,False,False
+40,160002,IVA Crédito Fiscal (Otras Tasas),1,1,1,6,1,0,0.0,<NULL>,<NULL>,18,11,<NULL>,10,,0.0,,False,True,False,False,True,False,False,True,False,False,False,False,False,,IVA,,<NULL>,1,<NULL>,False,False,False,False,False
 
 
 TABLE fund
@@ -548,34 +552,35 @@ fund.fund_id,fund.code,fund.description,fund.type,fund.upper_limit,fund.balance,
 
 TABLE payment_terms
 payment_terms.payment_terms_id,payment_terms.code,payment_terms.description,payment_terms.canceled,payment_terms.concept_id,payment_terms.current_account,payment_terms.days_1,payment_terms.days_2,payment_terms.days_3,payment_terms.replica
-10,10,15 DÍAS FECHA/FACTURA,False,130000,False,<NULL>,<NULL>,<NULL>,False
-11,11,DEPOSITO BANCARIO,False,130000,False,<NULL>,<NULL>,<NULL>,False
-13,98435984375,CONTADO,False,7,False,<NULL>,<NULL>,<NULL>,False
-1,1,CUENTA CORRIENTE,False,30,True,<NULL>,<NULL>,<NULL>,False
-12,12,MASTERCARD,False,10,False,<NULL>,<NULL>,<NULL>,False
-2,2,CHEQUE 10 DIAS,False,16,False,<NULL>,<NULL>,<NULL>,False
-3,3,CHEQUE 15 DIAS,False,16,False,<NULL>,<NULL>,<NULL>,False
-4,4,CHEQUE 30 DÍAS,False,16,False,<NULL>,<NULL>,<NULL>,False
-5,5,CHEQUES 30-60 DÍAS,False,16,False,<NULL>,<NULL>,<NULL>,False
-6,6,CHEQUES 30-60-90 DÍAS,False,16,False,<NULL>,<NULL>,<NULL>,False
-7,7,CHEQUES 7 DIAS,False,16,False,<NULL>,<NULL>,<NULL>,False
-8,8,CONTRAREEMBOLSO C/CHEQUES,False,16,False,<NULL>,<NULL>,<NULL>,False
-9,9,CONTRAREEMBOLSO CONTADO,False,7,False,<NULL>,<NULL>,<NULL>,False
+4,1,CUENTA CORRIENTE,False,30,True,<NULL>,<NULL>,<NULL>,False
+5,12,MASTERCARD,False,10,False,<NULL>,<NULL>,<NULL>,False
+6,2,CHEQUE 10 DIAS,False,16,False,<NULL>,<NULL>,<NULL>,False
+7,3,CHEQUE 15 DIAS,False,16,False,<NULL>,<NULL>,<NULL>,False
+8,4,CHEQUE 30 DÍAS,False,16,False,<NULL>,<NULL>,<NULL>,False
+9,5,CHEQUES 30-60 DÍAS,False,16,False,<NULL>,<NULL>,<NULL>,False
+10,6,CHEQUES 30-60-90 DÍAS,False,16,False,<NULL>,<NULL>,<NULL>,False
+11,7,CHEQUES 7 DIAS,False,16,False,<NULL>,<NULL>,<NULL>,False
+12,8,CONTRAREEMBOLSO C/CHEQUES,False,16,False,<NULL>,<NULL>,<NULL>,False
+13,9,CONTRAREEMBOLSO CONTADO,False,7,False,<NULL>,<NULL>,<NULL>,False
+1,10,15 DÍAS FECHA/FACTURA,False,48,True,<NULL>,<NULL>,<NULL>,False
+2,11,DEPOSITO BANCARIO,False,24,True,<NULL>,<NULL>,<NULL>,False
+3,13,CONTADO,False,44,False,<NULL>,<NULL>,<NULL>,False
 
 
 TABLE payment_method
 payment_method.payment_method_id,payment_method.code,payment_method.description,payment_method.concept_id,payment_method.coupons,payment_method.coefficient_01,payment_method.coefficient_02,payment_method.coefficient_03,payment_method.coefficient_04,payment_method.coefficient_05,payment_method.coefficient_06,payment_method.coefficient_07,payment_method.coefficient_08,payment_method.coefficient_09,payment_method.coefficient_10,payment_method.coefficient_11,payment_method.coefficient_12,payment_method.coefficient_13,payment_method.coefficient_14,payment_method.coefficient_15,payment_method.coefficient_16,payment_method.coefficient_17,payment_method.coefficient_18,payment_method.coefficient_19,payment_method.coefficient_20,payment_method.coefficient_21,payment_method.coefficient_22,payment_method.coefficient_23,payment_method.coefficient_24,payment_method.quota_01,payment_method.quota_02,payment_method.quota_03,payment_method.quota_04,payment_method.quota_05,payment_method.quota_06,payment_method.quota_07,payment_method.quota_08,payment_method.quota_09,payment_method.quota_10,payment_method.quota_11,payment_method.quota_12,payment_method.quota_13,payment_method.quota_14,payment_method.quota_15,payment_method.quota_16,payment_method.quota_17,payment_method.quota_18,payment_method.quota_19,payment_method.quota_20,payment_method.quota_21,payment_method.quota_22,payment_method.quota_23,payment_method.quota_24,payment_method.days_01,payment_method.days_02,payment_method.days_03,payment_method.days_04,payment_method.days_05,payment_method.days_06,payment_method.days_07,payment_method.days_08,payment_method.days_09,payment_method.days_10,payment_method.days_11,payment_method.days_12,payment_method.days_13,payment_method.days_14,payment_method.days_15,payment_method.days_16,payment_method.days_17,payment_method.days_18,payment_method.days_19,payment_method.days_20,payment_method.days_21,payment_method.days_22,payment_method.days_23,payment_method.days_24,payment_method.expenditure_01,payment_method.expenditure_02,payment_method.expenditure_03,payment_method.expenditure_04,payment_method.expenditure_05,payment_method.expenditure_06,payment_method.expenditure_07,payment_method.expenditure_08,payment_method.expenditure_09,payment_method.expenditure_10,payment_method.expenditure_11,payment_method.expenditure_12,payment_method.expenditure_13,payment_method.expenditure_14,payment_method.expenditure_15,payment_method.expenditure_16,payment_method.expenditure_17,payment_method.expenditure_18,payment_method.expenditure_19,payment_method.expenditure_20,payment_method.expenditure_21,payment_method.expenditure_22,payment_method.expenditure_23,payment_method.expenditure_24,payment_method.replica
-1,1,VISA,11051,1,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False
-2,2,AMERICAN EXPRESS,11052,1,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False
-3,3,MASTERCARD,11053,1,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False
-4,4,ARGENCARD,11056,1,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False
-5,5,DINNERS,11055,1,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False
-6,6,CABAL,11054,1,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False
-7,7,T. SHOPPING,11057,1,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False
+1,1,VISA,46,1,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False
+2,2,AMERICAN EXPRESS,13,1,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False
+3,3,MASTERCARD,42,1,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False
+4,4,ARGENCARD,13,1,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False
+5,5,DINNERS,8,1,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False
+6,6,CABAL,7,1,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False
+7,7,T. SHOPPING,9,1,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,False
 
 
 TABLE checkbook
 checkbook.checkbook_id,checkbook.code,checkbook.description,checkbook.account_id,checkbook.concept_id,checkbook.starting,checkbook.ending,checkbook.next,checkbook.replica
+1,923472394239874,Default checkbook,25,16,<NULL>,<NULL>,0,False
 
 
 TABLE payroll_new
@@ -621,13 +626,13 @@ product_structure.product_structure_id,product_structure.code,product_structure.
 
 TABLE stock
 stock.stock_id,stock.code,stock.description,stock.concept_id,stock.posted,stock.reserved,stock.warehouse_id,stock.accumulated,stock.value,stock.replica
-1,1,<NULL>,1,2009-05-25,False,1,False,10000.0,False
-2,48,<NULL>,48,2009-05-25,False,1,False,10000.0,False
-3,49,<NULL>,49,2009-05-25,False,1,False,10000.0,False
-4,60,<NULL>,60,2009-05-25,False,1,False,10000.0,False
-5,84,<NULL>,84,2009-05-25,False,1,False,10000.0,False
-6,85,<NULL>,85,2009-05-25,False,1,False,10000.0,False
-7,<NULL>,<NULL>,0,2009-05-25,False,1,False,10000.0,False
+2,48,,1,2009-05-25,False,1,False,10000.0,False
+1,1,,43,2009-05-25,False,1,False,10000.0,False
+3,49,,2,2009-05-25,False,1,False,10000.0,False
+6,85,,5,2009-05-25,False,1,False,10000.0,False
+5,84,,4,2009-05-25,False,1,False,10000.0,False
+4,60,,3,2009-05-25,False,1,False,10000.0,False
+7,0,,45,2009-05-25,False,1,False,9882.0,False
 
 
 TABLE customer
@@ -690,13 +695,13 @@ operation.operation_id,operation.code,operation.description,operation.customer_i
 
 TABLE price
 price.price_id,price.code,price.description,price.concept_id,price.category_id,price.salesperson_id,price.customer_id,price.supplier_id,price.customer_group_id,price.situation_id,price.fund_id,price.rate_id,price.payment_method_id,price.document_id,price.price_list_id,price.taxed,price.tax_id,price.type,price.value,price.calculate,price.operation,price.source,price.condition,price.quantity_1,price.quantity_2,price.discriminate,price.priority,price.formula,price.replica
-1,1,<NULL>,1,1,1,1,1,1,1,1,1,1,1,1,False,0,0,20.0,0,0,0,0,0.0,0.0,False,0,<NULL>,False
-2,48,<NULL>,48,1,1,1,1,1,1,1,1,1,1,1,False,0,0,30.0,0,0,0,0,0.0,0.0,False,0,<NULL>,False
-3,49,<NULL>,49,1,1,1,1,1,1,1,1,1,1,1,False,0,0,40.0,0,0,0,0,0.0,0.0,False,0,<NULL>,False
-4,60,<NULL>,60,1,1,1,1,1,1,1,1,1,1,1,False,0,0,50.0,0,0,0,0,0.0,0.0,False,0,<NULL>,False
-5,84,<NULL>,84,1,1,1,1,1,1,1,1,1,1,1,False,0,0,60.0,0,0,0,0,0.0,0.0,False,0,<NULL>,False
-6,85,<NULL>,85,1,1,1,1,1,1,1,1,1,1,1,False,0,0,70.0,0,0,0,0,0.0,0.0,False,0,<NULL>,False
-7,09348509384,Precio 0,50,1,1,1,1,1,1,1,1,1,1,1,False,1,0,10.0,0,0,0,0,0.0,0.0,False,0,,False
+1,1,,1,1,1,1,1,1,1,1,1,1,1,1,False,1,0,20.0,0,0,0,0,0.0,0.0,False,0,,False
+7,09348509384,Precio 0,45,1,1,1,1,1,1,1,1,1,1,1,False,1,0,10.0,0,0,0,0,0.0,0.0,False,0,,False
+2,48,,1,1,1,1,1,1,1,1,1,1,1,1,False,1,0,30.0,0,0,0,0,0.0,0.0,False,0,,False
+3,49,,2,1,1,1,1,1,1,1,1,1,1,1,False,1,0,40.0,0,0,0,0,0.0,0.0,False,0,,False
+4,60,,3,1,1,1,1,1,1,1,1,1,1,1,False,1,0,50.0,0,0,0,0,0.0,0.0,False,0,,False
+5,84,,4,1,1,1,1,1,1,1,1,1,1,1,False,1,0,60.0,0,0,0,0,0.0,0.0,False,0,,False
+6,85,,5,1,1,1,1,1,1,1,1,1,1,1,False,1,0,70.0,0,0,0,0,0.0,0.0,False,0,,False
 
 
 TABLE memo
@@ -705,6 +710,7 @@ memo.memo_id,memo.code,memo.description,memo.posted,memo.contact_id,memo.subject
 
 TABLE contact_user
 contact_user.contact_user_id,contact_user.code,contact_user.description,contact_user.user_id,contact_user.contact_id,contact_user.replica
+1,<NULL>,admin@example.com,1,1,False
 
 
 TABLE bank_check

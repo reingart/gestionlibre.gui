@@ -85,7 +85,7 @@ def current_account_report(evt, args=[], vars={}):
             q &= (db.operation.document_id == db.document.document_id)
             q &= ((db.document.receipts == True) | (db.document.invoices == True))
 
-            session.q = q
+            session.operation_q = q
             the_set = db(q)
 
             session.customer_id = session.form.vars.customer
@@ -110,7 +110,8 @@ def current_account_report(evt, args=[], vars={}):
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, current_account_report)
 
-    if session.q is not None:
+
+    if session.operation_q is not None:
         columns = ["operation.operation_id", "operation.posted", \
         "operation.amount", "operation.customer_id", \
         "operation.subcustomer_id", "document.description"]
@@ -120,7 +121,7 @@ def current_account_report(evt, args=[], vars={}):
         "operation.subcustomer_id": "Subcustomer", \
         "document.description": "Document" }
 
-        operations = SQLTABLE(db(session.q).select(), columns=columns, \
+        operations = SQLTABLE(db(session.operation_q).select(), columns=columns, \
         headers=headers, linkto=URL(a=config.APP_NAME, c="operations", f="ria_movements"))
         
     return dict(query_form = session.form, operations = operations, \
