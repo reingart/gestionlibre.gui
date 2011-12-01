@@ -33,12 +33,13 @@ WEB2PY_APP_NAME = "gestionlibre"
 # Default values (overwritten with config.ini values)
 WEB2PY_FOLDER = r"/home/%s/web2py" % SYSTEM_USER_NAME
 GUI2PY_FOLDER = r"/home/%s/gui2py-hg" % SYSTEM_USER_NAME
-SQLITE_DB_FOLDER = r"/home/%s/web2py/applications/%s/databases/" % (SYSTEM_USER_NAME, WEB2PY_APP_NAME)
+GUI2PY_APP_FOLDER = r"/home/%s/gestionlibre_gui-hg" % SYSTEM_USER_NAME
+DATABASES_FOLDER = r"/home/%s/gestionlibre_gui-hg/databases/" % SYSTEM_USER_NAME
 TEMPLATES_FOLDER = r"/home/%s/gestionlibre_gui-hg/views/" % SYSTEM_USER_NAME
 PDF_TEMPLATES_FOLDER = r"/home/%s/gestionlibre_gui-hg/pdf_templates/" % SYSTEM_USER_NAME
 OUTPUT_FOLDER = r"/home/%s/gestionlibre_gui-hg/output/" % SYSTEM_USER_NAME
 WEB2PY_APP_FOLDER = r"/home/%s/web2py/applications/%s/" % (SYSTEM_USER_NAME, WEB2PY_APP_NAME)
-SQLITE_DB_FILE = r'sqlite://storage.sqlite'
+DB_URI = r'sqlite://storage.sqlite'
 HMAC_KEY = "sha512:3f00b793-28b8-4b3c-8ffb-081b57fac54a"
 
 # default language
@@ -67,6 +68,17 @@ def write_values(data):
             if isinstance(value, basestring) and name.isupper():
                 # static value
                 config_file.write(name + "=" + value + "\n")
+                
+    if WEB2PY_APP_FOLDER is not None:
+        # Duplicated ini file for web2py app to know ini values
+        # It is impossible to use this workaround on environments without access
+        # to the file system so this would probably raise exceptions.
+        with open(os.path.join(WEB2PY_APP_FOLDER, "private", "webappconfig.ini"), "w") as webapp_config_file:
+            for name, value in data.iteritems():
+                if isinstance(value, basestring) and name.isupper():
+                    # static value
+                    webapp_config_file.write(name + "=" + value + "\n")
+
 
 # import wx
 # import wx.html
@@ -81,7 +93,7 @@ CSV_CONFIG_FILE = os.path.join(os.getcwd(), "example_db", "spanish.csv")
 CSV_TABLES_ROUTE = os.path.join(os.getcwd(), "example_db", "spanish")
 
 # create DAL connection (and create DB if does not exists)
-# db = DAL(SQLITE_DB_FILE, folder=SQLITE_DB_FOLDER)
+# db = DAL(DB_URI, folder=DATABASES_FOLDER)
 db = None
 
 # create a testing frame (wx "window"):

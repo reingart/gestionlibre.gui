@@ -11,9 +11,10 @@ session = config.session
 request = config.request
 
 
-modules = __import__('applications.%s.modules' % config.WEB2PY_APP_NAME, globals(), locals(), ['operations', 'crm'], -1)
-crm = modules.crm
-operations = modules.operations
+# modules = __import__('applications.%s.modules' % config.WEB2PY_APP_NAME, globals(), locals(), ['operations', 'crm'], -1)
+# crm = modules.crm
+# operations = modules.operations
+from modules import crm, operations
 
 # import applications.gestionlibre.modules.operations as operations
 # import applications.gestionlibre.modules.crm as crm

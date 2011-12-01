@@ -10,9 +10,11 @@ db = config.db
 session = config.session
 request = config.request
 
-modules = __import__('applications.%s.modules' % config.WEB2PY_APP_NAME, globals(), locals(), ['operations', 'crm'], -1)
-crm = modules.crm
-operations = modules.operations
+# modules = __import__('applications.%s.modules' % config.WEB2PY_APP_NAME, globals(), locals(), ['operations', 'crm'], -1)
+# crm = modules.crm
+# operations = modules.operations
+
+from modules import crm, operations
 
 # Import web2py app modules
 # import applications.gestionlibre.modules.operations as operations
@@ -1958,7 +1960,6 @@ def movements_process(evt, args=[], vars={}):
         if operation.type == "P" and (purchases_payment_terms_concept_id is not None) and document.invoices:
             offset_concept_id = purchases_payment_terms_concept_id
         else:
-            print "offset concept id", payment_terms.concept_id
             offset_concept_id = payment_terms.concept_id
 
     # end of receipt documents movement and offset change

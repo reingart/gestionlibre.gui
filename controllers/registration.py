@@ -26,7 +26,7 @@ def post_register_specify_firm(evt, args=[], vars={}):
                     print "Firm specification successful"
                     return dict(_redirect=URL(a=config.APP_NAME, c="default", f="index"))
                 else:
-                    "Contact already exists"
+                    print "Contact already exists or the user has a contact already"
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, post_register_specify_firm)
         

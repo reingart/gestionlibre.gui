@@ -12,9 +12,10 @@ request = config.request
 # import applications.gestionlibre.modules.operations as operations
 # import applications.gestionlibre.modules.crm as crm
 
-modules = __import__('applications.%s.modules' % config.WEB2PY_APP_NAME, globals(), locals(), ['operations', 'crm'], -1)
-crm = modules.crm
-operations = modules.operations
+# modules = __import__('applications.%s.modules' % config.WEB2PY_APP_NAME, globals(), locals(), ['operations', 'crm'], -1)
+# crm = modules.crm
+from modules import crm, operations
+#operations = modules.operations
 
 
 import datetime

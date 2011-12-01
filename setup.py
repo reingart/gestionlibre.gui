@@ -72,7 +72,7 @@ class MyFrame(wx.Frame):
         # end wxGlade
 
 
-def set_values(web2py_path, gui2py_path):
+def set_values(web2py_path, gui2py_path, gui_based = False):
     cwd = os.getcwd()
     try:
         login = os.getlogin()
@@ -89,17 +89,48 @@ def set_values(web2py_path, gui2py_path):
 
     ini_values = dict(APP_NAME = APP_NAME,
     SYSTEM_USER_NAME = login,
+    GUI2PY_APP_FOLDER = cwd,
     WEB2PY_APP_NAME = WEB2PY_APP_NAME,
     WEB2PY_FOLDER = WEB2PY_PATH,
     GUI2PY_FOLDER = GUI2PY_PATH,
     WEB2PY_APP_FOLDER = os.path.join(WEB2PY_PATH, "applications", WEB2PY_APP_NAME),
-    SQLITE_DB_FOLDER = os.path.join(WEB2PY_PATH, "applications", WEB2PY_APP_NAME, "databases"),
+    DATABASES_FOLDER = os.path.join(cwd, "databases"),
     TEMPLATES_FOLDER = os.path.join(cwd, "views"),
     PDF_TEMPLATES_FOLDER = os.path.join(cwd, "pdf_templates"),
     OUTPUT_FOLDER = os.path.join(cwd, "output"),
-    SQLITE_DB_FILE = r'sqlite://storage.sqlite',
+    DB_URI = r'sqlite://storage.sqlite',
     HMAC_KEY = HMAC_KEY,
     LANGUAGE = "")
+
+    # confirm db_uri or change it interactively
+
+    # present a modal widget with connection string confirmation
+    confirm_text = "Please confirm db connection string\n%s" % ini_values["DB_URI"]
+    
+    if gui_based:
+        retCode = wx.MessageBox(confirm_text, "db URI Srinng", wx.YES_NO | wx.ICON_QUESTION)
+        if retCode == wx.YES:
+            confirm_uri_string = "y"
+        else:
+            confirm_uri_string = "n"
+    else:
+        confirm_uri_string = raw_input(confirm_text + "\n(y/n):")
+
+    if not confirm_uri_string in ("\n", "Y", "y", None, ""):
+        # if change uri is requested
+        # prompt for uri
+        
+        prompt_for_db_uri = "Type a valid web2py db connection uri and press Enter"
+        
+        if gui_based:
+            new_uri_string = wx.GetTextFromUser(prompt_for_db_uri, caption="Input text", default_value=ini_values["DB_URI"], parent=None)
+        else:
+            new_uri_string = raw_input(prompt_for_db_uri + "\n")
+            
+        ini_values["DB_URI"] = str(new_uri_string)
+        if ini_values["DB_URI"] in ("", None):
+            print "Installation cancelled. Db conection string was not specified"
+            exit(1)
 
     # write config values to config.ini
     print "Writing config values to config.ini"
@@ -107,6 +138,15 @@ def set_values(web2py_path, gui2py_path):
     with open("config.ini", "w") as config:
         for k, v in ini_values.iteritems():
             config.write(k + "=" + v + "\n")
+
+    # write config values to webappconfig.ini
+    # for path search purposes mostly
+    print "Writing config values to webappconfig.ini"
+    if ini_values["WEB2PY_APP_FOLDER"] is not None:
+        # TODO: and ...FOLDER has a valid path
+        with open(os.path.join(ini_values["WEB2PY_APP_FOLDER"], "private", "webappconfig.ini"), "wb") as webappconfig:
+            for k, v in ini_values.iteritems():
+                webappconfig.write(k + "=" + v + "\n")
 
     # exit with status 0 and message
     print "Installation finished."
@@ -232,7 +272,7 @@ def start_install(evt):
         WEB2PY_PATH, "applications", WEB2PY_APP_NAME))
         tf.close()
 
-        starting_frame.gauge.SetValue(50)
+        starting_frame.gauge.SetValue(40)
         starting_frame.SetStatusText( \
         "web2py app installation complete. Please restart web2py server")
 
@@ -240,9 +280,10 @@ def start_install(evt):
         print "Installation cancelled. Could not copy web2py app files."
         exit(1)
 
-    result = set_values(WEB2PY_PATH, GUI2PY_PATH)
+    result = set_values(WEB2PY_PATH, GUI2PY_PATH, gui_based)
 
     if result == True:
+        starting_frame.gauge.SetValue(50)
         starting_frame.SetStatusText( \
         "Setup complete")
         starting_frame.button_start.Enable(False)
@@ -382,6 +423,7 @@ if ("install" in sys.argv) or ("--install" in sys.argv):
             tf.extractall(path=os.path.join(WEB2PY_PATH, \
             "applications", WEB2PY_APP_NAME))
             tf.close()
+
             print "App installation complete. Please restart web2py"
             
         else:

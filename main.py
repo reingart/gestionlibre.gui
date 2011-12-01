@@ -1358,11 +1358,11 @@ if __name__ == "__main__":
         T.t = gluon.languages.read_dict(T.language_file)
 
     # create DAL connection (and create DB if it does not exists)
-    config.db = DAL(config.SQLITE_DB_FILE, folder=config.SQLITE_DB_FOLDER)
+    config.db = DAL(config.DB_URI, folder=config.DATABASES_FOLDER)
 
     # PostgreSQL database
     # specify folder path as webapp path + "databases"
-    # config.db = DAL("postgres://gestionlibre:gestionlibre@localhost:5432/gestionlibre", folder=config.SQLITE_DB_FOLDER)
+    # config.db = DAL("postgres://gestionlibre:gestionlibre@localhost:5432/gestionlibre", folder=config.DATABASES_FOLDER)
 
     db = config.db
 
@@ -1380,10 +1380,11 @@ if __name__ == "__main__":
     # found" error
     # import applications.gestionlibre.modules.db_gestionlibre as db_gestionlibre
 
-    modules = __import__('applications.%s.modules' % config.WEB2PY_APP_NAME, \
-    globals(), locals(), ['db_gestionlibre',], -1)
-    db_gestionlibre = modules.db_gestionlibre
-
+    # modules = __import__('applications.%s.modules' % config.WEB2PY_APP_NAME, \
+    # globals(), locals(), ['db_gestionlibre',], -1)
+    # db_gestionlibre = modules.db_gestionlibre
+    from modules import db_gestionlibre
+    
     # define the database tables
     # web2py = False forces db.define_table("auth_user"..)
 
@@ -1497,6 +1498,29 @@ if __name__ == "__main__":
 
     config.access_control = gui.RBAC(config.db, config.auth, config.request, \
     config.session, config.html_frame)
+
+    login_string = None
+    arg_counter = 0
+    for arg in sys.argv:
+        arg_counter += 1
+        if "-user" in arg:
+            try:
+                login_string = sys.argv[arg_counter]
+            except IndexError:
+                print "User login not specified."
+
+    if isinstance(login_string, basestring) and len(login_string.split(":")) == 2:
+        # TODO: move to an authentication function
+        # straight login from command line.
+        email, password = login_string.split(":")
+
+        if config.access_control.validate_user(email, password):
+            print "Welcome %s" % email
+        else:
+            print "Authentication failed"
+
+    elif isinstance(login_string, basestring) and len(login_string.split(":")) != 2:
+        print "Incorrect mail:password argument"
 
     # gui.start_html_frame(config.html_frame)
     config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="default", f="index"))

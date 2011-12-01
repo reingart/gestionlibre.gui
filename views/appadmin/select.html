@@ -1,9 +1,15 @@
 {{ extend "layout.html" }}
 {{=A("Create " + table_name, _href=URL(a=config.APP_NAME, c="appadmin", f="create", args=[table_name,]))}}
 
-{{ if table is not None: }}
-  {{ =table }}
+{{ if rows is not None: }}
+  {{ =SQLTABLE(rows, linkto=URL(a=config.APP_NAME, c="appadmin", f="update"), imagelink="images/document--penc.png") }}
 {{ pass }}
+
+{{
+# linkto=URL(a=config.APP_NAME, c="appadmin", f="update")
+# db_table["id"].represent = lambda value: A(IMG(_src="images/document--pencil.png"), _href=URL(a=config.APP_NAME, c="appadmin", f="update", args=[table_name, value]))
+# db_table[table_name + "_id"].represent = lambda value: A(IMG(_src="images/document--pencil.png"), _href=URL(a=config.APP_NAME, c="appadmin", f="update", args=[table_name, value]))
+}}
 
 {{ if links is not None: }}
   {{ if len(links) > 0: }}

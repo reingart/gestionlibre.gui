@@ -139,9 +139,9 @@ def select(evt, args=[], vars={}):
 
     # create table
     if q is not None:
-        table = SQLTABLE(db(q).select(orderby=orderby), linkto=URL(a=config.APP_NAME, c="appadmin", f="update"))
+        rows = db(q).select(orderby=orderby)
 
-    return dict(table = table, links = links, table_name = table_name)
+    return dict(links = links, table_name = table_name, rows = rows)
 
 
 def update(evt, args=[], vars={}):
