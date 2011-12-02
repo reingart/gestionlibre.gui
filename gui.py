@@ -348,17 +348,29 @@ def action(url):
 
     else:
         if type(action_data) == dict:
-            # do not acumulate objects trough actions
+            # TODO:
+            # Do not acumulate objects trough actions,
+            # do something like erease_action_data()
+
+            # this objects are not used yet
+            # they intend to replace web2py environment
+            # values like response, ...
             config.response._vars = gluon.storage.Storage()
             config.response._vars.update(**action_data)
 
             action_data["menu"] = config.menu
             action_data["url_data"] = url_data
             action_data.update(**globals())
-            config.context.update(**action_data)
+            action_data["config"] = config
+            action_data["T"] = config.env["T"]
+            action_data["session"] = config.current["session"]
+            action_data["current"] = config.current
+            action_data["request"] = config.current["request"]
+            action_data["response"] = config.current["response"]
 
+            # config.context.update(**action_data)
             # add environment names to context
-            config.context["T"] = config.env["T"]
+            # config.context["T"] = config.env["T"]
 
     # search for templates for this action
     # if a view file was created, render action data with it
@@ -371,7 +383,7 @@ def action(url):
     try:
         if filename in (os.listdir(path)):
             absolute_path = os.path.join(path, filename)
-            xml = gluon.template.render(filename=absolute_path, path=config.TEMPLATES_FOLDER, context = config.context)
+            xml = gluon.template.render(filename=absolute_path, path=config.TEMPLATES_FOLDER, context = action_data)
 
     except OSError, e:
         print e

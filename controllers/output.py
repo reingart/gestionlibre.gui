@@ -47,8 +47,9 @@ def operation(evt, args=[], vars={}):
         
     try:
         point_of_sale = document.point_of_sale_id.code
-    except AttributeError:
+    except (AttributeError, RuntimeError), e:
         # no point of sale defined
+        # or db query error
         point_of_sale = "0000"
 
     from gluon.contrib.pyfpdf import Template
