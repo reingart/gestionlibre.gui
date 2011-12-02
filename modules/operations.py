@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 # coding: utf8
+
+# THIS FILE IS DUPLICATED
+# (gui2py and web2py apps)
+# REMEMBER TO COPY CHANGES
+# TO BOTH FILES TO KEEP THE
+# DATABASE AND FUNCTIONS
+# DEFINITIONS
+
 from gluon import *
 import datetime
 

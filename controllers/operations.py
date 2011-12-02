@@ -1475,8 +1475,6 @@ def on_movements_add_item_submit(evt):
             value = None
         amount = None
 
-        print "Item value input: %s" % value
-
         # Calculate price
         if (price_list_id is not None) and (value is None):
             price = db((db.price.price_list_id == price_list_id \
@@ -1500,12 +1498,13 @@ def on_movements_add_item_submit(evt):
             % (operation_id, amount, value, concept_id, quantity, movement_id)
             
         else:
+            movement_id = None
             "Operation %s is not editable" % operation_id
 
         # add movement to temporary stock update list
         if session.form.vars.update_stock:
-            update_stock_list.add(int(movement_id))
-            # print "Update stock temporary list: %s" % update_stock_list
+            if movement_id is not None:
+                update_stock_list.add(int(movement_id))
             session.update_stock_list = update_stock_list
 
         db.commit()
