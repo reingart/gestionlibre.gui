@@ -199,7 +199,8 @@ class NewHtmlWindow(wx.html.HtmlWindow):
             if (link.startswith("/%s" % config.APP_NAME) or \
             link.startswith(config.APP_NAME)):
                 xml = action(link)
-                config.html_frame.window.SetPage(unicode(xml, "utf-8"))
+                if xml is not None:
+                    config.html_frame.window.SetPage(unicode(xml, "utf-8"))
             else:
                 # non application url
                 config.html_frame.window.LoadPage(link)
@@ -209,14 +210,13 @@ class NewHtmlWindow(wx.html.HtmlWindow):
         else:
             if not (link.Href.startswith("/%s" % config.APP_NAME) or \
             link.Href.startswith(config.APP_NAME)):
-                
                 # web source
                 wx.html.HtmlWindow.OnLinkClicked(self, link)
-
             else:
                 # application action address
                 xml = action(link.Href)
-                config.html_frame.window.SetPage(unicode(xml, "utf-8"))
+                if xml is not None:
+                    config.html_frame.window.SetPage(unicode(xml, "utf-8"))
 
             set_url(link.Href, kind=kind)
 
@@ -343,34 +343,44 @@ def action(url):
 
         raise
 
-    if "_redirect" in action_data:
-        return action(action_data["_redirect"])
+
+    if type(action_data) == dict:
+        if "_redirect" in action_data:
+            return action(action_data["_redirect"])
+
+        elif "_no_render" in action_data:
+            if action_data["_no_render"] == True:
+                return None
+
+        # TODO:
+        # Do not acumulate objects trough actions,
+        # do something like erease_action_data()
+
+        # this objects are not used yet
+        # they intend to replace web2py environment
+        # values like response, ...
+        config.response._vars = gluon.storage.Storage()
+        config.response._vars.update(**action_data)
+
+        action_data["menu"] = config.menu
+        action_data["url_data"] = url_data
+        action_data.update(**globals())
+        action_data["config"] = config
+        action_data["T"] = config.env["T"]
+        action_data["session"] = config.current["session"]
+        action_data["current"] = config.current
+        action_data["request"] = config.current["request"]
+        action_data["response"] = config.current["response"]
+
+        # config.context.update(**action_data)
+        # add environment names to context
+        # config.context["T"] = config.env["T"]
 
     else:
-        if type(action_data) == dict:
-            # TODO:
-            # Do not acumulate objects trough actions,
-            # do something like erease_action_data()
-
-            # this objects are not used yet
-            # they intend to replace web2py environment
-            # values like response, ...
-            config.response._vars = gluon.storage.Storage()
-            config.response._vars.update(**action_data)
-
-            action_data["menu"] = config.menu
-            action_data["url_data"] = url_data
-            action_data.update(**globals())
-            action_data["config"] = config
-            action_data["T"] = config.env["T"]
-            action_data["session"] = config.current["session"]
-            action_data["current"] = config.current
-            action_data["request"] = config.current["request"]
-            action_data["response"] = config.current["response"]
-
-            # config.context.update(**action_data)
-            # add environment names to context
-            # config.context["T"] = config.env["T"]
+        # no dictionary returned
+        # then send void object
+        # to the html widget
+        return None
 
     # search for templates for this action
     # if a view file was created, render action data with it

@@ -120,8 +120,9 @@ def option(evt, args=[], vars={}):
 def set_language(evt, args=[], vars={}):
     session.form = SQLFORM.factory(Field("language", label=T("language")))
     languages = []
-    for language in os.listdir(os.path.join(config.WEB2PY_APP_FOLDER, "languages")):
-        languages.append(language[:-3])
+    for language in os.listdir(os.path.join(config.GUI2PY_APP_FOLDER, "languages")):
+        if not (language.startswith("_") or language.startswith(".")):
+            languages.append(language[:-3])
 
     if evt is not None:
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):

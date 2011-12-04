@@ -7,5 +7,8 @@ def quit(evt, args=[], vars={}):
     # close all windows
     print "Session closed by user input"
     config.html_frame.Close()
-    return dict()
+    # send a _no_render key/value
+    # to avoid template render after
+    # closing windows
+    return dict(_no_render=True)
 

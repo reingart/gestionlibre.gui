@@ -1325,13 +1325,12 @@ if __name__ == "__main__":
     # because of the non web2py execution environment
 
     T = config.env["T"]
-    T.folder = config.WEB2PY_APP_FOLDER
+    T.folder = config.GUI2PY_APP_FOLDER
 
     # test if language file exists or create it (except for default "en" value)
     if not (config.LANGUAGE in (None, "", "en")):
         language_file_path = os.path.join( \
-        config.WEB2PY_FOLDER, "applications", \
-        config.WEB2PY_APP_NAME, \
+        config.GUI2PY_APP_FOLDER, \
         "languages", "%s.py" % config.LANGUAGE)
 
         """
@@ -1360,7 +1359,8 @@ if __name__ == "__main__":
     # create DAL connection (and create DB if it does not exists)
     config.db = DAL(config.DB_URI, folder=config.DATABASES_FOLDER)
 
-    # PostgreSQL database
+    # Connection example for PostgreSQL database (set this at installation as DB_URI)
+    # or modify the value at [desktopapp]/config.ini and [web2pyapp]/webappconfig.ini
     # specify folder path as webapp path + "databases"
     # config.db = DAL("postgres://gestionlibre:gestionlibre@localhost:5432/gestionlibre", folder=config.DATABASES_FOLDER)
 
@@ -1503,7 +1503,7 @@ if __name__ == "__main__":
     arg_counter = 0
     for arg in sys.argv:
         arg_counter += 1
-        if "-user" in arg:
+        if arg.upper().replace("-", "") == "USER":
             try:
                 login_string = sys.argv[arg_counter]
             except IndexError:

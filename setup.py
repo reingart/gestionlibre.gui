@@ -7,6 +7,7 @@ try:
 except ImportError:
     print "readline feature not supported for user input"
 
+no_web2py_app = False
 path_walk = None
 GUI2PY_PATH = None
 WEB2PY_PATH = None
@@ -141,12 +142,24 @@ def set_values(web2py_path, gui2py_path, gui_based = False):
 
     # write config values to webappconfig.ini
     # for path search purposes mostly
-    print "Writing config values to webappconfig.ini"
-    if ini_values["WEB2PY_APP_FOLDER"] is not None:
-        # TODO: and ...FOLDER has a valid path
-        with open(os.path.join(ini_values["WEB2PY_APP_FOLDER"], "private", "webappconfig.ini"), "wb") as webappconfig:
-            for k, v in ini_values.iteritems():
-                webappconfig.write(k + "=" + v + "\n")
+    if not no_web2py_app:
+        print "Writing config values to web2py app"
+        if ini_values["WEB2PY_APP_FOLDER"] is not None:
+            # TODO: and ...FOLDER has a valid path
+            with open(os.path.join(ini_values["WEB2PY_APP_FOLDER"], "private", "webappconfig.ini"), "wb") as webappconfig:
+                for k, v in ini_values.iteritems():
+                    webappconfig.write(k + "=" + v + "\n")
+
+        # configure sys.path extension in local routes.py web app path
+        # create a routes.py at web2py_root/applications/appname
+        # write sys.path extension command
+
+        with open(os.path.join(ini_values["WEB2PY_APP_FOLDER"], "routes.py"), "wb") as routes_file:
+            routes_file.write("# -*- coding: utf-8 -*- \n")
+            routes_file.write("import os, sys\n")
+            routes_file.write("routes_in = tuple()\n")
+            routes_file.write("routes_out = tuple()\n")
+            routes_file.write("sys.path.append('%s')\n" % os.path.join(ini_values["GUI2PY_APP_FOLDER"], "modules"))
 
     # exit with status 0 and message
     print "Installation finished."
@@ -244,41 +257,42 @@ def start_install(evt):
                 GestionLibreSetup.Exit()
                 exit(1)
 
-    if WEB2PY_PATH is not None:
-        dlg = wx.MessageDialog(None, \
-        "Confirm web2py app installation at %s?" \
-        % os.path.join(WEB2PY_PATH, "applications", \
-        WEB2PY_APP_NAME),
-        'Confirm web2pyapp installation', \
-        wx.YES_NO | wx.ICON_QUESTION)
-        retCode = dlg.ShowModal()
-        if (retCode == wx.ID_YES):
-            dlg.Destroy()
+    if not no_web2py_app:
+        if (WEB2PY_PATH is not None):
+            dlg = wx.MessageDialog(None, \
+            "Confirm web2py app installation at %s?" \
+            % os.path.join(WEB2PY_PATH, "applications", \
+            WEB2PY_APP_NAME),
+            'Confirm web2pyapp installation', \
+            wx.YES_NO | wx.ICON_QUESTION)
+            retCode = dlg.ShowModal()
+            if (retCode == wx.ID_YES):
+                dlg.Destroy()
+
+            else:
+                print "Could not install web2pyapp. Installation cancelled"
+                dlg.Destroy()
+                searching = False
+                starting_frame.Close()
+                GestionLibreSetup.Exit()
+                exit(1)
+
+            print "Writing web2py app to disk"
+            import tarfile
+
+            tf = tarfile.open( \
+            "web2py.app.gestionlibre.w2p")
+            tf.extractall(path=os.path.join( \
+            WEB2PY_PATH, "applications", WEB2PY_APP_NAME))
+            tf.close()
+
+            starting_frame.gauge.SetValue(40)
+            starting_frame.SetStatusText( \
+            "web2py app installation complete. Please restart web2py server")
 
         else:
-            print "Could not install web2pyapp. Installation cancelled"
-            dlg.Destroy()
-            searching = False
-            starting_frame.Close()
-            GestionLibreSetup.Exit()
+            print "Installation cancelled. Could not copy web2py app files."
             exit(1)
-
-        print "Writing web2py app to disk"
-        import tarfile
-
-        tf = tarfile.open( \
-        "web2py.app.gestionlibre.w2p")
-        tf.extractall(path=os.path.join( \
-        WEB2PY_PATH, "applications", WEB2PY_APP_NAME))
-        tf.close()
-
-        starting_frame.gauge.SetValue(40)
-        starting_frame.SetStatusText( \
-        "web2py app installation complete. Please restart web2py server")
-
-    else:
-        print "Installation cancelled. Could not copy web2py app files."
-        exit(1)
 
     result = set_values(WEB2PY_PATH, GUI2PY_PATH, gui_based)
 
@@ -299,25 +313,25 @@ def search_folder_path(name):
 
     search_loop = True
 
-    print "Searching for %s path" % name
+    print "Searching for %s path. Please wait." % name
     
     while search_loop:
         try:
             path_info = path_walk.next()
-            if name in path_info[0]:
-                path = os.path.join(path_info[0])
-                if not path in paths:
-                    paths.append( path_info[0] )
-                    return path
-                    
+            path_list = path_info[0].split("/")
+            if len(path_list) > 0:
+                if name in path_list[len(path_list) -1]:
+                    path = path_info[0]
+                    if not path in paths:
+                        paths.append(path_info[0])
+                        
         except StopIteration:
             # end of walk reached
             search_loop = False
-            
     return None
 
 
-if ("install" in sys.argv) or ("--install" in sys.argv):
+if "INSTALL" in [arg.upper().replace("-", "") for arg in sys.argv]:
     paths = []
     path_walk = None
     WEB2PY_PATH = None
@@ -326,29 +340,36 @@ if ("install" in sys.argv) or ("--install" in sys.argv):
     APP_NAME = "gestionlibre"
     WEB2PY_APP_NAME = "gestionlibre"
 
-    if not "--no_gui" in sys.argv:
-        gui_based = True
-    else:
-        gui_based = False
-
+    gui_based = True
     arg_counter = 0
     
     for arg in sys.argv:
+        upper_arg = arg.upper()
+        arg_name = upper_arg.replace("-", "")
+
         arg_counter += 1
 
-        if arg == "--WEB2PY_PATH":
+        if arg_name == "NO_GUI":
+            gui_based = False
+            print "No gui mode"
+
+        if arg_name == "NO_WEB2PY_APP":
+            no_web2py_app = True
+            print "web2py app installation disabled"
+
+        if arg_name == "WEB2PY_PATH":
             WEB2PY_PATH = sys.argv[arg_counter]
             continue
 
-        elif arg == "--GUI2PY_PATH":
+        elif arg_name == "GUI2PY_PATH":
             GUI2PY_PATH = sys.argv[arg_counter]
             continue
-        
-        elif arg == "--web2py_app_name":
+
+        elif arg_name == "WEB2PY_APP_NAME":
             WEB2PY_APP_NAME = sys.argv[arg_counter]
             continue
 
-        elif arg == "--app_name":
+        elif arg_name == "APP_NAME":
             APP_NAME = sys.argv[arg_counter]
             continue
 
@@ -391,17 +412,33 @@ if ("install" in sys.argv) or ("--install" in sys.argv):
             the_folder = None
             paths = []
             
-            # Loop trough each folder named web2py in system
-            while True:
-                the_folder = search_folder_path("web2py")
-                if the_folder is not None:
-                    if raw_input("Is %s your web2py path? (y/n):" \
-                    % the_folder) in ["y", "Y"]:
-                        WEB2PY_PATH = the_folder
-                        break
+            feedback = raw_input("Please spacify the absolute path to your web2py installation or press Enter for auto search (it might take a while)\n")
+            if feedback:
+                WEB2PY_PATH = feedback
+            else:
+                # Loop trough each folder named web2py in system
+                # create paths options
+                
+                search_folder_path("web2py")
+                options = []
 
+                if len(paths) > 0:
+                    print
+                    print "Select a path for your actual web2py installation:"
+                    print "###################################################"
+
+                    for i, option in enumerate(paths):
+                        options.append(i)
+                        print option, " [%s]" % i
+                    print
+
+                    try:
+                        choice = int(raw_input("Choose a path index:"))
+                        WEB2PY_PATH = paths[choice]
+                    except (TypeError, IndexError):
+                        print "You chosed an invalid path index"
+                        exit(1)
                 else:
-                    # end of iteration
                     print """
                     Could not find the path for web2py.
                     Please install it or set the path manually with
@@ -410,25 +447,26 @@ if ("install" in sys.argv) or ("--install" in sys.argv):
                     exit(1)
 
         # If web2py applications folder found, request write confirmation.
-        if raw_input(\
-        "Please confirm GestionLibreApp installation at %s (required for database initialization) (y/n):" \
-        % os.path.join(WEB2PY_PATH, "applications", WEB2PY_APP_NAME)) in ["y", "Y"]:
-            # If write confirmation,
-            # copy web2py.app.gestionlibre.w2p files
-            # to web2py applications folder
-            print "Writing web2py app to disk"
-            import tarfile
+        if not no_web2py_app:
+            if raw_input(\
+            "Please confirm GestionLibreApp installation at %s (y/n):" \
+            % os.path.join(WEB2PY_PATH, "applications", WEB2PY_APP_NAME)) in ["y", "Y"]:
+                # If write confirmation,
+                # copy web2py.app.gestionlibre.w2p files
+                # to web2py applications folder
+                print "Writing web2py app to disk"
+                import tarfile
 
-            tf = tarfile.open("web2py.app.gestionlibre.w2p")
-            tf.extractall(path=os.path.join(WEB2PY_PATH, \
-            "applications", WEB2PY_APP_NAME))
-            tf.close()
+                tf = tarfile.open("web2py.app.gestionlibre.w2p")
+                tf.extractall(path=os.path.join(WEB2PY_PATH, \
+                "applications", WEB2PY_APP_NAME))
+                tf.close()
 
-            print "App installation complete. Please restart web2py"
-            
-        else:
-            print "Installation cancelled. Could not copy web2py app files."
-            exit(1)
+                print "App installation complete. Please restart web2py"
+
+            else:
+                print "Installation cancelled. Could not copy web2py app files."
+                exit(1)
 
         # Loop trough each folder named gui2py in system
         # If gui2py folder found. request confirmation.
@@ -438,31 +476,45 @@ if ("install" in sys.argv) or ("--install" in sys.argv):
 
         if GUI2PY_PATH is None:
             # Search path for gui2py installation
-
             # reset os path walk
             path_walk = None
             the_folder = None
             paths = []
-            # Loop trough each folder named web2py in system
-            while True:
-                the_folder = search_folder_path("gui2py")
-                if the_folder is not None:
-                    if raw_input("Is %s your gui2py path? (y/n):" \
-                    % the_folder) in ["y", "Y"]:
-                        GUI2PY_PATH = the_folder
-                        break
 
+            feedback = raw_input("Please spacify the absolute path to your gui2py installation or press Enter for auto search (it might take a while)\n")
+
+            if feedback:
+                GUI2PY_PATH = feedback
+            else:
+                options = []
+                search_folder_path("gui2py")
+
+                if len(paths) > 0:
+                    print
+                    print "Select a path for your actual gui2py installation:"
+                    print "###################################################"
+
+                    for i, option in enumerate(paths):
+                        options.append(i)
+                        print option, " [%s]" % i
+                    print
+
+                    try:
+                        choice = int(raw_input("Choose a path index:"))
+                        GUI2PY_PATH = paths[choice]
+                    except (TypeError, IndexError):
+                        print "You chosed an invalid path index"
+                        exit(1)
                 else:
-                    # end of iteration
                     print """
-                          Could not find the path for gui2py.
-                          Please install it or set the path manually with
-                          >python setup.py install --GUI2PY_PATH [path]
-                          """
-
+                    Could not find the path for gui2py.
+                    Please install it or set the path manually with
+                    > python setup.py install --GUI2PY_PATH [path]
+                    """
                     exit(1)
 
         result = set_values(WEB2PY_PATH, GUI2PY_PATH)
+        
         if result == True:
             exit(0)
         else:
