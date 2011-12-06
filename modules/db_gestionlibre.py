@@ -21,7 +21,7 @@ STATIC_TABLE_NAMES = [
 'accounting_period', 'category', 'subcategory', 'jurisdiction', 'country', 'state', 'city', 'address', 'tax', 'custom_serial_code', 'debugging', 'option', 'customer_group', 'situation', 'cost_center', 'bank', 'plant', 'department', 'labor_union', 'payroll', 'healthcare', 'pension', 'role', 'formula', 'agreement', 'price_list', 'point_of_sale', 'collection', 'color', 'size', 'warehouse', 'rate', 'account', 'journal_entry', 'staff_category', 'staff', 'entry', 'salesperson', 'file', 'relative', 'supplier', 'family', 'concept', 'fund', 'payment_terms', 'payment_method', 'checkbook', 'payroll_new', 'salary', 'document', 'product_structure', 'stock', 'customer', 'subcustomer', 'fee', 'contact', 'installment', 'quota', 'operation', 'price', 'memo', 'contact_user', 'bank_check', 'cash_balance', 'payroll_column', 'movement', 'reconciliation', 'credit_card_coupon'
 ]
 
-def define_tables(db, auth, env, web2py = True, migrate = True):
+def define_tables(db, auth, env, web2py = True, migrate = True, fake_migrate = False):
 
     # custom serial code creation. Include plain text between \t tab chars: "A\tThis is not randomized\tBN"
     # A: alphabetical, B: alphanumeric, N: integers between zero and nine, \t [text] \t: normal text bounds
@@ -111,9 +111,9 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         # Auth tables
         db.define_table("auth_user", Field("first_name"), Field("last_name"), \
         Field("email"), Field("password"), Field("registration_key"), \
-        Field("reset_password_key"), migrate=migrate, sequence_name = "auth_user_id_Seq")
+        Field("reset_password_key"), migrate=migrate, fake_migrate=fake_migrate, sequence_name = "auth_user_id_Seq")
 
-    auth.define_tables()                           # creates all needed tables
+    auth.define_tables(migrate = migrate, fake_migrate = fake_migrate) # creates all needed tables
 
     # Create tables before reference definitions based in STATIC_TABLE_NAMES
     # Raises a psycopg2 error with PostgreSQL
@@ -126,7 +126,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
             Field('%s_%s' % (table_name, "id"), "id"),
             sequence_name = '%s' % sequence_name,
             format='%(description)s',
-            migrate=migrate,
+            migrate=migrate, fake_migrate=fake_migrate,
             )
 
     # db_00_accounting
@@ -141,7 +141,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "accounting_period_accounting_period_id_Seq",
         format='%(description)s',
-        migrate=migrate,
+        migrate=migrate, fake_migrate=fake_migrate,
         )
 
     # db_00_common
@@ -159,7 +159,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "category_category_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # product sub category
     db.define_table('subcategory',
@@ -170,7 +170,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "subcategory_subcategory_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     db.define_table('jurisdiction',
         Field('jurisdiction_id', 'id'),
@@ -179,7 +179,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "jurisdiction_jurisdiction_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # country?
     db.define_table('country',
@@ -189,7 +189,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "country_country_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # states/province/district
     db.define_table('state',
@@ -200,7 +200,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "state_state_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # city?
     db.define_table('city',
@@ -212,7 +212,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "city_city_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # Address?
     db.define_table('address',
@@ -227,7 +227,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "address_address_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # tax category
     db.define_table('tax',
@@ -245,7 +245,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "tax_tax_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
 
     # custom serial code table for validation purposes
@@ -255,7 +255,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', 'boolean', default=True),
         sequence_name = "custom_serial_code_custom_serial_code_id_Seq",
         format='%(code)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # debugging entries
     db.define_table('debugging',
@@ -263,7 +263,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('msg', 'text'),
         sequence_name = "debugging_debugging_id_Seq",
         format='%(msg)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # gestionlibre options
     db.define_table('option',
@@ -277,7 +277,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('value', 'text'),
         format='%(name)s',
         sequence_name = "option_option_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_00_crm
 
@@ -289,7 +289,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "customer_group_customer_group_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # status (active, unactive, prospect, etc.)
     db.define_table('situation',
@@ -299,7 +299,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "situation_situation_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_00_financials
 
@@ -313,7 +313,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "cost_center_cost_center_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # banks "Bancos"
     db.define_table('bank',
@@ -325,7 +325,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "bank_bank_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_00_hr
 
@@ -336,7 +336,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "plant_plant_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     db.define_table('department',
         Field('department_id', 'id'),
@@ -345,7 +345,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "department_department_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     db.define_table('labor_union',
         Field('labor_union_id', 'id'),
@@ -357,7 +357,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "labor_union_labor_union_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     db.define_table('payroll',
         Field('payroll_id', 'id'),
@@ -371,7 +371,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "payroll_payroll_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     db.define_table('healthcare',
         Field('healthcare_id', 'id'),
@@ -384,7 +384,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "healthcare_healthcare_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     db.define_table('pension',
         Field('pension_id', 'id'),
@@ -396,7 +396,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "pension_pension_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     db.define_table('role',
         Field('role_id', 'id'),
@@ -405,7 +405,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "role_role_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     db.define_table('formula',
         Field('formula_id', 'id'),
@@ -420,7 +420,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "formula_formula_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     db.define_table('agreement',
         Field('agreement_id', 'id'),
@@ -431,7 +431,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "agreement_agreement_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_00_operations
 
@@ -445,7 +445,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "price_list_price_list_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # points of sale
     db.define_table('point_of_sale',
@@ -459,7 +459,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "point_of_sale_point_of_sale_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
 
     # db_00_scm
@@ -474,7 +474,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "collection_collection_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # colours (products 1st variant)
     db.define_table('color',
@@ -484,7 +484,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "color_color_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # sizes (products 2nd variant ) ie. clothes...
     db.define_table('size',
@@ -496,7 +496,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "size_size_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # warehouses
     db.define_table('warehouse',
@@ -507,7 +507,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "warehouse_warehouse_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # rates / fare / tariff
     db.define_table('rate',
@@ -523,7 +523,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "rate_rate_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_01_accounting
 
@@ -542,7 +542,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "account_account_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # Journal entry "Asientos"
     db.define_table('journal_entry',
@@ -559,7 +559,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "journal_entry_journal_entry_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_01_hr
 
@@ -578,7 +578,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "staff_category_staff_category_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     db.define_table('staff',
         Field('staff_id', 'id'),
@@ -602,7 +602,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "staff_staff_id_Seq",
         format='%(name)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_02_accounting
 
@@ -618,7 +618,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "entry_entry_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_02_crm
 
@@ -637,7 +637,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "salesperson_salesperson_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_02_hr
 
@@ -679,7 +679,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "file_file_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     db.define_table('relative',
         Field('relative_id', 'id'),
@@ -699,7 +699,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "relative_relative_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_03_scm
 
@@ -727,7 +727,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "supplier_supplier_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_04_scm
 
@@ -747,7 +747,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "family_family_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_05_operations
 
@@ -797,7 +797,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('orderable', 'boolean', default=False), # can be ordered/bought, do not use, filter concepts by internal property
         format='%(description)s',
         sequence_name = "concept_concept_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     db.concept.tax_id.requires = IS_IN_DB(db(db.concept.tax == True), "concept.concept_id", "%(description)s")
 
@@ -819,7 +819,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "fund_fund_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # payment terms "CondicionesPago"
     db.define_table('payment_terms',
@@ -835,7 +835,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "payment_terms_payment_terms_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # payment methods
     db.define_table('payment_method',
@@ -948,7 +948,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "payment_method_payment_method_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # checkbook
     db.define_table('checkbook',
@@ -963,7 +963,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         sequence_name = "checkbook_checkbook_id_Seq",
         format='%(description)s',
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_06_hr
 
@@ -981,7 +981,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "payroll_new_payroll_new_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     db.define_table('salary',
         Field('salary_id', 'id'),
@@ -1010,7 +1010,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "salary_salary_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_06_operations
 
@@ -1060,7 +1060,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "document_document_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_06_scm
 
@@ -1075,7 +1075,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "product_structure_product_structure_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
 
 
@@ -1093,7 +1093,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "stock_stock_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_07_crm
 
@@ -1135,7 +1135,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(legal_name)s',
         sequence_name = "customer_customer_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # sub-customers ("sub-accounts") "CLIENTES"
     db.define_table('subcustomer',
@@ -1172,7 +1172,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(legal_name)s',
         sequence_name = "subcustomer_subcustomer_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_07_fees
 
@@ -1196,7 +1196,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "fee_fee_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_08_crm
 
@@ -1221,7 +1221,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "contact_contact_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_08_fees
 
@@ -1252,7 +1252,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "installment_installment_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     db.define_table('quota',
         Field('quota_id', 'id'),
@@ -1274,7 +1274,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "quota_quota_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_08_operations
 
@@ -1318,7 +1318,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format=operation_format,
         sequence_name = "operation_operation_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
 
     # price "engine":
@@ -1354,7 +1354,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format=price_format,
         sequence_name = "price_price_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
 
     # db_09_crm
@@ -1372,7 +1372,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "memo_price_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
 
     # many to many referenced user-contact table
@@ -1385,7 +1385,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "contact_user_contact_user_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_09_financials
 
@@ -1420,7 +1420,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "bank_check_bank_check_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # cash balance "Cierres"
     db.define_table('cash_balance',
@@ -1440,7 +1440,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "cash_balance_cash_balance_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_09_hr
 
@@ -1457,7 +1457,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "payroll_column_payroll_column_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_09_operations
 
@@ -1482,7 +1482,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('bank_check_id', 'integer'), # reference
         format='%(description)s',
         sequence_name = "movement_movement_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     # db_10_financials
 
@@ -1501,7 +1501,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "reconciliation_reconciliation_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
 
     # credit card coupons
@@ -1523,7 +1523,7 @@ def define_tables(db, auth, env, web2py = True, migrate = True):
         Field('replica', type='boolean', default=False),
         format='%(description)s',
         sequence_name = "credit_card_coupon_credit_card_coupon_id_Seq",
-        migrate=migrate)
+        migrate=migrate, fake_migrate=fake_migrate)
 
     if not web2py:
         db.commit()

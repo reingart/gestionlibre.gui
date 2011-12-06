@@ -11,6 +11,8 @@ no_web2py_app = False
 path_walk = None
 GUI2PY_PATH = None
 WEB2PY_PATH = None
+GUI_BASED = True
+CLIENT = False
 
 try:
     import wx
@@ -73,7 +75,7 @@ class MyFrame(wx.Frame):
         # end wxGlade
 
 
-def set_values(web2py_path, gui2py_path, gui_based = False):
+def set_values(web2py_path, gui2py_path, gui_based = GUI_BASED, client = CLIENT):
     cwd = os.getcwd()
     try:
         login = os.getlogin()
@@ -91,6 +93,7 @@ def set_values(web2py_path, gui2py_path, gui_based = False):
     ini_values = dict(APP_NAME = APP_NAME,
     SYSTEM_USER_NAME = login,
     GUI2PY_APP_FOLDER = cwd,
+    GUI2PY_APP_CLIENT = client,
     WEB2PY_APP_NAME = WEB2PY_APP_NAME,
     WEB2PY_FOLDER = WEB2PY_PATH,
     GUI2PY_FOLDER = GUI2PY_PATH,
@@ -108,7 +111,7 @@ def set_values(web2py_path, gui2py_path, gui_based = False):
     # present a modal widget with connection string confirmation
     confirm_text = "Please confirm db connection string\n%s" % ini_values["DB_URI"]
     
-    if gui_based:
+    if GUI_BASED:
         retCode = wx.MessageBox(confirm_text, "db URI Srinng", wx.YES_NO | wx.ICON_QUESTION)
         if retCode == wx.YES:
             confirm_uri_string = "y"
@@ -123,7 +126,7 @@ def set_values(web2py_path, gui2py_path, gui_based = False):
         
         prompt_for_db_uri = "Type a valid web2py db connection uri and press Enter"
         
-        if gui_based:
+        if GUI_BASED:
             new_uri_string = wx.GetTextFromUser(prompt_for_db_uri, caption="Input text", default_value=ini_values["DB_URI"], parent=None)
         else:
             new_uri_string = raw_input(prompt_for_db_uri + "\n")
@@ -138,7 +141,7 @@ def set_values(web2py_path, gui2py_path, gui_based = False):
 
     with open("config.ini", "w") as config:
         for k, v in ini_values.iteritems():
-            config.write(k + "=" + v + "\n")
+            config.write(k + "=" + str(v) + "\n")
 
     # write config values to webappconfig.ini
     # for path search purposes mostly
@@ -148,7 +151,7 @@ def set_values(web2py_path, gui2py_path, gui_based = False):
             # TODO: and ...FOLDER has a valid path
             with open(os.path.join(ini_values["WEB2PY_APP_FOLDER"], "private", "webappconfig.ini"), "wb") as webappconfig:
                 for k, v in ini_values.iteritems():
-                    webappconfig.write(k + "=" + v + "\n")
+                    webappconfig.write(k + "=" + str(v) + "\n")
 
         # configure sys.path extension in local routes.py web app path
         # create a routes.py at web2py_root/applications/appname
@@ -294,7 +297,7 @@ def start_install(evt):
             print "Installation cancelled. Could not copy web2py app files."
             exit(1)
 
-    result = set_values(WEB2PY_PATH, GUI2PY_PATH, gui_based)
+    result = set_values(WEB2PY_PATH, GUI2PY_PATH, gui_based = GUI_BASED, client = CLIENT)
 
     if result == True:
         starting_frame.gauge.SetValue(50)
@@ -336,13 +339,12 @@ if "INSTALL" in [arg.upper().replace("-", "") for arg in sys.argv]:
     path_walk = None
     WEB2PY_PATH = None
     GUI2PY_PATH = None
-    
+
     APP_NAME = "gestionlibre"
     WEB2PY_APP_NAME = "gestionlibre"
 
-    gui_based = True
     arg_counter = 0
-    
+
     for arg in sys.argv:
         upper_arg = arg.upper()
         arg_name = upper_arg.replace("-", "")
@@ -350,31 +352,30 @@ if "INSTALL" in [arg.upper().replace("-", "") for arg in sys.argv]:
         arg_counter += 1
 
         if arg_name == "NO_GUI":
-            gui_based = False
+            GUI_BASED = False
             print "No gui mode"
 
-        if arg_name == "NO_WEB2PY_APP":
+        elif arg_name == "NO_WEB2PY_APP":
             no_web2py_app = True
             print "web2py app installation disabled"
 
-        if arg_name == "WEB2PY_PATH":
+        elif arg_name == "WEB2PY_PATH":
             WEB2PY_PATH = sys.argv[arg_counter]
-            continue
 
         elif arg_name == "GUI2PY_PATH":
             GUI2PY_PATH = sys.argv[arg_counter]
-            continue
 
         elif arg_name == "WEB2PY_APP_NAME":
             WEB2PY_APP_NAME = sys.argv[arg_counter]
-            continue
 
         elif arg_name == "APP_NAME":
             APP_NAME = sys.argv[arg_counter]
-            continue
+
+        elif arg_name == "CLIENT":
+            CLIENT = True
 
 
-    if gui_based:
+    if GUI_BASED:
 
         # Install GestionLibre with wxPython interface
         # If WEB2PY_PATH is None
@@ -412,7 +413,7 @@ if "INSTALL" in [arg.upper().replace("-", "") for arg in sys.argv]:
             the_folder = None
             paths = []
             
-            feedback = raw_input("Please spacify the absolute path to your web2py installation or press Enter for auto search (it might take a while)\n")
+            feedback = raw_input("Please specify the absolute path to your web2py installation or press Enter for auto search (it might take a while)\n")
             if feedback:
                 WEB2PY_PATH = feedback
             else:
@@ -481,7 +482,7 @@ if "INSTALL" in [arg.upper().replace("-", "") for arg in sys.argv]:
             the_folder = None
             paths = []
 
-            feedback = raw_input("Please spacify the absolute path to your gui2py installation or press Enter for auto search (it might take a while)\n")
+            feedback = raw_input("Please specify the absolute path to your gui2py installation or press Enter for auto search (it might take a while)\n")
 
             if feedback:
                 GUI2PY_PATH = feedback
@@ -513,7 +514,7 @@ if "INSTALL" in [arg.upper().replace("-", "") for arg in sys.argv]:
                     """
                     exit(1)
 
-        result = set_values(WEB2PY_PATH, GUI2PY_PATH)
+        result = set_values(WEB2PY_PATH, GUI2PY_PATH, gui_based = GUI_BASED, client = CLIENT)
         
         if result == True:
             exit(0)

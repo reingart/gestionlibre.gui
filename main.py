@@ -1391,8 +1391,13 @@ if __name__ == "__main__":
     # define the auth tables (this goes after app tables definition)
     config.auth.settings.hmac_key = config.HMAC_KEY       # before define_tables()
 
+    # activate web2py fake_migrate for client installations
+    fake_migrate = False
+    if config.GUI2PY_APP_CLIENT.upper() in ("TRUE", "YES"):
+        fake_migrate = True
+
     # custom db initialization for GestiónLibre
-    db_gestionlibre.define_tables(db, config.auth, config.env, web2py = False)
+    db_gestionlibre.define_tables(db, config.auth, config.env, web2py = False, fake_migrate = fake_migrate)
 
     # crud (buggy: form submission and database transactions problems)
     config.crud = gluon.tools.Crud(config.env, db=db)
