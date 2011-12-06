@@ -321,13 +321,11 @@ def search_folder_path(name):
     while search_loop:
         try:
             path_info = path_walk.next()
-            path_list = path_info[0].split("/")
-            if len(path_list) > 0:
-                if name in path_list[len(path_list) -1]:
-                    path = path_info[0]
-                    if not path in paths:
-                        paths.append(path_info[0])
-                        
+            if name in os.path.basename(path_info[0]) and os.path.isdir(path_info[0]):
+                path = path_info[0]
+                if not path in paths:
+                    paths.append(path_info[0])
+
         except StopIteration:
             # end of walk reached
             search_loop = False
