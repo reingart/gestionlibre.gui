@@ -14,7 +14,7 @@ request = config.request
 
 # modules = __import__('applications.%s.modules' % config.WEB2PY_APP_NAME, globals(), locals(), ['operations', 'crm'], -1)
 # crm = modules.crm
-from modules import crm, operations
+from modules import crm, operations, accounting
 #operations = modules.operations
 
 
@@ -22,32 +22,12 @@ import datetime
 
 from gui2py.form import EVT_FORM_SUBMIT
 
-def accounting_period(year):
-    # get or create an accounting period
-    if year is None:
-        # get the system clock year by default
-        year = datetime.date.today().year
-
-    pedestal = datetime.date(year, 1, 1)
-    threshold = datetime.date(year+1, 1, 1)
-    accounting_period_id = None
-    the_period = db(db.accounting_period.starting >= pedestal\
-    ).select().first()
-    if the_period is None:
-        accounting_period_id = db.accounting_period.insert(\
-        starting = pedestal, ending = threshold, \
-        description = str(year))
-        db.commit()
-    else:
-        accounting_period_id = the_period.accounting_period_id
-
-    return accounting_period_id
 
 def index(): return dict(message="hello from accounting.py")
 
 
 def journal_entries(evt, args=[], vars={}):
-    accounting_period_id = accounting_period(datetime.date.today().year)
+    accounting_period_id = accounting.accounting_period(db, datetime.date.today().year)
     journal_entries = SQLTABLE(db(\
     db.journal_entry.accounting_period_id == accounting_period_id).select(), \
     linkto=URL(a=config.APP_NAME, c="accounting", f="journal_entry"), \

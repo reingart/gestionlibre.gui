@@ -1975,8 +1975,6 @@ def movements_process(evt, args=[], vars={}):
 
         offset_concept = db.concept[offset_concept_id]
 
-        print "Offset concept", str(offset_concept)
-
         # TODO: validate current account limit if offset concept is
         # current account. Move validation to auxiliar function
 

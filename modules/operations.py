@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# coding: utf8
+# -*- coding: utf-8 -*-
 
 # THIS FILE IS DUPLICATED
 # (gui2py and web2py apps)
@@ -10,6 +10,8 @@
 
 from gluon import *
 import datetime
+
+import accounting
 
 # operation processing
 
@@ -53,7 +55,7 @@ def process(db, session, operation_id):
     # get the last journal entry
     # or create one
     # TODO: precise j.e. selection/creation
-    journal_entry = db(db.journal_entry).select().last()
+    journal_entry = db.journal_entry[accounting.journal_entry(db)]
     # check if journal entry is valid
     # TODO: Do standard entry validation
     # according to local regulations
@@ -63,11 +65,15 @@ def process(db, session, operation_id):
     journal_entry.posted.year == today.year) and \
     (journal_entry.posted.month == today.month) and \
     (journal_entry.posted.day == today.day))):
-        journal_entry_id = db.journal_entry.insert(\
-        accounting_period_id = db(\
-        db.accounting_period).select().last(), \
-        description="%s entry" % str(today))
-        journal_entry = db.journal_entry[journal_entry_id]
+        # journal_entry_id = db.journal_entry.insert(\
+        # accounting_period_id = db(\
+        # db.accounting_period).select().last(), \
+        # description="%s entry" % str(today))
+        # journal_entry = db.journal_entry[journal_entry_id]
+        journal_entry_id = accounting.journal_entry(db, year = datetime.date.today().year)
+
+    else:
+        journal_entry_id = journal_entry.journal_entry_id
 
     # movements loop (process entries)
     entries = 0
@@ -102,7 +108,7 @@ def process(db, session, operation_id):
         elif concept.exit == True:
             amount = -(mov.amount)*invert
         # insert entry record
-        entry_id = db.entry.insert(journal_entry_id = journal_entry, \
+        entry_id = db.entry.insert(journal_entry_id = journal_entry_id, \
         account_id = concept.account_id, amount = amount)
         entries += 1
 
