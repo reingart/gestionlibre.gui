@@ -1295,6 +1295,19 @@ if __name__ == "__main__":
     # import web2py (change the path!)
     sys.path.append(config.WEB2PY_FOLDER)
 
+    login_string = None
+    arg_counter = 0
+    for arg in sys.argv:
+        arg_counter += 1
+        if arg.upper().replace("-", "") == "USER":
+            try:
+                login_string = sys.argv[arg_counter]
+            except IndexError:
+                print "User login not specified."
+
+        elif arg.upper().replace("-", "") == "LEGACY_DB":
+            config.LEGACY_DB = True
+
     # load web2py package
     import gluon
     import gluon.shell
@@ -1393,7 +1406,8 @@ if __name__ == "__main__":
 
     # activate web2py fake_migrate for client installations
     fake_migrate = False
-    if config.GUI2PY_APP_CLIENT.upper() in ("TRUE", "YES"):
+    if (config.GUI2PY_APP_CLIENT.upper() in ("TRUE", "YES", "1")) \
+    or (str(config.LEGACY_DB).upper() in ("TRUE", "YES", "1")):
         fake_migrate = True
 
     # custom db initialization for GestiónLibre
@@ -1503,16 +1517,6 @@ if __name__ == "__main__":
 
     config.access_control = gui.RBAC(config.db, config.auth, config.request, \
     config.session, config.html_frame)
-
-    login_string = None
-    arg_counter = 0
-    for arg in sys.argv:
-        arg_counter += 1
-        if arg.upper().replace("-", "") == "USER":
-            try:
-                login_string = sys.argv[arg_counter]
-            except IndexError:
-                print "User login not specified."
 
     if isinstance(login_string, basestring) and len(login_string.split(":")) == 2:
         # TODO: move to an authentication function

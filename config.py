@@ -39,9 +39,11 @@ TEMPLATES_FOLDER = r"/home/%s/gestionlibre_gui-hg/views/" % SYSTEM_USER_NAME
 PDF_TEMPLATES_FOLDER = r"/home/%s/gestionlibre_gui-hg/pdf_templates/" % SYSTEM_USER_NAME
 OUTPUT_FOLDER = r"/home/%s/gestionlibre_gui-hg/output/" % SYSTEM_USER_NAME
 WEB2PY_APP_FOLDER = r"/home/%s/web2py/applications/%s/" % (SYSTEM_USER_NAME, WEB2PY_APP_NAME)
+LEGACY_DB=False
 DB_URI = r'sqlite://storage.sqlite'
 HMAC_KEY = "sha512:3f00b793-28b8-4b3c-8ffb-081b57fac54a"
 GUI2PY_APP_CLIENT=False
+
 
 # default language
 LANGUAGE="en"

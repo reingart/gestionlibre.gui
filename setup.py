@@ -1,7 +1,41 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
 
-import sys, os
+HELP_TEXT = """
+    GestiónLibre setup command options:
+
+    ./setup.py [option 1 [value 1]] ... [option n]
+
+    * --help : Display this text
+    * --?: same as help
+    
+    * --install : Start server/client configuration. It asks for
+    the web2py/gui2py folders, db URI, and wether it must install
+    the webapp in the current web2py installation. Writes the
+    config.ini file with the installation basic parameters
+
+    * --hmac_key [value] : special key for the web2py auth class (use a local
+    key for each GestiónLibre project. Use the same key for client
+    installations). If not specified, it is configured during
+    installation. (used with --install)
+
+    * --client : Configure as client gui application (used with
+    --install)
+
+    * --no_web2py_app : Do not install the web2py application
+    (used with --install)
+    
+    * --no_gui : Skip graphical dialogs on installation. Displays
+    the installation options in the terminal (used with --install)
+    
+    * --web2py_path [value] : Absolute path to the local web2py installation
+    (used with --install)
+    
+    * --gui2py_path [value] : Absolute path to the local gui2py installation
+    (used with --install)
+"""
+
+import sys, os, random
 try:
     import readline
 except ImportError:
@@ -13,6 +47,8 @@ GUI2PY_PATH = None
 WEB2PY_PATH = None
 GUI_BASED = True
 CLIENT = False
+LEGACY_DB = False
+HMAC_KEY = None
 
 try:
     import wx
@@ -74,17 +110,34 @@ class MyFrame(wx.Frame):
         self.Layout()
         # end wxGlade
 
+def create_dirs():
+    print "Creating subfolders... "
+    for subfolder in ["databases",]:
+        path = os.path.join(os.getcwd(), subfolder)
+        if not os.path.exists(path):
+            os.mkdir(path)
+    return None
 
-def set_values(web2py_path, gui2py_path, gui_based = GUI_BASED, client = CLIENT):
+def create_hmac_key():
+    # a naive hmac key creator
+    hmk="sha512:3f00b793-28b8-4b3c-8ffb-081b57fac54a"
+    new_hmac_key = "sha512:"
+    for i, c in enumerate(hmk):
+        if i > 6:
+            if c != "-":
+                new_hmac_key += random.choice(tuple("0123456789abcdef"))
+            else:
+                new_hmac_key += c
+    return new_hmac_key
+
+
+def set_values(web2py_path, gui2py_path, gui_based = GUI_BASED, client = CLIENT, legacy_db = LEGACY_DB, hmac_key = HMAC_KEY):
     cwd = os.getcwd()
     try:
         login = os.getlogin()
     except AttributeError:
         login = ""
 
-    # demo key
-    HMAC_KEY = "sha512:3f00b793-28b8-4b3c-8ffb-081b57fac54a"
-    
     WEB2PY_PATH = web2py_path
     GUI2PY_PATH = gui2py_path
     
@@ -103,7 +156,8 @@ def set_values(web2py_path, gui2py_path, gui_based = GUI_BASED, client = CLIENT)
     PDF_TEMPLATES_FOLDER = os.path.join(cwd, "pdf_templates"),
     OUTPUT_FOLDER = os.path.join(cwd, "output"),
     DB_URI = r'sqlite://storage.sqlite',
-    HMAC_KEY = HMAC_KEY,
+    HMAC_KEY = hmac_key,
+    LEGACY_DB = legacy_db,
     LANGUAGE = "")
 
     # confirm db_uri or change it interactively
@@ -111,7 +165,7 @@ def set_values(web2py_path, gui2py_path, gui_based = GUI_BASED, client = CLIENT)
     # present a modal widget with connection string confirmation
     confirm_text = "Please confirm db connection string\n%s" % ini_values["DB_URI"]
     
-    if GUI_BASED:
+    if gui_based:
         retCode = wx.MessageBox(confirm_text, "db URI Srinng", wx.YES_NO | wx.ICON_QUESTION)
         if retCode == wx.YES:
             confirm_uri_string = "y"
@@ -124,7 +178,7 @@ def set_values(web2py_path, gui2py_path, gui_based = GUI_BASED, client = CLIENT)
         # if change uri is requested
         # prompt for uri
         
-        prompt_for_db_uri = "Type a valid web2py db connection uri and press Enter"
+        prompt_for_db_uri = "Type a valid web2py db connection URI and press Enter"
         
         if GUI_BASED:
             new_uri_string = wx.GetTextFromUser(prompt_for_db_uri, caption="Input text", default_value=ini_values["DB_URI"], parent=None)
@@ -135,6 +189,54 @@ def set_values(web2py_path, gui2py_path, gui_based = GUI_BASED, client = CLIENT)
         if ini_values["DB_URI"] in ("", None):
             print "Installation cancelled. Db conection string was not specified"
             exit(1)
+
+    demo_key = "sha512:3f00b793-28b8-4b3c-8ffb-081b57fac54a"
+    
+    if hmac_key is None:
+        confirm_text = "Do you want to keep the demo hmac key?\n%s" % demo_key
+        
+        if gui_based:
+            retCode = wx.MessageBox(confirm_text, "HMAC KEY", wx.YES_NO | wx.ICON_QUESTION)
+            if retCode == wx.YES:
+                confirm_hmac = "y"
+            else:
+                confirm_hmac = "n"
+        else:
+            confirm_hmac = raw_input(confirm_text + "\n(y/n):")
+
+        if not confirm_hmac.strip() in ("\n", "Y", "y", None, ""):
+            # if change hmac is requested
+            # prompt for hmac
+
+            prompt_for_hmac = "You can use the random key, type a custom key or type \"new\" to retry"
+
+            user_input_loop = True
+            while user_input_loop == True:
+                new_random_key=create_hmac_key()
+                if GUI_BASED:
+                    new_hmac = wx.GetTextFromUser(prompt_for_hmac, caption="Input text", default_value=new_random_key, parent=None)
+                else:
+                    new_hmac = raw_input(prompt_for_hmac + "\n" + new_random_key + " (Enter)\n").strip()
+                    
+                if new_hmac == "new":
+                    # new key requested
+                    continue
+                elif new_hmac in (None, ""):
+                    if not gui_based:
+                        # terminal input accepts the random key
+                        ini_values["HMAC_KEY"] = new_random_key
+                        user_input_loop = False
+                    else:
+                        print "Installation cancelled. hmac key was not specified"
+                        exit(1)
+                else:
+                    # store wathever was entered
+                    ini_values["HMAC_KEY"] = new_hmac
+                    user_input_loop = False
+
+        else:
+            # demo key
+            ini_values["HMAC_KEY"] = demo_key
 
     # write config values to config.ini
     print "Writing config values to config.ini"
@@ -297,7 +399,8 @@ def start_install(evt):
             print "Installation cancelled. Could not copy web2py app files."
             exit(1)
 
-    result = set_values(WEB2PY_PATH, GUI2PY_PATH, gui_based = GUI_BASED, client = CLIENT)
+    create_dirs()
+    result = set_values(WEB2PY_PATH, GUI2PY_PATH, gui_based = GUI_BASED, client = CLIENT, legacy_db = LEGACY_DB)
 
     if result == True:
         starting_frame.gauge.SetValue(50)
@@ -332,7 +435,13 @@ def search_folder_path(name):
     return None
 
 
-if "INSTALL" in [arg.upper().replace("-", "") for arg in sys.argv]:
+command_args = [arg.upper().replace("-", "") for arg in sys.argv]
+
+if "HELP" in command_args or "?" in command_args:
+    print HELP_TEXT
+    exit(0)
+
+elif "INSTALL" in command_args:
     paths = []
     path_walk = None
     WEB2PY_PATH = None
@@ -372,6 +481,11 @@ if "INSTALL" in [arg.upper().replace("-", "") for arg in sys.argv]:
         elif arg_name == "CLIENT":
             CLIENT = True
 
+        elif arg_name == "LEGACY_DB":
+            LEGACY_DB = True
+
+        elif arg_name == "HMAC_KEY":
+            HMAC_KEY = sys.argv[arg_counter]
 
     if GUI_BASED:
 
@@ -511,8 +625,9 @@ if "INSTALL" in [arg.upper().replace("-", "") for arg in sys.argv]:
                     > python setup.py install --GUI2PY_PATH [path]
                     """
                     exit(1)
-
-        result = set_values(WEB2PY_PATH, GUI2PY_PATH, gui_based = GUI_BASED, client = CLIENT)
+                    
+        create_dirs()
+        result = set_values(WEB2PY_PATH, GUI2PY_PATH, gui_based = GUI_BASED, client = CLIENT, legacy_db = LEGACY_DB)
         
         if result == True:
             exit(0)
@@ -522,3 +637,4 @@ if "INSTALL" in [arg.upper().replace("-", "") for arg in sys.argv]:
 else:
     print "Run python setup.py --install for initial setup"
     exit(0)
+
