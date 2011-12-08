@@ -168,6 +168,14 @@ def update(evt, args=[], vars={}):
                 db.commit()
                 print "Record updated"
                 config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="appadmin", f="read", args=[str(config.session.db_table), config.session.record_id]))
+        elif session.form.errors:
+            print "The form has errors"
+            print "####################"
+            for e in session.form.errors:
+                print e
+
+
+                
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, update)
 
@@ -194,6 +202,11 @@ def create(evt, args=[], vars={}):
             db.commit()
             print "Form accepted"
             config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="appadmin", f="read", args=[str(config.session.db_table), config.session.record_id]))
+        elif config.session.form.errors:
+            print "The form has errors"
+            print "####################"
+            for e in config.session.form.errors:
+                print e
 
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, create)
