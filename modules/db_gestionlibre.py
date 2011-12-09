@@ -21,7 +21,7 @@ STATIC_TABLE_NAMES = [
 'accounting_period', 'category', 'subcategory', 'jurisdiction', 'country', 'state', 'city', 'address', 'tax', 'custom_serial_code', 'debugging', 'option', 'customer_group', 'situation', 'cost_center', 'bank', 'plant', 'department', 'labor_union', 'payroll', 'healthcare', 'pension', 'role', 'formula', 'agreement', 'price_list', 'point_of_sale', 'collection', 'color', 'size', 'warehouse', 'rate', 'account', 'journal_entry', 'staff_category', 'staff', 'entry', 'salesperson', 'file', 'relative', 'supplier', 'family', 'concept', 'fund', 'payment_terms', 'payment_method', 'checkbook', 'payroll_new', 'salary', 'document', 'product_structure', 'stock', 'customer', 'subcustomer', 'fee', 'contact', 'installment', 'quota', 'operation', 'price', 'memo', 'contact_user', 'bank_check', 'cash_balance', 'payroll_column', 'movement', 'reconciliation', 'credit_card_coupon'
 ]
 
-def define_tables(db, auth, env, web2py = True, migrate = True, fake_migrate = False):
+def define_tables(db, auth, env, web2py = False, migrate = True, fake_migrate = False):
 
     # custom serial code creation. Include plain text between \t tab chars: "A\tThis is not randomized\tBN"
     # A: alphabetical, B: alphanumeric, N: integers between zero and nine, \t [text] \t: normal text bounds
@@ -79,14 +79,6 @@ def define_tables(db, auth, env, web2py = True, migrate = True, fake_migrate = F
     def custom_post_register(arg):
         redirect(URL(a="gestionlibre", c="registration", f="post_register_specify_firm"))
 
-
-    # auth settings
-    
-    if web2py == True:
-        auth.settings.register_onaccept = custom_post_register
-        auth.settings.login_onaccept = custom_post_login
-
-
     def today():
         return datetime.date.today()
 
@@ -112,6 +104,12 @@ def define_tables(db, auth, env, web2py = True, migrate = True, fake_migrate = F
         db.define_table("auth_user", Field("first_name"), Field("last_name"), \
         Field("email"), Field("password"), Field("registration_key"), \
         Field("reset_password_key"), migrate=migrate, fake_migrate=fake_migrate, sequence_name = "auth_user_id_Seq")
+
+    else:
+        # auth settings
+        auth.settings.register_onaccept = custom_post_register
+        auth.settings.login_onaccept = custom_post_login
+
 
     auth.define_tables(migrate = migrate, fake_migrate = fake_migrate) # creates all needed tables
 

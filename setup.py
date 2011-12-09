@@ -259,12 +259,17 @@ def set_values(web2py_path, gui2py_path, gui_based = GUI_BASED, client = CLIENT,
         # create a routes.py at web2py_root/applications/appname
         # write sys.path extension command
 
+        """
+        # Not used (webapp routes.py file needs extra configuration at
+        # the web2py root routes.py file (routes_app)
+        
         with open(os.path.join(ini_values["WEB2PY_APP_FOLDER"], "routes.py"), "wb") as routes_file:
             routes_file.write("# -*- coding: utf-8 -*- \n")
             routes_file.write("import os, sys\n")
             routes_file.write("routes_in = tuple()\n")
             routes_file.write("routes_out = tuple()\n")
             routes_file.write("sys.path.append('%s')\n" % os.path.join(ini_values["GUI2PY_APP_FOLDER"], "modules"))
+        """
 
     # exit with status 0 and message
     print "Installation finished."
