@@ -12,6 +12,7 @@ import wx.aui
 import cStringIO
 
 import config
+T = config.env["T"]
 
 from gui import NewHtmlWindow, RedirectText
 
@@ -251,16 +252,16 @@ class PyAUIFrame(wx.Frame):
         
         # GestiónLibre html window buttons (home, previous, next)
 
-        self.button_1 = tb4.AddLabelTool(10001, "Billing", tb4_bmp1)
-        self.button_2 = tb4.AddLabelTool(10002, "CA", tb4_bmp2)
-        self.button_3 = tb4.AddLabelTool(10003, "Movements", tb4_bmp3)
+        self.button_1 = tb4.AddLabelTool(10001, str(T("Billing")), tb4_bmp1)
+        self.button_2 = tb4.AddLabelTool(10002, str(T("CA")), tb4_bmp2)
+        self.button_3 = tb4.AddLabelTool(10003, str(T("Movements")), tb4_bmp3)
 
         # End of GestiónLibre html window buttons (home, previous, next)
         
-        self.button_4 = tb4.AddLabelTool(10004, "Articles", tb4_bmp4)
+        self.button_4 = tb4.AddLabelTool(10004, str(T("Articles")), tb4_bmp4)
         tb4.AddSeparator()
-        self.button_5 = tb4.AddLabelTool(10005, "Queries", tb4_bmp5)
-        self.button_8 = tb4.AddLabelTool(10008, "Operations", tb4_bmp8)
+        self.button_5 = tb4.AddLabelTool(10005, str(T("Queries")), tb4_bmp5)
+        self.button_8 = tb4.AddLabelTool(10008, str(T("Operations")), tb4_bmp8)
         tb4.Realize()
 
 
@@ -663,7 +664,7 @@ class PyAUIFrame(wx.Frame):
         # auto completed action toolbar
 
         if not type(links) in (list, set, tuple):
-            print "Liks object is not a sequence. "
+            print T("Liks object is not a sequence.")
             return
             
         elif len(links) == 0:
@@ -707,7 +708,7 @@ class PyAUIFrame(wx.Frame):
         # Create a new AUI dockable pane for the action links if it was not added
         if not hasattr(self, "the_action_pane"):
             self.the_action_pane = self._mgr.AddPane(self.action_tool_bar, wx.aui.AuiPaneInfo().
-                            Name("action tool bar").Caption("Action tool bar").
+                            Name("action tool bar").Caption(T("Action tool bar")).
                             ToolbarPane().Top().Row(2).Position(1).
                             LeftDockable(False).RightDockable(False))
 

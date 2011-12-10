@@ -1,5 +1,5 @@
 {{ extend "layout.html" }}
-{{=A("Create " + table_name, _href=URL(a=config.APP_NAME, c="appadmin", f="create", args=[table_name,]))}}
+{{=A(T("Create") + " " + table_name, _href=URL(a=config.APP_NAME, c="appadmin", f="create", args=[table_name,]))}}
 
 {{ if rows is not None: }}
   {{ =SQLTABLE(rows, linkto=URL(a=config.APP_NAME, c="appadmin", f="update"), imagelink="images/document--penc.png") }}
@@ -19,10 +19,10 @@
       {{ links_div_list.append(link) }}
       {{ links_div_list.append(SPAN("  ")) }}
     {{ pass }}
-    {{=H3("Pages")}}
+    {{=H3(T("Pages"))}}
     {{ =DIV(*links_div_list) }}
   {{ pass }}
 
 {{ else:}}
-  {{ =H3("No records found")}}
+  {{ =H3(T("No records found"))}}
 {{ pass }}

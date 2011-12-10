@@ -1,17 +1,17 @@
 {{ extend "layout.html" }}
-{{=H3("Setup")}}
+{{=H3(T("Setup"))}}
 {{ if "message" in vars.keys(): }}
 {{ =P(vars["message"].capitalize()) }}
 {{ pass }}
 
 {{ if first_run_form is not None: }}
-  {{ =P("Please create an administrative user")}}
+  {{ =P(T("Please create an administrative user"))}}
   {{ =first_run_form }}
 {{ else: }}
   {{ if config.auth.user is not None:}}
     {{=H5(T("Current language") + ": " + language)}}
     {{=BEAUTIFY(actions)}}
   {{ else: }}
-    {{ =P("Please login as admin for setup options") }}
+    {{ =P(T("Please login as admin for setup options")) }}
   {{ pass }}
 {{ pass }}

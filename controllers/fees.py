@@ -6,6 +6,8 @@ import datetime
 import config
 
 db = config.db
+T = config.env["T"]
+
 session = config.session
 request = config.request
 
@@ -27,10 +29,10 @@ def list_fees(evt, args=[], vars={}):
     return dict(fees = SQLTABLE(db(db.fee).select(), \
     columns = ["fee.fee_id", "fee.code", "fee.description", \
     "fee.due_date", "fee.document_id", "fee.starting", "fee.ending"], \
-    headers = {"fee.fee_id": "Edit", "fee.code": "Code", \
-    "fee.description": "Description", "fee.due_date": "Due date", \
-    "fee.document_id": "Document", "fee.starting": "Starting", \
-    "fee.ending": "Ending"}, \
+    headers = {"fee.fee_id": T("Edit"), "fee.code": T("Code"), \
+    "fee.description": T("Description"), "fee.due_date": T("Due date"), \
+    "fee.document_id": T("Document"), "fee.starting": T("Starting"), \
+    "fee.ending": T("Ending")}, \
     linkto=URL(a=config.APP_NAME, c="fees", f="update_fee")))
     
 def update_fee(evt, args=[], vars={}):
@@ -43,7 +45,7 @@ def update_fee(evt, args=[], vars={}):
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             db.fee[session.fee_id].update_record(**session.form.vars)
             db.commit()
-            print "Fee updated"
+            print T("Fee updated")
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="fees", f="list_fees"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, update_fee)
@@ -56,7 +58,7 @@ def create_fee(evt, args=[], vars={}):
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             db.fee.insert(**session.form.vars)
             db.commit()
-            print "Fee updated"
+            print T("Fee updated")
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="fees", f="list_fees"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, create_fee)
@@ -75,11 +77,11 @@ def list_installments(evt, args=[], vars={}):
     columns = ["installment.installment_id","installment.customer_id",\
     "installment.subcustomer_id","installment.supplier_id", \
     "installment.fee_id", "installment.quotas"], \
-    headers = {"installment.installment_id": "Edit", \
-    "installment.customer_id": "Customer",\
-    "installment.subcustomer_id": "Subcustomer", \
-    "installment.supplier_id": "Supplier", \
-    "installment.fee_id": "Fee", "installment.quotas": "Quotas"}, \
+    headers = {"installment.installment_id": T("Edit"), \
+    "installment.customer_id": T("Customer"),\
+    "installment.subcustomer_id": T("Subcustomer"), \
+    "installment.supplier_id": T("Supplier"), \
+    "installment.fee_id": T("Fee"), "installment.quotas": T("Quotas")}, \
     linkto=URL(a=config.APP_NAME, c="fees", f="update_installment")))
 
 
@@ -91,7 +93,7 @@ def update_installment(evt, args=[], vars={}):
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             db.installment[session.installment_id].update_record(**session.form.vars)
             db.commit()
-            print "Installment updated"
+            print T("Installment updated")
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="fees", f="update_installment"))
             
     else:
@@ -102,9 +104,9 @@ def update_installment(evt, args=[], vars={}):
     columns = ["quota.quota_id","quota.number",\
     "quota.due_date", \
     "quota.fee_id", "quota.amount"], \
-    headers = {"quota.quota_id": "Edit","quota.number": "Number",\
-    "quota.due_date": "Due date", \
-    "quota.fee_id": "Fee", "quota.amount": "Quota"}, \
+    headers = {"quota.quota_id": T("Edit"),"quota.number": T("Number"),\
+    "quota.due_date": T("Due date"), \
+    "quota.fee_id": T("Fee"), "quota.amount": T("Quota")}, \
     linkto=URL(a=config.APP_NAME, c="fees", f="update_quota.html"))
 
     return dict(form = session.form, quotas = quotas)
@@ -116,9 +118,9 @@ def list_quotas():
     columns = ["quota.quota_id","quota.number",\
     "quota.due_date", \
     "quota.fee_id", "quota.amount"], \
-    headers = {"quota.quota_id": "Edit","quota.number": "Number",\
-    "quota.due_date": "Due date", \
-    "quota.fee_id": "Fee", "quota.amount": "Quota"}, \
+    headers = {"quota.quota_id": T("Edit"),"quota.number": T("Number"),\
+    "quota.due_date": T("Due date"), \
+    "quota.fee_id": T("Fee"), "quota.amount": T("Quota")}, \
     linkto=URL(a=config.APP_NAME, c="fees", f="update_quota.html")))
     
 def update_quota(evt, args=[], vars={}):
@@ -129,7 +131,7 @@ def update_quota(evt, args=[], vars={}):
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             db.quota[session.quota_id].update_record(**session.form.vars)
             db.commit()
-            print "Quota updated"
+            print T("Quota updated")
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="fees", f="update_installment"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, update_quota)

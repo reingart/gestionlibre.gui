@@ -168,7 +168,7 @@ def user(evt, args=[], vars={"_next": None}):
                 if the_user is not None:
                     user_data = config.auth.login_bare(session.form.vars.email, session.form.vars.password)
                     if user_data != False:
-                        print "Login accepted"
+                        print T("Login accepted")
                         
                         if config._auth_next is not None:
                             # reset auth redirection
@@ -178,9 +178,9 @@ def user(evt, args=[], vars={"_next": None}):
                             config._auth_source = None
                             config.html_frame.window.OnLinkClicked(next_url)
 
-                    else: print "Authentication failed"
-                else: print "The user entered does not exist"
-            else: print "The form did not validate"
+                    else: print T("Authentication failed")
+                else: print T("The user entered does not exist")
+            else: print T("The form did not validate")
 
         elif request.args[0] == "register":
             if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
@@ -191,7 +191,7 @@ def user(evt, args=[], vars={"_next": None}):
                     last_name = session.form.vars.last_name, email = session.form.vars.email, \
                     password = session.form.vars.password)
                 else:
-                    print "The passwords do not match"
+                    print T("The passwords do not match")
                     
                 db.commit()
                 
@@ -200,13 +200,13 @@ def user(evt, args=[], vars={"_next": None}):
                 config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="default", f="index"))
 
             elif session.form.errors:
-                print "Form errors", session.form.errors
+                print T("Form errors"), session.form.errors
             else:
-                print "The form did not validate"
+                print T("The form did not validate")
 
         else:
             # return error message
-            print "Not implemented"
+            print T("Not implemented")
 
     return dict(form = session.form, message = None)
 

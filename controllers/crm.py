@@ -7,6 +7,7 @@ import datetime
 import config
 
 db = config.db
+T = config.env["T"]
 session = config.session
 request = config.request
 
@@ -31,7 +32,7 @@ def customer_panel(evt, args=[], vars={}):
     """ Customer on-line panel. Show info/stats/links to actions"""
     contact_user = db(db.contact_user.user_id == config.auth.user_id).select().first()
     if contact_user is None:
-        return dict(customer_orders = None, message="No tax id selected", customer = None)
+        return dict(customer_orders = None, message=T("No tax id selected"), customer = None)
     try:
         contact = db(db.contact.contact_id == contact_user.contact_id).select().first()
     except KeyError:
@@ -62,7 +63,7 @@ def customer_panel(evt, args=[], vars={}):
     # get operation rows
     customer_orders = customer_orders_set.select()
 
-    return dict(customer_orders = customer_orders, message="Customer panel", customer = customer)
+    return dict(customer_orders = customer_orders, message=T("Customer panel"), customer = customer)
 
 
 def current_account_report(evt, args=[], vars={}):
@@ -104,7 +105,7 @@ def current_account_report(evt, args=[], vars={}):
                         elif row.document.invoices == True:
                             session.total_debt += row.operation.amount
                 except (ValueError, TypeError), e:
-                    print "Could not calculate operation %s: %s" % str(row.operation.operation_id, e)
+                    print T("Could not calculate operation") + " %s: %s" % str(row.operation.operation_id, e)
 
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="crm", f="current_account_report"))
 
@@ -116,11 +117,11 @@ def current_account_report(evt, args=[], vars={}):
         columns = ["operation.operation_id", "operation.posted", \
         "operation.amount", "operation.customer_id", \
         "operation.subcustomer_id", "document.description"]
-        headers = { "operation.operation_id": "Edit", \
-        "operation.posted": "Posted", "operation.amount": "Amount", \
-        "operation.customer_id": "Customer", \
-        "operation.subcustomer_id": "Subcustomer", \
-        "document.description": "Document" }
+        headers = { "operation.operation_id": T("Edit"), \
+        "operation.posted": T("Posted"), "operation.amount": T("Amount"), \
+        "operation.customer_id": T("Customer"), \
+        "operation.subcustomer_id": T("Subcustomer"), \
+        "document.description": T("Document") }
 
         operations = SQLTABLE(db(session.operation_q).select(), columns=columns, \
         headers=headers, linkto=URL(a=config.APP_NAME, c="operations", f="ria_movements"))

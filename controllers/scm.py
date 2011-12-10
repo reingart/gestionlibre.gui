@@ -5,6 +5,7 @@ from gluon import *
 import datetime
 import config
 
+T = config.env["T"]
 db = config.db
 session = config.session
 request = config.request
@@ -75,17 +76,17 @@ def ria_stock(evt, args=[], vars={}):
     columns = ['stock.stock_id', 'stock.code', \
     'stock.concept_id', \
     'stock.posted', 'stock.value']
-    headers = {'stock.stock_id': 'Edit', 'stock.code': 'Code', \
-    'stock.concept_id': 'Product', 'stock.posted': 'Posted', \
-    'stock.value': 'Value'}
+    headers = {'stock.stock_id': T('Edit'), 'stock.code': T('Code'), \
+    'stock.concept_id': T('Product'), 'stock.posted': T('Posted'), \
+    'stock.value': T('Value')}
 
     # TODO: unify action/function naming conventions
     stock_list = SQLTABLE(rows, columns = columns, \
     headers = headers, \
     linkto=URL(a=config.APP_NAME, c="scm", f="stock_item_update"))
 
-    change_stock_form = A("Change stock", _href=URL(a=config.APP_NAME, c="scm", f="change_stock"))
-    stock_movement_form = A("Stock movement", _href=URL(a=config.APP_NAME, c="scm", f="stock_movement"))
+    change_stock_form = A(T("Change stock"), _href=URL(a=config.APP_NAME, c="scm", f="change_stock"))
+    stock_movement_form = A(T("Stock movement"), _href=URL(a=config.APP_NAME, c="scm", f="stock_movement"))
 
 
     return dict(stock_list = stock_list, \
@@ -102,7 +103,7 @@ def stock_item_update(evt, args=[], vars={}):
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             db.stock[session.stock_id].update_record(**session.form.vars)
             db.commit()
-            print "Record updated"
+            print T("Record updated")
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="scm", f="ria_stock"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, stock_item_update)
@@ -131,14 +132,14 @@ def stock_movement(evt, args=[], vars={}):
             db.stock.warehouse_id == session.form.vars.warehouse)).select(\
             ).first()
             if session.form.vars.warehouse == session.form.vars.destination:
-                print "Please choose different warehouses"
+                print T("Please choose different warehouses")
                 
             elif stock_item_source is not None:
                 tmp_stock_value = stock_item_source.value - float(\
                 session.form.vars.quantity)
                 if tmp_stock_value < 0:
                     # negative stock
-                    print "Insufficient source stock quantity"
+                    print T("Insufficient source stock quantity")
                 else:
                     # get or create a stock
                     stock_item_destination = db((\
@@ -163,12 +164,12 @@ def stock_movement(evt, args=[], vars={}):
                     value = old_value + float(session.form.vars.quantity))
                     
                     db.commit()
-                    print "Stock updated"
+                    print T("Stock updated")
                     return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="scm", f="ria_stock"))
 
             else:
                 # the item does not exist
-                print "The item specified was not found in the warehouse"
+                print T("The item specified was not found in the warehouse")
 
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, stock_movement)
@@ -205,12 +206,12 @@ def change_stock(evt, args=[], vars={}):
             float(session.form.vars.quantity)
 
             if tmp_value < 0:
-                print "Insufficient stock value."
+                print T("Insufficient stock value.")
             else:
                 db.stock[stock_item_id].update_record(\
                 value = tmp_value)
                 db.commit()
-                print "Stock value changed"
+                print T("Stock value changed")
                 return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="scm", f="ria_stock"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, change_stock)

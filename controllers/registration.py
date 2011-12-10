@@ -6,6 +6,8 @@ import datetime
 import config
 
 db = config.db
+T = config.env["T"]
+
 session = config.session
 request = config.request
 
@@ -23,10 +25,10 @@ def post_register_specify_firm(evt, args=[], vars={}):
                     db.contact_user.insert(user_id=config.auth.user_id, \
                     contact_id=contact, description=db.auth_user[config.auth.user_id].email)
                     db.commit()
-                    print "Firm specification successful"
+                    print T("Firm specification successful")
                     return dict(_redirect=URL(a=config.APP_NAME, c="default", f="index"))
                 else:
-                    print "Contact already exists or the user has a contact already"
+                    print T("Contact exists or the user has a contact already")
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, post_register_specify_firm)
         

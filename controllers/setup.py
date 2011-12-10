@@ -27,7 +27,7 @@ def index(evt, args=[], vars={}):
     if session.get("admin_group_id", None) is None:
         session.admin_group_id = db.auth_group.insert(role="admin")
         db.commit()
-        print "Admin user group created"
+        print T("Admin user group created")
 
     # create an admin user creation form
     session.form = SQLFORM.factory(Field("first_name", requires=IS_NOT_EMPTY()), Field("last_name", requires=IS_NOT_EMPTY()), Field("email", requires=IS_EMAIL()), Field("password", "password", requires = gluon.validators.CRYPT(key=config.HMAC_KEY)), Field("retype_password", "password", requires = gluon.validators.CRYPT(key=config.HMAC_KEY)))
@@ -56,12 +56,12 @@ def index(evt, args=[], vars={}):
 
                 db.commit()
                 
-                print "User %s created" % session.admin_user_id
-                print "You should configure a firm tax id to use ordering forms"
+                print T("User %s created") % session.admin_user_id
+                print T("You should configure a firm tax id to use ordering forms")
                 
                 return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="setup", f="index"))
             else:
-                print "The passwords do not match"
+                print T("The passwords do not match")
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, index)
 
@@ -109,7 +109,7 @@ def option(evt, args=[], vars={}):
             else:
                 session.the_option_id = db.option[session.the_option_id].update_record(**session.form.vars)
             db.commit()
-            print "Form accepted"
+            print T("Form accepted")
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="setup", f="options"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, option)
@@ -128,12 +128,12 @@ def set_language(evt, args=[], vars={}):
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             if session.form.vars.language is not None:
                 if len(session.form.vars.language) > 0:
-                    print "Changing config.ini language value to %s" % session.form.vars.language
+                    print T("Changing config.ini language value to %s") % session.form.vars.language
                     config.LANGUAGE = session.form.vars.language
                     data = dict([(d, getattr(config, d)) for d in dir(config) \
                     if isinstance(getattr(config, d), basestring)])
                     config.write_values(data)
-                    print "Please restart the desktop application"
+                    print T("Please restart the desktop application")
 
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, set_language)
@@ -158,5 +158,5 @@ def initialize():
     #     for each dictionary object obj in records["tablename"]:
     #         insert unpacked obj in tablename
     
-    message="Done"
+    message=T("Done")
     return dict(message=message, records = len(records))

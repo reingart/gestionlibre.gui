@@ -6,6 +6,8 @@ import datetime
 import config
 
 db = config.db
+T = config.env["T"]
+
 session = config.session
 request = config.request
 
@@ -34,9 +36,9 @@ def journal_entries(evt, args=[], vars={}):
     columns=["journal_entry.journal_entry_id", "journal_entry.code", \
     "journal_entry.description", "journal_entry.number", \
     "journal_entry.posted", "journal_entry.accounting_period_id"], \
-    headers={"journal_entry.journal_entry_id": "Edit", "journal_entry.code": "Code", \
-    "journal_entry.description": "Description", "journal_entry.number": "Number", \
-    "journal_entry.posted": "Posted", "journal_entry.accounting_period_id": "Period"})
+    headers={"journal_entry.journal_entry_id": T("Edit"), "journal_entry.code": T("Code"), \
+    "journal_entry.description": T("Description"), "journal_entry.number": T("Number"), \
+    "journal_entry.posted": T("Posted"), "journal_entry.accounting_period_id": T("Period")})
     return dict(journal_entries = journal_entries)
 
 def journal_entry(evt, args=[], vars={}):
@@ -59,10 +61,10 @@ def journal_entry(evt, args=[], vars={}):
     columns=["entry.entry_id", "entry.code", \
     "entry.description", "entry.journal_entry_id", \
     "entry.account_id", "entry.amount"], \
-    headers={"entry.entry_id": "Edit", "entry.code": "Code", \
-    "entry.description": "Description", \
-    "entry.journal_entry_id": "Journal Entry", \
-    "entry.account_id": "Account", "entry.amount": "Amount"})
+    headers={"entry.entry_id": T("Edit"), "entry.code": T("Code"), \
+    "entry.description": T("Description"), \
+    "entry.journal_entry_id": T("Journal Entry"), \
+    "entry.account_id": T("Account"), "entry.amount": T("Amount")})
     return dict(journal_entry = journal_entry, entries = entries, \
     total = total)
 
@@ -77,7 +79,7 @@ def entry(evt, args=[], vars={}):
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             db.entry[session.entry_id].update_record(**session.form.vars)
             db.commit()
-            print "Form accepted"
+            print T("Form accepted")
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, \
             c="accounting", f="journal_entry", args=["journal_entry", \
             session.journal_entry_id]))

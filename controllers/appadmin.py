@@ -8,6 +8,7 @@ from gui2py.form import EVT_FORM_SUBMIT
 
 import config
 db = config.db
+T = config.env["T"]
 session = config.session
 
 def index(evt, args=[], vars={}):
@@ -161,15 +162,15 @@ def update(evt, args=[], vars={}):
             if config.session.form.vars.delete_this_record is not None:
                 config.session.db_table[config.session.record_id].delete_record()
                 db.commit()
-                print "Record deleted"
+                print T("Record deleted")
                 config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="appadmin", f="select", args=[str(config.session.db_table)]))
             else:
                 config.session.db_table[config.session.record_id].update_record(**session.form.vars)
                 db.commit()
-                print "Record updated"
+                print T("Record updated")
                 config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="appadmin", f="read", args=[str(config.session.db_table), config.session.record_id]))
         elif session.form.errors:
-            print "The form has errors"
+            print T("The form has errors")
             print "####################"
             for e in session.form.errors:
                 print e
@@ -200,10 +201,10 @@ def create(evt, args=[], vars={}):
             # on validation, insert the db record
             config.session.record_id = config.session.db_table.insert(**config.session.form.vars)
             db.commit()
-            print "Form accepted"
+            print T("Form accepted")
             config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="appadmin", f="read", args=[str(config.session.db_table), config.session.record_id]))
         elif config.session.form.errors:
-            print "The form has errors"
+            print T("The form has errors")
             print "####################"
             for e in config.session.form.errors:
                 print e

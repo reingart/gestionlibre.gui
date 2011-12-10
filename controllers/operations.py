@@ -7,6 +7,7 @@ import datetime
 import config
 
 db = config.db
+
 session = config.session
 request = config.request
 
@@ -31,7 +32,7 @@ T = config.env["T"]
 def update_operation(operation_id, vars):
     db.operation[operation_id].update_record(**vars)
     db.commit()
-    print "The operation %s was updated" % operation_id
+    print T("The operation %(operation)s was updated") % dict(operation=operation_id)
 
 
 # list of orderable concepts
@@ -198,13 +199,13 @@ def movements_difference(operation_id):
     q_exit &= db.concept.exit == True
     q_exit &= db.movement.operation_id == session.operation_id
 
-    print "Calculate movements difference...."
+    print T("Calculate movements difference....")
 
     rows_entry = db(q_entry).select()
-    print "Entries: %s" % str([row.movement.amount for row in rows_entry])
+    print T("Entries: %(amounts)s") % dict(amounts=str([row.movement.amount for row in rows_entry]))
 
     rows_exit = db(q_exit).select()
-    print "Exits: %s" % str([row.movement.amount for row in rows_exit])
+    print T("Exits: %(amounts)s") % dict(amounts=str([row.movement.amount for row in rows_exit]))
 
     # Value inversion gives unexpected difference amounts in documents
     # TODO: complete difference evaluation including Entry/Exit parameters
@@ -215,7 +216,7 @@ def movements_difference(operation_id):
     in rows_entry if row.movement.amount is not None], 0))
     # * invert_value
 
-    print "Difference: %s" % difference
+    print T("Difference: %(difference)s") % dict(difference=difference)
 
     return difference
 
@@ -328,7 +329,7 @@ def movements_stock(operation_id):
                     value -= movement.quantity
 
                 # update stock value
-                print "Updating stock id: %s as %s" % (stock.stock_id, value)
+                print T("Updating stock id: %(id)s as %(value)s") % dict(id = stock.stock_id, value = value)
                 stock.update_record(value = value)
 
                 items += 1
@@ -372,7 +373,7 @@ def index(evt, args=[], vars={}):
     # get operation rows
     operations = the_set.select()
 
-    return dict(operations = operations, message="Administrative panel")
+    return dict(operations = operations, message=T("Administrative panel"))
 
 # base web interface for movements
 # administration
@@ -383,10 +384,10 @@ def ria_movements_process(evt, args=[], vars={}):
     # process/validate the operation
     if operations.process(db, session, session.operation_id):
         db.commit()
-        print "Operation processed"
+        print T("Operation processed")
         
     else:
-        print "Could not process the operation"
+        print T("Could not process the operation")
     return dict(_redirect=URL(a=config.APP_NAME, c="operations", f="ria_movements"))
     
     
@@ -396,7 +397,7 @@ def ria_movements_reset(evt, args=[], vars={}):
 
 def ria_movements(evt, args=[], vars={}):
     # reset the current operation (sent client-side)
-    reset_operation_form = A("Reset operation", _href=URL(a=config.APP_NAME, c="operations", f="ria_movements_reset"))
+    reset_operation_form = A(T("Reset operation"), _href=URL(a=config.APP_NAME, c="operations", f="ria_movements_reset"))
     # get the current operation if stored in session
     operation_id = session.get("operation_id", None)
 
@@ -419,13 +420,13 @@ def ria_movements(evt, args=[], vars={}):
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             db.operation[session.operation_id].update_record(**session.form.vars)
             db.commit()
-            print "Form accepted"
+            print T("Form accepted")
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="ria_movements"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, ria_movements)
 
     # Process operation for accounting/other when accepted
-    process_operation_form = A("Process operation", _href=URL(a=config.APP_NAME, c="operations", f="ria_movements_process"))
+    process_operation_form = A(T("Process operation"), _href=URL(a=config.APP_NAME, c="operations", f="ria_movements_process"))
 
     
 
@@ -445,9 +446,9 @@ def ria_movements(evt, args=[], vars={}):
                               linkto=URL(a=config.APP_NAME, c="operations", \
                                          f="movements_modify_element"))
     
-    add_item = A("Add item", _href=URL(a=config.APP_NAME, c="operations", f="movements_element"))
+    add_item = A(T("Add item"), _href=URL(a=config.APP_NAME, c="operations", f="movements_element"))
 
-    return dict(message="Operation number %s" % operation_id, \
+    return dict(message=T("Operation number %(id)s") % dict(id = operation_id), \
     form = session.form, \
     reset_operation_form = reset_operation_form, \
     process_operation_form = process_operation_form, movements_list \
@@ -468,10 +469,10 @@ def movements_element(evt, args=[], vars={}):
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             db.movement.insert(**session.form.vars)
             db.commit()
-            print "Form accepted"
+            print T("Form accepted")
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="ria_movements"))
         elif form.errors:
-            print "The form has errors"
+            print T("The form has errors")
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, movements_element)
     # query for operation movements
@@ -487,7 +488,7 @@ def movements_modify_element(evt, args=[], vars={}):
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             db.movement[session.movements_element_id].update_record(**session.form.vars)
             db.commit()
-            print "Form accepted"
+            print T("Form accepted")
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="ria_movements"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, movements_modify_element)
@@ -524,20 +525,20 @@ def operation_installment(evt, args=[], vars={}):
             quota_amount = total / float(session.form.vars.quotas)
             quotas_list = list()
 
-            print "Quota amount", quota_amount
+            print T("Quota amount"), quota_amount
             
             for x in range(int(session.form.vars.quotas)):
                 quotas_list.append(db.quota.insert(installment_id = session.installment_id, \
                 fee_id = session.form.vars.fee_id, number = x+1, amount = quota_amount))
 
-            print "Quotas list", quotas_list
+            print T("Quotas list"), quotas_list
 
             db.installment[session.installment_id].update_record(quotas = len(quotas_list), \
             monthly_amount = quota_amount, starting_quota_id = quotas_list[0], \
             ending_quota_id = quotas_list[len(quotas_list) -1])
 
             db.commit()
-            print "Installment created"
+            print T("Installment created")
             
             config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="operation_installment"))
     else:
@@ -560,7 +561,7 @@ def ria_new_customer_order(evt, args=[], vars={}):
     
     contact_user = db(db.contact_user.user_id == config.auth.user_id).select().first()
     
-    reset = A("Reset this order", _href=URL(a=config.APP_NAME, c="operations", f="ria_new_customer_order_reset"))
+    reset = A(T("Reset this order"), _href=URL(a=config.APP_NAME, c="operations", f="ria_new_customer_order_reset"))
 
     if len(args) > 0:
         session.operation_id = int(args[1])
@@ -629,7 +630,7 @@ def ria_new_customer_order(evt, args=[], vars={}):
             db.operation[customer_order].update_record( \
             description = session.form.vars.description)
             db.commit()
-            print "Form accepted"
+            print T("Form accepted")
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="ria_new_customer_order"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, ria_new_customer_order)
@@ -684,7 +685,7 @@ def new_customer_order_element(evt, args=[], vars={}):
 
             db.commit()
 
-            print "Form accepted"
+            print T("Form accepted")
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="ria_new_customer_order"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, new_customer_order_element)
@@ -695,7 +696,7 @@ def new_customer_order_element(evt, args=[], vars={}):
 def new_customer_order_modify_element(evt, args=[], vars={}):
     """ Customer order element edition sub-form."""
     if not "operation_id" in session.keys():
-        raise HTTP(500, "Customer order not found.")
+        raise HTTP(500, T("Customer order not found."))
 
     if len(args) > 1:
         session.customer_order_element_id = args[1]
@@ -719,7 +720,7 @@ def new_customer_order_modify_element(evt, args=[], vars={}):
             
             db.commit()
             
-            print "Form accepted"
+            print T("Form accepted")
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="ria_new_customer_order"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, new_customer_order_modify_element)
@@ -846,9 +847,9 @@ def order_allocation(evt, args=[], vars={}):
             TD(w["stock"]), \
             INPUT(_name="order_allocation_%s_%s" % (customer, concept))))
 
-    session.form = FORM(TABLE(THEAD(TR(TH("Customer"),TH("Product code"), \
-    TH("Concept"), TH("Ordered"), TH("Allocated"), TH("Stock"), \
-    TH("Allocate"))), TBODY(*form_rows), TFOOT(TR(TD(), TD(), TD(), \
+    session.form = FORM(TABLE(THEAD(TR(TH(T("Customer")),TH(T("Product code")), \
+    TH(T("Concept")), TH(T("Ordered")), TH(T("Allocated")), TH(T("Stock")), \
+    TH(T("Allocate")))), TBODY(*form_rows), TFOOT(TR(TD(), TD(), TD(), \
     TD(), TD(), TD(), TD(INPUT(_value="Allocate orders", _type="submit"))))))
 
     # form processing:
@@ -894,7 +895,7 @@ def order_allocation(evt, args=[], vars={}):
             
             session.allocations_completed = session.operations_stack
             
-            print "Order allocations completed: %s" % order_allocations
+            print T("Order allocations completed: %(oa)s") % dict(oa=order_allocations)
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="order_allocation"))
 
     else:
@@ -909,8 +910,8 @@ def list_order_allocations(evt, args=[], vars={}):
     q &= db.document.books == True
     columns = ["operation.operation_id", "operation.code", \
     "operation.description", "operation.posted"]
-    headers={"operation.operation_id": "Edit", "operation.code":"Code", \
-    "operation.description": "Description", "operation.posted": "Posted"}
+    headers={"operation.operation_id": T("Edit"), "operation.code":T("Code"), \
+    "operation.description": T("Description"), "operation.posted": T("Posted")}
     order_allocations = SQLTABLE(db(q).select(), columns = columns, \
     headers = headers, \
     linkto=URL(a=config.APP_NAME, c="operations", f="update_order_allocation"))
@@ -926,7 +927,7 @@ def update_order_allocation(evt, args=[], vars={}):
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             db.operation[session.order_allocation_id].update_record(**session.form.vars)
             db.commit()
-            print "Form accepted"
+            print T("Form accepted")
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="list_order_allocations"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, update_order_allocation)
@@ -935,8 +936,8 @@ def update_order_allocation(evt, args=[], vars={}):
     db.movement.operation_id == session.order_allocation_id).select(), \
     columns=["movement.movement_id", "movement.code","movement.concept_id", \
     "movement.quantity"], headers={"movement.movement_id": \
-    "ID", "movement.code": "Code", \
-    "movement.concept_id": "Concept", "movement.quantity": "Quantity"}, \
+    T("ID"), "movement.code": T("Code"), \
+    "movement.concept_id": T("Concept"), "movement.quantity": T("Quantity")}, \
     linkto=URL(a=config.APP_NAME, c="operations", f="movements_modify_element"))
     
     return dict(form = session.form, movements = movements)
@@ -960,7 +961,7 @@ def packing_slip(evt, args=[], vars={}):
                 session.packing_slip_id = db.operation.insert(**session.form.vars)
 
             db.commit()
-            print "Form accepted"
+            print T("Form accepted")
 
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="packing_slip"))
 
@@ -993,7 +994,7 @@ def packing_slip(evt, args=[], vars={}):
             # create the form
             session.form = SQLFORM(db.operation, session.packing_slip_id)
             db.commit()
-            "New packing slip: %s" % session.packing_slip_id
+            print T("New packing slip: %(psid)s") % dict(psid=session.packing_slip_id)
 
         else:
             if session.get("packing_slip_id", None) is not None:
@@ -1008,9 +1009,9 @@ def packing_slip(evt, args=[], vars={}):
         movements = SQLTABLE(db(\
         db.movement.operation_id == session.packing_slip_id).select(), \
         columns=["movement.movement_id", "movement.code","movement.concept_id", \
-        "movement.quantity"], headers={"movement.movement_id": "ID", \
-        "movement.code": "Code", \
-        "movement.concept_id": "Concept", "movement.quantity": "Quantity"})
+        "movement.quantity"], headers={"movement.movement_id": T("ID"), \
+        "movement.code": T("Code"), \
+        "movement.concept_id": T("Concept"), "movement.quantity": T("Quantity")})
 
     else:
         movements = None
@@ -1087,10 +1088,10 @@ def ria_product_billing(evt, args=[], vars={}):
     document_options = [OPTION(document.description, \
     _value=document.document_id) for document in documents]
 
-    session.form = FORM(TABLE(THEAD(TR(TH("Operation"),TH("Posted"), \
+    session.form = FORM(TABLE(THEAD(TR(TH(T("Operation")),TH(T("Posted")), \
     TH("Code"), TH("Description"), TH("Bill"))), \
     TBODY(*packing_slips_rows), \
-    TFOOT(TR(TD(), TD(), TD(), TD(LABEL("Choose a document type", \
+    TFOOT(TR(TD(), TD(), TD(), TD(LABEL(T("Choose a document type"), \
     _for="document_id"), SELECT(*document_options, _name="document_id")), \
     TD(INPUT(_value="Bill checked", _type="submit"))))))
 
@@ -1140,11 +1141,11 @@ def ria_product_billing(evt, args=[], vars={}):
                 session.operation_id = invoice_id
                 # redirect to movements edition
                 db.commit()
-                print "New invoice created"
+                print T("New invoice created")
                 return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_detail"))
 
             else:
-                print "No items checked"
+                print T("No items checked")
 
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, ria_product_billing)
@@ -1165,11 +1166,11 @@ def on_movements_start_submit(evt):
         type=session.form.vars.type, \
         description = session.form.vars.description)
 
-        print "New operation: " + str(session.operation_id)
+        print T("New operation") + " " + str(session.operation_id)
         db.commit()
         
         # call action if redirect
-        print "Redirecting from event"
+        print T("Redirecting from event")
         config.html_frame.window.OnLinkClicked(URL( \
         a=config.APP_NAME, c="operations", f="movements_header"))
 
@@ -1182,7 +1183,7 @@ def movements_start(evt, args=[], vars={}):
     session.form = SQLFORM.factory(Field("type", \
     requires=IS_IN_SET({"T": "Stock", "S": \
     "Sales", "P": "Purchases"}), \
-    comment="Select an operation type"), Field("description"))
+    comment=T("Select an operation type")), Field("description"))
 
     config.html_frame.window.Bind(EVT_FORM_SUBMIT, \
     on_movements_start_submit)
@@ -1253,7 +1254,7 @@ def movements_header(evt, args=[], vars={}):
     # Document filter by Sales, Purchases or Stock
     db.operation.document_id.requires = IS_IN_DB(s, "document.document_id", "%(description)s")
 
-    print "Header form"
+    print T("Header form")
     session.form = SQLFORM(db.operation, operation_id, \
     fields = fields)
 
@@ -1358,7 +1359,7 @@ def movements_detail(evt, args=[], vars={}):
         update = movements_update(operation_id)
     else:
         update = False
-        print "Operation %s is not editable" % operation_id
+        print T("Operation %(operation)s is not editable") % dict(operation = str(operation_id))
 
     # Get the operation dal objects
     operation = db.operation[operation_id]
@@ -1375,7 +1376,7 @@ def movements_detail(evt, args=[], vars={}):
     if warehouse_id is not None:
         warehouse = db.warehouse[warehouse_id].description
     else:
-        warehouse = "None selected"
+        warehouse = T("None selected")
         
     if update_stock is None:
         update_stock = session.update_stock = False
@@ -1391,13 +1392,13 @@ def movements_detail(evt, args=[], vars={}):
     columns = ["movement.movement_id", "movement.code", \
     "movement.description", "movement.concept_id", \
     "movement.quantity", "movement.value", "movement.amount"]
-    headers = {"movement.movement_id": "Edit", \
-    "movement.code": "Code", \
-    "movement.description": "Description", \
-    "movement.concept_id": "Concept", \
-    "movement.quantity": "Quantity", \
-    "movement.value": "Value", \
-    "movement.amount": "Amount"}
+    headers = {"movement.movement_id": T("Edit"), \
+    "movement.code": T("Code"), \
+    "movement.description": T("Description"), \
+    "movement.concept_id": T("Concept"), \
+    "movement.quantity": T("Quantity"), \
+    "movement.value": T("Value"), \
+    "movement.amount": T("Amount")}
     
     rows = s.select()
     movements["items"] = SQLTABLE(rows, \
@@ -1429,11 +1430,11 @@ def movements_detail(evt, args=[], vars={}):
         "bank_check.number", "bank_check.amount"
         ],
         headers = {
-        "bank_check.bank_check_id": "Edit", \
-        "bank_check.bank_id": "Bank", \
-        "bank_check.due_date": "Due date", \
-        "bank_check.number": "Number", \
-        "bank_check.amount": "Amount"
+        "bank_check.bank_check_id": T("Edit"), \
+        "bank_check.bank_id": T("Bank"), \
+        "bank_check.due_date": T("Due date"), \
+        "bank_check.number": T("Number"), \
+        "bank_check.amount": T("Amount")
         }, linkto=URL(a=config.APP_NAME, c="operations", \
         f="movements_modify_check"))
     
@@ -1494,12 +1495,12 @@ def on_movements_add_item_submit(evt):
             movement_id = db.movement.insert(operation_id = operation_id, \
             amount = amount, value = value, concept_id = concept_id, \
             quantity = quantity)
-            print "Operation: %s. Amount: %s. Value: %s. Concept: %s, Quantity: %s, Movement: %s" \
-            % (operation_id, amount, value, concept_id, quantity, movement_id)
+            print T("Operation: %(o)s. Amount: %(a)s. Value: %(v)s. Concept: %(c)s, Quantity: %(q)s, Movement: %(m)s") \
+            % dict(o=operation_id, a=amount, v=value, c=concept_id, q=quantity, m=movement_id)
             
         else:
             movement_id = None
-            "Operation %s is not editable" % operation_id
+            T("Operation %(id)s is not editable") % dict(id=operation_id)
 
         # add movement to temporary stock update list
         if session.form.vars.update_stock:
@@ -1537,7 +1538,7 @@ def movements_add_item(evt, args=[], vars={}):
     session.form = SQLFORM.factory(Field("item", \
     requires=IS_IN_DB(db(db.concept.internal != True), \
     "concept.concept_id", "%(description)s"), default = concept_id), \
-    Field("value", "double", comment = "Blank for price list values"), \
+    Field("value", "double", comment = T("Blank for price list values")), \
     Field("quantity", requires = IS_FLOAT_IN_RANGE(-1e6, 1e6)), Field("update_stock", "boolean", default = True))
 
     config.html_frame.window.Bind(EVT_FORM_SUBMIT, on_movements_add_item_submit)
@@ -1563,17 +1564,17 @@ def movements_modify_item(evt, args=[], vars={}):
     "concept.concept_id", "%(description)s"), default = movement.concept_id), \
     Field("value", "double", requires = IS_FLOAT_IN_RANGE(-1e6, 1e6), default = movement.value), \
     Field("quantity", requires = IS_FLOAT_IN_RANGE(-1e6, 1e6), default = movement.quantity), \
-    Field("delete", "boolean", default = False, comment = "The item will be removed without confirmation"))
+    Field("delete", "boolean", default = False, comment = T("The item will be removed without confirmation")))
 
     if evt is not None:
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             if session.form.vars.delete:
                 # erase the db record if marked for deletion
                 if is_editable(operation_id):
-                    print "Erasing record %s" % movement.movement_id
+                    print T("Erasing record %(id)s") % dict(id=movement.movement_id)
                     movement.delete_record()
                 else:
-                    print "Operation %s is not editable" % operation_id
+                    print T("Operation %(id)s is not editable") % dict(id=operation_id)
             else:
                 # Get the concept record
                 concept_id = session.form.vars.item
@@ -1588,9 +1589,9 @@ def movements_modify_item(evt, args=[], vars={}):
                     movement.update_record(\
                     amount = amount, value = value, concept_id = concept_id, \
                     quantity = quantity)
-                    print "Operation: %s. Amount: %s. Value: %s. Concept: %s, Quantity: %s" % (operation_id, amount, value, concept_id, quantity)
+                    print T("Operation: %(o)s. Amount: %(a)s. Value: %(v)s. Concept: %(c)s, Quantity: %(q)s") % dict(o=operation_id, a=amount, v=value, c=concept_id, q=quantity)
                 else:
-                    print "Operation %s is not editable" % operation_id
+                    print T("Operation %(id)s is not editable") % dict(id=operation_id)
 
             db.commit()
 
@@ -1625,16 +1626,16 @@ def movements_modify_check(evt, args=[], vars={}):
             if session.form.vars.delete_this_record is not None:
                 # erase the db record if marked for deletion
                 if is_editable(operation_id):
-                    print "Erasing check %s" % bank_check.bank_check_id
+                    print T("Erasing check %(id)s") % dict(id=bank_check.bank_check_id)
                     bank_check.delete_record()
                 else:
-                    print "Operation %s is not editable" % operation_id
+                    print T("Operation %(id)s is not editable") % dict(id=operation_id)
             else:
                 # Modify the operation item
                 if is_editable(operation_id):
                     bank_check.update_record(**session.form.vars)
                 else:
-                    print "Operation %s is not editable" % operation_id
+                    print T("Operation %(id)s is not editable") % dict(id=operation_id)
             db.commit()
             config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="movements_detail"))
 
@@ -1664,7 +1665,7 @@ def movements_add_check(evt, args=[], vars={}):
     if evt is not None:
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             bank_check_id = db.bank_check.insert(**session.form.vars)
-            print "Check added", bank_check_id
+            print T("Check added"), bank_check_id
 
             db.commit()
             
@@ -1688,7 +1689,7 @@ def movements_current_account_concept(evt, args=[], vars={}):
 
     if session.difference <= 0:
         # return 0 amount message and cancel
-        print "0 difference"
+        print T("0 difference")
         return dict(_redirect=URL(a=config.APP_NAME, c="operations", f="movements_detail"))
 
     # Current account concepts dal set
@@ -1737,7 +1738,7 @@ def movements_current_account_data(evt, args=[], vars={}):
 
     operation_id = session.operation_id
     if not is_editable(operation_id):
-        print "Operation %s is not editable" % operation_id
+        print T("Operation %(id)s is not editable") % dict(id=operation_id)
         return dict(_redirect=URL(a=config.APP_NAME, c="operations", f="movements_detail"))
         
     # Begin current account data processing
@@ -1831,7 +1832,7 @@ def movements_add_discount_surcharge(evt, args=[], vars={}):
                 amount = value, value = value, \
                 concept_id = session.form.vars.concept)
             else:
-                print "Operation %s is not editable" % operation_id
+                print T("Operation %(id)s is not editable") % dict(id=operation_id)
 
             db.commit()
 
@@ -1874,7 +1875,7 @@ def movements_process(evt, args=[], vars={}):
     operation_id = session.operation_id
 
     if not is_editable(operation_id):
-        return dict(message = "Could not process the operation: it is not editable")
+        return dict(message = T("Could not process the operation: it is not editable"))
     
     operation = db.operation[operation_id]
     document = operation.document_id
@@ -1893,7 +1894,7 @@ def movements_process(evt, args=[], vars={}):
         print str(e)
         purchases_payment_terms_concept_id = None
         
-    print "For purchases: %s payment is recorded as concept id %s" % (payment_terms.description, purchases_payment_terms_concept_id)
+    print T("For purchases: %(d)s payment is recorded as concept id %(c)s") % dict(d=payment_terms.description, c=purchases_payment_terms_concept_id)
     
     stock_updated = False
 
@@ -1945,7 +1946,7 @@ def movements_process(evt, args=[], vars={}):
             except RuntimeError, e:
                 print str(e)
 
-        print "The operation has current account movements: %s" % has_current_account_movements
+        print T("The operation has current account movements: %(hccm)s") % dict(hccm=has_current_account_movements)
 
         if has_current_account_movements:
             # set the default payment concept as offset
@@ -1953,7 +1954,7 @@ def movements_process(evt, args=[], vars={}):
         else:
             offset_concept_id = receipt_offset_concept_id
             
-        print "Setting offset concept to %s" % db.concept[receipt_offset_concept_id].description
+        print T("Setting offset concept to %(description)s") % dict(description=db.concept[receipt_offset_concept_id].description)
         
     else:
         if operation.type == "P" and (purchases_payment_terms_concept_id is not None) and document.invoices:
@@ -1966,8 +1967,8 @@ def movements_process(evt, args=[], vars={}):
 
     # Calculate difference for payments
     session.difference = movements_difference(operation_id)
-    print "Movements process. Operation: %s" % operation_id
-    print "session.difference :%s" % session.difference
+    print T("Movements process. Operation: %(id)s") % dict(id=operation_id)
+    print T("session.difference :%(difference)s") % dict(difference=session.difference)
 
     if abs(session.difference) > 0.01:
         # Wich offset / payment concept to record
@@ -1984,7 +1985,7 @@ def movements_process(evt, args=[], vars={}):
                 current_account_value = \
                 crm.subcustomer_current_account_value( \
                 db, operation.subcustomer_id)
-                print "Current account value: %s" % current_account_value
+                print T("Current account value: %(cav)s") % dict(cav=current_account_value)
                 try:
                     # Get the current account limit
                     # allowed
@@ -1994,17 +1995,17 @@ def movements_process(evt, args=[], vars={}):
                     # No limit found
                     debt_limit = 0.00
                     
-                print "Debt limit: %s" % debt_limit
+                print T("Debt limit: %(dl)s") % dict(dl=debt_limit)
 
                 if (current_account_value + session.difference) > debt_limit:
                     return dict(message= \
-                    "Operation processing failed: debt limit reached")
+                    T("Operation processing failed: debt limit reached"))
 
             elif operation.customer_id is not None:
                 current_account_value = \
                 crm.customer_current_account_value(db, \
                 operation.customer_id)
-                print "Current account value: %s" % current_account_value                
+                print T("Current account value: %(cav)s") % dict(cav=current_account_value)
                 try:
                     # Get the current account limit
                     # allowed
@@ -2014,11 +2015,11 @@ def movements_process(evt, args=[], vars={}):
                     # No limit found
                     debt_limit = 0.00
                     
-                print "Debt limit: %s" % debt_limit
+                print T("Debt limit: %(dl)s") % dict(dl=debt_limit)
                 
                 if (current_account_value + session.difference) > debt_limit:
                     return dict(message= \
-                    "Operation processing failed: debt limit reached")
+                    T("Operation processing failed: debt limit reached"))
 
         # Offset / Payment movement
         # TODO: change difference sign checking debit/credit
@@ -2029,7 +2030,7 @@ def movements_process(evt, args=[], vars={}):
         quantity = 1, amount = session.difference, value = \
         session.difference)
 
-        print "Movement (offset): %s: %s" % (db.movement[movement_id].concept_id.description, db.movement[movement_id].amount)
+        print T("Movement (offset): %(ds)s: %(amount)s") % dict(ds=db.movement[movement_id].concept_id.description, amount=db.movement[movement_id].amount)
 
         # update the operation
         updated = movements_update(operation_id)
@@ -2050,9 +2051,9 @@ def movements_process(evt, args=[], vars={}):
         stock_updated = movements_stock(operation_id)
 
     if (result == False) or (stock_updated == False):
-        message = "The operation processing failed. Booking ok: %s. Stock ok: %s" % (result, stock_updated)
+        message = T("The operation processing failed. Booking ok: %(result)s. Stock ok: %(su)s") % dict(result=result, su=stock_updated)
     else:
-        message = "Operation successfully processed"
+        message = T("Operation successfully processed")
         db.commit()
 
     # TODO: rollback on errors
@@ -2075,7 +2076,7 @@ def movements_option_update_taxes(evt, args=[], vars={}):
     elif session.update_taxes == False:
         session.update_taxes = True
 
-    print "Change update taxes value to %s" % session.update_taxes    
+    print T("Change update taxes value to %(ut)s") % dict(ut=session.update_taxes)
     return dict(_redirect=URL(a=config.APP_NAME, c="operations", f="movements_detail"))
 
 def movements_select_warehouse(evt, args=[], vars={}):
@@ -2120,11 +2121,11 @@ def on_movements_add_payment_method_submit(evt):
         # Detailed quota amounts (uniform quota values)
         if quotas >1:
             quota_amount = amount/float(quotas)
-            detail += " Quotas: %s x%.2f" % (quotas, quota_amount)
+            detail += T(" Quotas: %s x%.2f") % (quotas, quota_amount)
 
         # Payment services transaction number in detail
         if len(reference) > 0:
-            detail += " Transaction number: %s" % reference
+            detail += T(" Transaction number: %(r)s") % dict(r=reference)
 
         # insert the movement record if amount is not 0
         if amount != 0.0:
@@ -2147,7 +2148,7 @@ def movements_add_payment_method(evt, args=[], vars={}):
     "decimal(10,2)"), Field("quotas", "integer"), \
     Field("surcharge", "double"), Field("detail"), \
     Field("payment_reference_number", \
-    comment = "i.e. third party payment transaction number"))
+    comment = T("i.e. third party payment transaction number")))
 
     config.html_frame.window.Bind(EVT_FORM_SUBMIT, on_movements_add_payment_method_submit)
     return dict(form = session.form)
@@ -2162,7 +2163,7 @@ def movements_add_tax(evt, args=[], vars={}):
             movement_id = db.movement.insert(operation_id = operation.operation_id, \
             concept_id = session.form.vars.concept, value = session.form.vars.value, \
             quantity = 1, amount = session.form.vars.value)
-            print "Added movement", movement_id
+            print T("Added movement"), movement_id
 
             db.commit()
             
@@ -2197,11 +2198,11 @@ def movements_articles(evt, args=[], vars={}):
             columns = ["concept.concept_id", "concept.code", \
             "concept.description", "concept.family_id", \
             "concept.color_id"]
-            headers = {"concept.concept_id": "Select", \
-            "concept.code": "Code", \
-            "concept.description": "Description", \
-            "concept.family_id": "Family", \
-            "concept.color_id": "Color"}
+            headers = {"concept.concept_id": T("Select"), \
+            "concept.code": T("Code"), \
+            "concept.description": T("Description"), \
+            "concept.family_id": T("Family"), \
+            "concept.color_id": T("Color")}
 
             config.after_submission["table"] = SQLTABLE(rows, \
             columns = columns, headers = headers, linkto = URL( \
@@ -2246,4 +2247,4 @@ def articles_list(evt, args=[], vars={}):
     table = None
     if len(rows) > 0:
         table = SQLTABLE(rows, linkto=URL(a=config.APP_NAME, c="appadmin", f="update"))
-    return dict(table = table, back=A("New query", _href=URL(a=config.APP_NAME, c="operations", f="articles")))
+    return dict(table = table, back=A(T("New query"), _href=URL(a=config.APP_NAME, c="operations", f="articles")))

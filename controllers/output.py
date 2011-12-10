@@ -10,6 +10,8 @@ from gui2py.form import EVT_FORM_SUBMIT
 
 import config
 db = config.db
+
+T = config.env["T"]
 session = config.session
 
 def utftolatin(text):
@@ -62,7 +64,7 @@ def operation(evt, args=[], vars={}):
 
     # Instantiate the PyFPDF template
     f = Template(format="A4",
-             title="Operation number %s" % operation_id, author="GestionLibre",
+             title=T("Operation number") + " %s" % operation_id, author="GestionLibre",
              subject=utftolatin(document.description), keywords="Sales/Stock/Purchases document")
              
     # Complete the template object with .csv file element difinition
@@ -109,7 +111,7 @@ def operation(evt, args=[], vars={}):
         li_items[-1].update(amount = it['amount'],
                             price = it['price'])
 
-    obs="\n<U>Observations:</U>\n\n" + str(detail.description)
+    obs="\n<U>" + T("Observations") + "</U>\n\n" + str(detail.description)
 
     for ds in f.split_multicell(obs, 'item_description01'):
         li_items.append(dict(code=code, ds=ds, qty=qty, unit=unit, price=None, amount=None))
@@ -124,9 +126,9 @@ def operation(evt, args=[], vars={}):
     
     for page in range(1, pages+1):
         f.add_page()
-        f['page'] = u'Page %s of %s' % (page, pages)
+        f['page'] = T(u'Page') + " %s %s %s" % (page, T("of"), pages)
         if pages>1 and page<pages:
-            s = u'Continues at page %s' % (page+1)
+            s = T(u'Continues at page %s') % (page+1)
         else:
             s = ''
         f['item_description%02d' % (max_lines_per_page+1)] = s
@@ -140,7 +142,7 @@ def operation(evt, args=[], vars={}):
         f["company_header2"] = "CUIT " + str(supplier.tax_identification)
         
         f["company_footer1"] = utftolatin(document.description)
-        f["company_footer2"] = "Generic operation"
+        f["company_footer2"] = T("Generic operation")
         
         f['number'] = str(point_of_sale).zfill(4) + "-" + str(operation.operation_id).zfill(7)
         
@@ -148,11 +150,11 @@ def operation(evt, args=[], vars={}):
         
         f['document_type'] = "X"
 
-        f['customer_address'] = utftolatin('Dirección')
-        f['item_description'] = utftolatin('Descripción')
+        f['customer_address'] = T(utftolatin('Dirección'))
+        f['item_description'] = T(utftolatin('Descripción'))
 
         f['barcode'] = "0000000000"
-        f['barcode_readable'] = u"No document code"
+        f['barcode_readable'] = T(u"No document code")
 
         try:
             issue_date = operation.posted.strftime("%d-%m-%Y")
@@ -205,14 +207,14 @@ def operation(evt, args=[], vars={}):
         if pages == page:
             f['net'] = "%0.2f" % (amountorzero(operation.amount) -vat_amount)
             f['vat'] = "%0.2f" % vat_amount
-            f['total_label'] = 'Total:'
+            f['total_label'] = T('Total:')
         else:
-            f['total_label'] = 'SubTotal:'
+            f['total_label'] = T('SubTotal:')
         f['total'] = "%0.2f" % amountorzero(operation.amount)
 
     document_name = '%s_%s.pdf' % ("_".join(document.description.split()), operation_id)
     
     f.render(os.path.join(config.OUTPUT_FOLDER, document_name), dest='F')
 
-    return dict(message = "The document %s was created sucessfully" % document_name)
+    return dict(message = T("The document %s was created sucessfully") % document_name)
 

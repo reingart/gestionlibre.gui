@@ -6,6 +6,8 @@ import datetime
 import config
 
 db = config.db
+T = config.env["T"]
+
 session = config.session
 request = config.request
 
@@ -127,13 +129,13 @@ def current_accounts_detail(evt, args=[], vars={}):
         supplier_id = db(db.supplier.code == db(db.option.name == "default_supplier_code").select().first().value).select().first().supplier_id
         session.current_accounts_supplier = supplier_id
         customer_id = session.current_accounts_customer
-        payment_label = "Collect"
+        payment_label = T("Collect")
 
     elif session.current_accounts_type == "S":
         supplier_id = session.current_accounts_supplier
         customer_id = db(db.customer.code == db(db.option.name == "default_customer_code").select().first().value).select().first().customer_id
         session.current_accounts_customer = customer_id
-        payment_label = "Pay"
+        payment_label = T("Pay")
 
     # convert date string iso values
     # (modified, the form sends datetime objects)
@@ -171,9 +173,9 @@ def current_accounts_detail(evt, args=[], vars={}):
         trows.append(TR(TD(operation.document_id.description), TD(operation.operation_id), TD(operation.posted), TD(operation.due_date), TD(values[operation.operation_id][0]), TD(values[operation.operation_id][1]), TD(values[operation.operation_id][2]), TD(INPUT(_type="checkbox", _name="operation_%s" % operation.operation_id))))
     
     tbody = TBODY(*trows)
-    table = TABLE(THEAD(TR(TH("Document"), TH("Number"), TH("Date"), TH("Due date"), TH("Debit"), TH("Credit"), TH("Difference"), TH("Select"))), tbody)
+    table = TABLE(THEAD(TR(TH(T("Document")), TH(T("Number")), TH(T("Date")), TH(T("Due date")), TH(T("Debit")), TH(T("Credit")), TH(T("Difference")), TH(T("Select")))), tbody)
     
-    session.form = FORM(SELECT(OPTION("Apply", _value="apply"), OPTION(payment_label, _value="payment"), _name="selection_action"), table, INPUT(_type="submit"))
+    session.form = FORM(SELECT(OPTION(T("Apply"), _value="apply"), OPTION(payment_label, _value="payment"), _name="selection_action"), table, INPUT(_type="submit"))
 
     if evt is not None:
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
@@ -184,7 +186,7 @@ def current_accounts_detail(evt, args=[], vars={}):
             # (selected form fields have "on" string as value)
             operation_ids = [int(k.split("_")[1]) for k in session.form.vars if (k.startswith("operation_") and session.form.vars[k] == "on")]
 
-            print "Operation ids", operation_ids
+            print T("Operation ids"), operation_ids
 
             # if there are selected items
             # clean the values array of unselected operations
@@ -235,7 +237,7 @@ def current_accounts_payment(evt, args=[], vars={}):
     values = session.current_accounts_values
     
     difference = sum([values[v][2] for v in values], 0.0) * invert_value
-    print "Calculated difference: %s" % difference
+    print T("Calculated difference") + ": %s" % difference
 
     # pre-operation form
     session.form = SQLFORM.factory(Field("document", "reference document", requires = IS_IN_DB(s, i, f)), Field("amount", "double", default = difference), Field("concept", "reference concept", requires = IS_IN_DB(db(db.concept.current_account == True), "concept.concept_id", "%(description)s")), Field("payment_terms", "reference payment_terms", requires = IS_IN_DB(db(db.payment_terms.payment_terms_id != None), "payment_terms.payment_terms_id", "%(description)s")))

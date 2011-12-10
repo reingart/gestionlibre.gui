@@ -28,6 +28,18 @@ __author__ = "Alan Etkin <spametki@gmail.com>"
 __copyright__ = "Copyright (C) 2011 Sistemas Ágiles"
 __license__ = "AGPLv3"
 
+HELP_TEXT = """
+    GestiónLibre main module command options:
+
+    ./main.py [option 1 [value 1]] ... [option n]
+
+    * --help : Display this text
+    * --?: same as help
+    * --legacy_db: Do not write db local files (this prevents database errors
+    when using a pre-configured database)
+    * --user [email:password]: Login with specified credentials on startup
+"""
+
 # constants and common memmory storage
 
 import sys, os
@@ -1008,11 +1020,11 @@ def configure_event_handlers():
         }
 
 
-def configure_layout_menu():
+def configure_layout_menu(T=lambda t: t):
     # HTMLWindow Default Layout menu
     config.menu = MENU([
-        ('Index', False, URL(config.APP_NAME,'default','index'), []),
-        ('Setup', False, URL(config.APP_NAME,'setup','index'), []),
+        (T('Index'), False, URL(config.APP_NAME,'default','index'), []),
+        (T('Setup'), False, URL(config.APP_NAME,'setup','index'), []),
         ])
 
 
@@ -1128,7 +1140,7 @@ def main_menu_click(evt):
     # call action based on item widget address info
     return None
 
-def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu_bar=False, route=[]):
+def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu_bar=False, route=[], T = lambda t: t):
 
     menu_item = None
     try:
@@ -1157,11 +1169,15 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
         except:
             parent_menu.menu_items = dict()
 
+        # translate label
+        text_label = str(T(v.get("label", "")))
+        print "\'%s\': \'%s\'," % (text_label, text_label)
+
         if v.get("visible", False):
             if is_menu_bar == True:
                 parent_menu.menu_items[k] = wx.Menu()
                 parent_menu.Append(parent_menu.menu_items[k], \
-                v["label"])
+                text_label)
                 route = [k,]
                 tmp_route = tuple(route)
 
@@ -1189,7 +1205,7 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
                         tmp_route = tuple(route)
                         parent_menu.menu_items[k] = wx.Menu()
                         parent_menu.AppendMenu(item_count, \
-                        v["label"], parent_menu.menu_items[k])
+                        text_label, parent_menu.menu_items[k])
                         item_count = main_menu_elements(frame, \
                         parent_menu.menu_items[k], \
                         submenu=v["submenu"], \
@@ -1200,7 +1216,7 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
                         route.append(k)
                         parent_menu.menu_items[k] = v
                         menu_item = parent_menu.Append(item_count, \
-                        v["label"])
+                        text_label)
                         tmp_route = tuple(route)
                         
                         # enable/disable
@@ -1212,7 +1228,7 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
                     route.append(k)
                     parent_menu.menu_items[k] = v
                     menu_item = parent_menu.Append(item_count, \
-                    v["label"])
+                    text_label)
                     tmp_route = tuple(route)
 
                     # enable/disable
@@ -1308,8 +1324,13 @@ if __name__ == "__main__":
         elif arg.upper().replace("-", "") == "LEGACY_DB":
             config.LEGACY_DB = True
 
+        elif arg.upper().replace("-", "") in ("HELP", "?"):
+            print HELP_TEXT
+            exit(0)
+
     # load web2py package
     import gluon
+    import gluon.template
     import gluon.shell
     import gluon.tools
     from gluon import *
@@ -1411,7 +1432,7 @@ if __name__ == "__main__":
         fake_migrate = True
 
     # custom db initialization for GestiónLibre
-    db_gestionlibre.define_tables(db, config.auth, config.env, web2py = False, fake_migrate = fake_migrate)
+    db_gestionlibre.define_tables(db, config.auth, config.env, web2py = False, fake_migrate = fake_migrate, T=T)
 
     # crud (buggy: form submission and database transactions problems)
     config.crud = gluon.tools.Crud(config.env, db=db)
@@ -1492,12 +1513,12 @@ if __name__ == "__main__":
     configure_main_menu()
 
     # populate html layout menu
-    configure_layout_menu()
+    configure_layout_menu(T = T)
 
     GestionLibre.SetTopWindow(config.html_frame)
 
     main_menu_elements(config.html_frame, config.html_frame.starting_menubar, \
-    submenu=config.MAIN_MENU, is_menu_bar = True)
+    submenu=config.MAIN_MENU, is_menu_bar = True, T = T)
 
     config.html_frame.SetMenuBar(config.html_frame.starting_menubar)
     config.html_frame.SetStatusText("")

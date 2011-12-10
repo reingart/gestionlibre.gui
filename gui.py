@@ -22,8 +22,6 @@ import gluon.template
 
 from gestion_libre_wx import MyHTMLFrame, MyDialog, MyFrame, MyLoginDialog
 
-# from AuiNotebook_Demo_2 import TabPanel, AUIManager, AUINotebook, DemoFrame
-
 T = config.env["T"]
 
 """ IMPORTANT:
@@ -139,7 +137,7 @@ class RBAC(object):
                             #     exit with error message and return False
 
                             if authenticated == False:
-                                return (False, "Authentication failed")
+                                return (False, T("Authentication failed"))
                             else:
                                 # else set requirement name as True
                                 requires_rights[require] = True
@@ -150,10 +148,10 @@ class RBAC(object):
         #         return True with message
 
         if rights == True:
-            return (rights, "No errors")
+            return (rights, T("No errors"))
         else:
             # return False with message
-            return (rights, "Errors on authentication")
+            return (rights, T("Errors on authentication"))
 
 
     def validate_user(self, email, password):
@@ -312,7 +310,7 @@ def action(url):
     except gluon.http.HTTP, e:
         # redirection for auth
         if e.status == 303:
-            print "Redirection from", url, "to", e.headers["Location"]
+            print T("Redirection from"), url, T("to"), e.headers["Location"]
             # incomplete:
             new_url_data = get_function(e.headers["Location"])
 
@@ -397,7 +395,7 @@ def action(url):
 
     except OSError, e:
         print e
-        print "Creating folder %s" % path
+        print T("Creating folder %(path)s") % dict(path=path)
         os.mkdir(path)
 
     if xml is None:

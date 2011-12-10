@@ -9,6 +9,7 @@ from gui2py.form import EVT_FORM_SUBMIT
 
 import config
 db = config.db
+T = config.env["T"]
 session = config.session
 
 import os, csv, datetime
@@ -140,7 +141,7 @@ def populate_with_legacy_db(legacy_tables_route, legacy_tables):
                             tmpdict.pop(table + "_id")
                         elif "id" in tmpdict: tmpdict.pop("id")
                         """
-                        print "Inserting", [v for k, v in tmpdict.iteritems()], "in", table
+                        print T("Inserting"), [v for k, v in tmpdict.iteritems()], "in", table
 
                         the_id = db[table].insert(**tmpdict)
                         table_records += 1
@@ -156,7 +157,7 @@ def populate_with_legacy_db(legacy_tables_route, legacy_tables):
         if table_records > 0:
             db.commit()
 
-    print "Inserted", records, "db records"
+    print T("Inserted"), records, T("db records")
         
     return records, errors, voidstrings
 
@@ -169,8 +170,8 @@ def import_csv_dir(evt, args=[], vars={}):
         if config.session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             legacy_tables = import_csv_pattern(config.CSV_CONFIG_FILE)
             result = populate_with_legacy_db(config.CSV_TABLES_ROUTE, legacy_tables)
-            print "Load tables from CSV (records, errors and voidstrings):", result
-            config.session.message = "%s records inserted" % result[0]
+            print T("Load tables from CSV (records, errors and voidstrings)"), result
+            config.session.message = ("%s "  % result[0]) + T("records inserted")
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="setup", f="index"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, import_csv_dir)
@@ -179,11 +180,11 @@ def import_csv_dir(evt, args=[], vars={}):
 
 
 def db_to_csv(evt, args=[], vars={}):
-    session.form = SQLFORM.factory(Field("path", comment="Storage folder", requires=IS_NOT_EMPTY()), Field("file", comment="File name"))
+    session.form = SQLFORM.factory(Field("path", comment=T("Storage folder"), requires=IS_NOT_EMPTY()), Field("file", comment="File name"))
     if evt is not None:
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             f = open(os.path.join(session.form.vars.path, session.form.vars.file), "wb")
-            print "Exporting to CSV format file", f.name
+            print T("Exporting to CSV format file"), f.name
 
             db.export_to_csv_file(f)
             f.close()
@@ -197,17 +198,17 @@ def db_to_csv(evt, args=[], vars={}):
 def csv_to_db(evt, args=[], vars={}):
     is_pg = False
     is_pg = ("postgres" in config.db["_uri"])
-    session.form = SQLFORM.factory(Field("path", comment="Storage folder", requires=IS_NOT_EMPTY()), Field("file", comment="File name"), Field("suspend_integrity_check", "boolean", comment="For PostgreSQL databases. Use this option with care. A superuser database conection is required"))
+    session.form = SQLFORM.factory(Field("path", comment=T("Storage folder"), requires=IS_NOT_EMPTY()), Field("file", comment=T("File name")), Field("suspend_integrity_check", "boolean", comment=T("For PostgreSQL databases. Use this option with care. A superuser database conection is required")))
     
     if evt is not None:
         
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
-            print "PostgreSQL database", is_pg
-            print "Disable integrity check", (is_pg and session.form.vars.suspend_integrity_check == True)
+            print T("PostgreSQL database"), is_pg
+            print T("Disable integrity check"), (is_pg and session.form.vars.suspend_integrity_check == True)
 
             if is_pg and session.form.vars.suspend_integrity_check == True:
                 # disable integrity triggers (and all others) in PostgreSQL
-                print "Altering tables to disable PostgreSQL triggers temporarily"
+                print T("Altering tables to disable PostgreSQL triggers temporarily")
                 for table in db.tables:
                     try:
                         db.executesql("ALTER TABLE %s DISABLE TRIGGER ALL;" % table)
@@ -215,7 +216,7 @@ def csv_to_db(evt, args=[], vars={}):
                         print str(e)
 
             f = open(os.path.join(session.form.vars.path, session.form.vars.file), "r")
-            print "Importing from CSV format file", f.name
+            print T("Importing from CSV format file"), f.name
             try:
                 db.import_from_csv_file(f)
                 db.commit()
@@ -225,14 +226,14 @@ def csv_to_db(evt, args=[], vars={}):
 
             if is_pg and session.form.vars.suspend_integrity_check == True:
                 # enable integrity triggers (and all others) in PostgreSQL
-                print "Altering tables to re-enable PostgreSQL triggers"
+                print T("Altering tables to re-enable PostgreSQL triggers")
                 for table in db.tables:
                     try:
                         db.executesql("ALTER TABLE %s ENABLE TRIGGER ALL;" % table)
                     except Exception, e:
                         print str(e)
             db.commit()
-            print "Done"
+            print T("Done")
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="setup", f="index"))
     else:
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, csv_to_db)

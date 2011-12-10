@@ -1,53 +1,53 @@
 {{ extend "layout.html" }}
-{{ =message }}
-{{=H3("The links")}}
+{{ =T(message) }}
+{{=H3(T("The links"))}}
 
 <table width="100%">
-<tr><th><h3>Billing</h3></th><th><h3>Current accounts</h3></th><th><h3>Stock</h3></th><th><h3>Other</h3></th></tr>
+<tr><th><h3>{{=T("Billing")}}</h3></th><th><h3>{{=T("Current accounts")}}</h3></th><th><h3>{{=T("Stock")}}</h3></th><th><h3>{{=T("Other")}}</h3></th></tr>
 <tr>
-<td>{{ =A(B("Movements panel"), _href=URL(a=config.APP_NAME, c='operations',f='index')) }}</td>
-<td>{{ =A(B("Customer control panel"), _href=URL(a=config.APP_NAME, c='crm',f='customer_panel')) }}</td>
-<td>{{ =A(B("RIA Stock"), _href=URL(a=config.APP_NAME, c='scm',f='ria_stock')) }}</td>
-<td>{{=A("GestionLibre", _href="http://code.google.com/p/gestionlibre/")}}</td>
+<td>{{ =A(B(T("Movements panel")), _href=URL(a=config.APP_NAME, c='operations',f='index')) }}</td>
+<td>{{ =A(B(T("Customer control panel")), _href=URL(a=config.APP_NAME, c='crm',f='customer_panel')) }}</td>
+<td>{{ =A(B(T("RIA Stock")), _href=URL(a=config.APP_NAME, c='scm',f='ria_stock')) }}</td>
+<td>{{=A(T("GestionLibre"), _href="http://code.google.com/p/gestionlibre/")}}</td>
 </tr>
 
 <tr>
-<td>{{ =A(B("Order allocation"), _href=URL(a=config.APP_NAME, c='operations',f='order_allocation')) }}</td>
-<td>{{ =A(B("Current account report"), _href=URL(a=config.APP_NAME, c='crm',f='current_account_report')) }}</td>
+<td>{{ =A(B(T("Order allocation")), _href=URL(a=config.APP_NAME, c='operations',f='order_allocation')) }}</td>
+<td>{{ =A(B(T("Current account report")), _href=URL(a=config.APP_NAME, c='crm',f='current_account_report')) }}</td>
 <td></td>
-<td>{{ =A(B("Journal entries"), _href=URL(a=config.APP_NAME, c='accounting',f='journal_entries')) }}</td>
+<td>{{ =A(B(T("Journal entries")), _href=URL(a=config.APP_NAME, c='accounting',f='journal_entries')) }}</td>
 </tr>
 
 <tr>
-<td>{{ =A(B("Order allocation list"), _href=URL(a=config.APP_NAME, c='operations',f='list_order_allocations')) }}</td>
-<td>{{ =A(B("Current accounts payments"), _href=URL(a=config.APP_NAME, c='financials',f='current_accounts_type')) }}</td>
+<td>{{ =A(B(T("Order allocation list")), _href=URL(a=config.APP_NAME, c='operations',f='list_order_allocations')) }}</td>
+<td>{{ =A(B(T("Current accounts payments")), _href=URL(a=config.APP_NAME, c='financials',f='current_accounts_type')) }}</td>
 <td></td>
 <td></td>
 </tr>
 
 <tr>
-<td>{{ =A(B("Packing slip"), _href=URL(a=config.APP_NAME, c='operations',f='packing_slip')) }}</td>
+<td>{{ =A(B(T("Packing slip")), _href=URL(a=config.APP_NAME, c='operations',f='packing_slip')) }}</td>
 <td></td>
 <td></td>
-<td>{{ =A(B("Layout colors"), _href=URL(a=config.APP_NAME, c='default',f='change_layout_colors')) }}</td>
+<td>{{ =A(B(T("Layout colors")), _href=URL(a=config.APP_NAME, c='default',f='change_layout_colors')) }}</td>
 </tr>
 
 <tr>
-<td>{{ =A(B("RIA Product billing"), _href=URL(a=config.APP_NAME, c='operations',f='ria_product_billing_start')) }}</td>
+<td>{{ =A(B(T("RIA Product billing")), _href=URL(a=config.APP_NAME, c='operations',f='ria_product_billing_start')) }}</td>
 <td></td>
 <td></td>
-<td>{{ =A(B("Set colors as default"), _href=URL(a=config.APP_NAME, c='default',f='set_default_layout_colors')) }}</td>
+<td>{{ =A(B(T("Set colors as default")), _href=URL(a=config.APP_NAME, c='default',f='set_default_layout_colors')) }}</td>
 </tr>
 
 <tr>
-<td>{{ =A(B("Movements list"), _href=URL(a=config.APP_NAME, c='operations',f='movements_list')) }}</td>
+<td>{{ =A(B(T("Movements list")), _href=URL(a=config.APP_NAME, c='operations',f='movements_list')) }}</td>
 <td></td>
 <td></td>
-<td>{{ =A(B("CRUD"), _href=URL(a=config.APP_NAME, c='appadmin',f='index')) }}</td>
+<td>{{ =A(B(T("CRUD")), _href=URL(a=config.APP_NAME, c='appadmin',f='index')) }}</td>
 </tr>
 
 <tr>
-<td>{{ =A(B("New operation (movements form)"), _href=URL(a=config.APP_NAME, c='operations',f='movements_start')) }}</td>
+<td>{{ =A(B(T("New operation (movements form)")), _href=URL(a=config.APP_NAME, c='operations',f='movements_start')) }}</td>
 <td></td>
 <td></td>
 <td></td>
