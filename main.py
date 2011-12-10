@@ -1170,8 +1170,8 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
             parent_menu.menu_items = dict()
 
         # translate label
+        default_label = v.get("label", "")
         text_label = str(T(v.get("label", "")))
-        print "\'%s\': \'%s\'," % (text_label, text_label)
 
         if v.get("visible", False):
             if is_menu_bar == True:
