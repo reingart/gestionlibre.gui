@@ -1141,8 +1141,8 @@ def main_menu_click(evt):
     return None
 
 def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu_bar=False, route=[], T = lambda t: t):
-
     menu_item = None
+
     try:
         menu_items = getattr(parent_menu, "menu_items")
     except AttributeError:
@@ -1169,8 +1169,6 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
         except:
             parent_menu.menu_items = dict()
 
-        # translate label
-        default_label = v.get("label", "")
         text_label = str(T(v.get("label", "")))
 
         if v.get("visible", False):
@@ -1187,7 +1185,7 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
                          parent_menu.menu_items[k], \
                          submenu=v["submenu"], \
                          item_count = item_count, \
-                         route = route)
+                         route = route, T = T)
                 route.pop()
 
                 if k.lower() == "file":
@@ -1209,7 +1207,7 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
                         item_count = main_menu_elements(frame, \
                         parent_menu.menu_items[k], \
                         submenu=v["submenu"], \
-                        item_count = item_count, route = route)
+                        item_count = item_count, route = route, T = T)
                         route.pop()
 
                     else:
@@ -1263,10 +1261,10 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
     return item_count
 
 
-def configure_tree_pane(frame):
+def configure_tree_pane(frame, T = lambda t: t):
 
     tree = frame.tree_pane
-    root = tree.AddRoot("Actions")
+    root = tree.AddRoot(str(T("Actions")))
     items = []
 
     imglist = wx.ImageList(16, 16, True, 2)
@@ -1283,7 +1281,7 @@ def configure_tree_pane(frame):
             if "__icon" in v:
                 icon_id = imglist.Add(wx.Bitmap(v["__icon"]))
 
-            the_item = tree.AppendItem(root, k, icon_id)
+            the_item = tree.AppendItem(root, str(T(k)), icon_id)
 
             for j, w in v.iteritems():
                 if not j.startswith("_"):
@@ -1291,7 +1289,7 @@ def configure_tree_pane(frame):
                     if "__icon" in w:
                         icon_id = imglist.Add(wx.Bitmap(w["__icon"]))
 
-                    sub_item = tree.AppendItem(the_item, j.replace("_", " ").capitalize(), icon_id)
+                    sub_item = tree.AppendItem(the_item, str(T(j.replace("_", " ").capitalize())), icon_id)
 
                     tree.GetItemData(sub_item).SetData({"action": URL(a=config.APP_NAME, c=k, f=j)})
                     frame.Bind(wx.EVT_TREE_ITEM_ACTIVATED, tree_pane_event, tree)
@@ -1529,7 +1527,7 @@ if __name__ == "__main__":
     configure_addresses()
 
     # add items to the action tree pane
-    configure_tree_pane(config.html_frame)
+    configure_tree_pane(config.html_frame, T = T)
 
     # set the event handler options
     configure_event_handlers()
