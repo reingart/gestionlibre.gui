@@ -12,7 +12,25 @@ T = config.env["T"]
 session = config.session
 
 def index(evt, args=[], vars={}):
-    return dict()
+
+    static_tables_list = []
+    table_groups = dict()
+    for k, v in db.static_table_tags.iteritems():
+        if not v in table_groups:
+            table_groups[v] = list()
+        table_groups[v].append(k)
+        static_tables_list.append(k)
+
+    # Add tables not listed in the static list
+    # in common group
+    for table in db["tables"]:
+        if not str(table) in static_tables_list:
+            table_name = str(table)
+            if "common" in table_groups.keys():
+                if not table_name.startswith("_"):
+                    table_groups["common"].append(table_name)
+
+    return dict(table_groups = table_groups)
 
 
 def select(evt, args=[], vars={}):

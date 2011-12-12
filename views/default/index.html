@@ -1,5 +1,5 @@
 {{ extend "layout.html" }}
-{{ =T(message) }}
+{{ =T(message) + " " + session._info["version"] }}
 {{=H3(T("The links"))}}
 
 <table width="100%">
@@ -22,28 +22,28 @@
 <td>{{ =A(B(T("Order allocation list")), _href=URL(a=config.APP_NAME, c='operations',f='list_order_allocations')) }}</td>
 <td>{{ =A(B(T("Current accounts payments")), _href=URL(a=config.APP_NAME, c='financials',f='current_accounts_type')) }}</td>
 <td></td>
-<td></td>
+<td>{{ =A(B(T("CRUD")), _href=URL(a=config.APP_NAME, c='appadmin',f='index')) }}</td>
 </tr>
 
 <tr>
 <td>{{ =A(B(T("Packing slip")), _href=URL(a=config.APP_NAME, c='operations',f='packing_slip')) }}</td>
 <td></td>
 <td></td>
-<td>{{ =A(B(T("Layout colors")), _href=URL(a=config.APP_NAME, c='default',f='change_layout_colors')) }}</td>
+<td></td>
 </tr>
 
 <tr>
 <td>{{ =A(B(T("RIA Product billing")), _href=URL(a=config.APP_NAME, c='operations',f='ria_product_billing_start')) }}</td>
 <td></td>
 <td></td>
-<td>{{ =A(B(T("Set colors as default")), _href=URL(a=config.APP_NAME, c='default',f='set_default_layout_colors')) }}</td>
+<td></td>
 </tr>
 
 <tr>
 <td>{{ =A(B(T("Movements list")), _href=URL(a=config.APP_NAME, c='operations',f='movements_list')) }}</td>
 <td></td>
 <td></td>
-<td>{{ =A(B(T("CRUD")), _href=URL(a=config.APP_NAME, c='appadmin',f='index')) }}</td>
+<td></td>
 </tr>
 
 <tr>

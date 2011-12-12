@@ -16,10 +16,30 @@ import datetime
 
 # 'auth_user', 'auth_group', 'auth_membership', 'auth_permission', 'auth_event', 'auth_cas', 
 
-# (not used)
-STATIC_TABLE_NAMES = [
-'accounting_period', 'category', 'subcategory', 'jurisdiction', 'country', 'state', 'city', 'address', 'tax', 'custom_serial_code', 'debugging', 'option', 'customer_group', 'situation', 'cost_center', 'bank', 'plant', 'department', 'labor_union', 'payroll', 'healthcare', 'pension', 'role', 'formula', 'agreement', 'price_list', 'point_of_sale', 'collection', 'color', 'size', 'warehouse', 'rate', 'account', 'journal_entry', 'staff_category', 'staff', 'entry', 'salesperson', 'file', 'relative', 'supplier', 'family', 'concept', 'fund', 'payment_terms', 'payment_method', 'checkbook', 'payroll_new', 'salary', 'document', 'product_structure', 'stock', 'customer', 'subcustomer', 'fee', 'contact', 'installment', 'quota', 'operation', 'price', 'memo', 'contact_user', 'bank_check', 'cash_balance', 'payroll_column', 'movement', 'reconciliation', 'credit_card_coupon'
-]
+# Static table_name: group dictionary for readable table lists
+STATIC_TABLE_TAGS = {'accounting_period':'accounting', 'category': 'common', \
+'subcategory': 'common', 'jurisdiction': 'common', 'country':'common', \
+'state': 'common', 'city': 'common', 'address': 'common', 'tax': 'common', \
+'custom_serial_code': 'common', 'debugging': 'common', 'option': 'common', \
+'customer_group': 'crm', 'situation': 'crm', 'cost_center': 'financials', \
+'bank': 'financials', 'plant': 'hr', 'department': 'hr', 'labor_union': 'hr', \
+'payroll': 'hr', 'healthcare': 'hr', 'pension': 'hr', 'role': 'hr', \
+'formula': 'hr', 'agreement': 'hr', 'price_list': 'operations', \
+'point_of_sale': 'operations', 'collection': 'scm', 'color': 'scm', \
+'size': 'scm', 'warehouse': 'scm', 'rate': 'scm', 'account': 'accounting', \
+'journal_entry': 'accounting', 'staff_category': 'hr', 'staff': 'hr', \
+'entry': 'accounting', 'salesperson': 'crm', 'file': 'hr', 'relative': 'hr', \
+'supplier': 'scm', 'family': 'scm', 'concept': 'operations',  \
+'fund': 'financials', 'payment_terms': 'financials', \
+'payment_method': 'financials', 'checkbook': 'financials', 'payroll_new': 'hr', \
+'salary': 'hr', 'document': 'operations', 'product_structure': 'scm', \
+'stock': 'scm', 'customer': 'crm', 'subcustomer': 'crm', 'fee': 'fees', \
+'contact': 'crm', 'installment': 'fees', 'quota': 'fees', \
+'operation': 'operations', 'price': 'operations', 'memo': 'crm', \
+'contact_user': 'crm', 'bank_check': 'financials', 'cash_balance': 'financials', \
+'payroll_column': 'hr', 'movement': 'operations', 'reconciliation': 'financials', \
+'credit_card_coupon': 'financials'}
+
 
 def define_tables(db, auth, env, web2py = False, migrate = True, fake_migrate = False, T = lambda t: t):
 
@@ -625,7 +645,7 @@ def define_tables(db, auth, env, web2py = False, migrate = True, fake_migrate = 
 
     # db_02_crm
 
-    # salesman
+    # salesperson
     db.define_table('salesperson',
         Field('salesperson_id', 'id', label = T("id")),
         Field('code', unique = True, label = T("code")),
@@ -1527,6 +1547,9 @@ def define_tables(db, auth, env, web2py = False, migrate = True, fake_migrate = 
         sequence_name = "credit_card_coupon_credit_card_coupon_id_Seq",
         migrate=migrate, fake_migrate=fake_migrate)
 
+
+    # add static table tags
+    db.static_table_tags = STATIC_TABLE_TAGS
 
     if not web2py:
         db.commit()

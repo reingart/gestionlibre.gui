@@ -1415,7 +1415,7 @@ if __name__ == "__main__":
     # modules = __import__('applications.%s.modules' % config.WEB2PY_APP_NAME, \
     # globals(), locals(), ['db_gestionlibre',], -1)
     # db_gestionlibre = modules.db_gestionlibre
-    from modules import db_gestionlibre
+    from modules import db_gestionlibre, info
     
     # define the database tables
     # web2py = False forces db.define_table("auth_user"..)
@@ -1543,12 +1543,16 @@ if __name__ == "__main__":
         email, password = login_string.split(":")
 
         if config.access_control.validate_user(email, password):
-            print "Welcome %s" % email
+            print T("Welcome %s") % email
         else:
-            print "Authentication failed"
+            print T("Authentication failed")
 
     elif isinstance(login_string, basestring) and len(login_string.split(":")) != 2:
-        print "Incorrect mail:password argument"
+        print T("Incorrect mail:password argument")
+
+    # load system information in session
+    config.session._info = dict()
+    config.session._info["version"] = info.version
 
     # gui.start_html_frame(config.html_frame)
     config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="default", f="index"))

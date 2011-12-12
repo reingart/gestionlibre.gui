@@ -11,6 +11,12 @@
   {{ if config.auth.user is not None:}}
     {{=H5(T("Current language") + ": " + language)}}
     {{=BEAUTIFY(actions)}}
+
+<h3>{{=T("HTML panel")}}</h3>
+{{ =A(T("Layout colors"), _href=URL(a=config.APP_NAME, c='default',f='change_layout_colors')) }}<br />
+{{ =A(T("Set colors as default"), _href=URL(a=config.APP_NAME, c='default',f='set_default_layout_colors')) }}
+</ul>
+
   {{ else: }}
     {{ =P(T("Please login as admin for setup options")) }}
   {{ pass }}
