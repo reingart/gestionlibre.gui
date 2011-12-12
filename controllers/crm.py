@@ -49,8 +49,12 @@ def customer_panel(evt, args=[], vars={}):
     q = db.operation.document_id == db.document.document_id
     q &= db.document.orders == True
     preset = db(q)
-    customer_orders_set = preset((db.operation.customer_id == customer) & (db.operation.posted >= time_limit))
+
+    # show orders for user contact configured customer (used in customer web interface)
+    # customer_orders_set = preset((db.operation.customer_id == customer) & (db.operation.posted >= time_limit))
     
+    # show orders for any customer
+    customer_orders_set = preset((db.operation.posted >= time_limit))
     """
     TODO: filter by order document type
 

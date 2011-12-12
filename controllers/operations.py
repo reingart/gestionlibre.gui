@@ -555,10 +555,29 @@ def ria_new_customer_order_reset(evt, args=[], vars={}):
 
 
 def ria_new_customer_order(evt, args=[], vars={}):
+
+    customer = None
+    
+    if session.get("operation_id", None) is not None:
+        the_operation = db.operation[session.operation_id]
+        the_document = db.document[the_operation.document_id]
+        try:
+            if the_document.orders != True:
+                # reset document (it is not an order)
+                session.operation_id = None
+            else:
+                customer = db.customer[the_operation.customer_id]
+                
+        except (AttributeError, KeyError):
+            # reset document (misconfigured operation)
+            session.operation_id = None
+
     """ Customer's ordering on-line form.
     Note: get db objects with db(query).select()
     i.e. contact.customer returns the db record id """
-    
+
+    # TODO: modify for local gui client configuration
+
     contact_user = db(db.contact_user.user_id == config.auth.user_id).select().first()
     
     reset = A(T("Reset this order"), _href=URL(a=config.APP_NAME, c="operations", f="ria_new_customer_order_reset"))
@@ -576,11 +595,6 @@ def ria_new_customer_order(evt, args=[], vars={}):
         ).select().first()
     except KeyError:
         contact = None
-    try:
-        customer = db(db.customer.customer_id == contact.customer_id \
-        ).select().first()
-    except KeyError:
-        customer = None
 
     # Look for allowed orders in options db
     customer_allowed_orders = db(db.option.name == \
@@ -592,31 +606,39 @@ def ria_new_customer_order(evt, args=[], vars={}):
         customer_allowed_orders.value.split("|") if len(o) > 0]
     else:
         allowed_orders_list = []
-        
+
     # Get the default order
-    default_order = db(db.document.code == db(db.option.name == \
-    "customer_default_order").select().first()).select().first().document_id
-    
-    if isinstance(default_order, basestring): \
-    default_order = int(default_order)
+    try:
+        default_order = db(db.document.code == db(db.option.name == \
+        "customer_default_order").select().first().value).select().first().document_id
+    except (AttributeError, KeyError), e:
+        default_order = None
+
+    if isinstance(default_order, basestring):
+        try:
+            default_order = int(default_order)
+        except ValueError:
+            default_order = None
+
+    # TODO: auto-select supplier by document type (Purchases/Sales)
 
     # create a new order with pre-populated user data
     if not "operation_id" in session.keys():
         customer_order = db.operation.insert( \
-        customer_id = customer, document_id = default_order.value)
+        customer_id = customer, document_id = default_order)
         session.operation_id = customer_order
         db.commit()
+        
     else:
         customer_order = session.operation_id
         if session.operation_id is None:
             customer_order = db.operation.insert( \
-            customer_id = customer, \
-            document_id = default_order.value)
+            document_id = default_order)
             session.operation_id = customer_order
             db.commit()
 
     session.form = SQLFORM(db.operation, customer_order, \
-    fields=["description"], _id="new_customer_order_form")
+    fields=["description", "customer_id", "subcustomer_id", "supplier_id", "document_id"], _id="new_customer_order_form")
 
     # Available order documents
     order_documents = db(db.document.orders == True).select()
@@ -628,7 +650,11 @@ def ria_new_customer_order(evt, args=[], vars={}):
     if evt is not None:
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             db.operation[customer_order].update_record( \
-            description = session.form.vars.description)
+            description = session.form.vars.description, \
+            customer_id = session.form.vars.customer_id, \
+            subcustomer_id = session.form.vars.subcustomer_id, \
+            supplier_id = session.form.vars.supplier_id, \
+            document_id = session.form.vars.document_id)
             db.commit()
             print T("Form accepted")
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="ria_new_customer_order"))
@@ -642,7 +668,7 @@ def ria_new_customer_order(evt, args=[], vars={}):
         if db.operation[customer_order].document_id \
         == order_document.document_id:
             checked = True
-        elif order_document.document_id == default_order.value:
+        elif order_document.document_id == default_order:
             checked = True
         else:
             checked = False
@@ -670,9 +696,9 @@ def new_customer_order_element(evt, args=[], vars={}):
     
     if not "operation_id" in session.keys():
         raise HTTP(500, "Customer order not found.")
-    
-    session.form = SQLFORM.factory(Field('concept_id', \
-    'reference concept', requires=IS_IN_SET(orderable_concepts())), \
+
+    session.form = SQLFORM.factory(Field('concept_id', 'reference concept', \
+    requires=IS_IN_SET(orderable_concepts())), \
     Field('description'), Field('quantity', 'double'), \
     _id="new_customer_order_element_form")
 
@@ -692,6 +718,7 @@ def new_customer_order_element(evt, args=[], vars={}):
 
     return dict(form=session.form)
 
+
 # order movement modification
 def new_customer_order_modify_element(evt, args=[], vars={}):
     """ Customer order element edition sub-form."""
@@ -703,23 +730,20 @@ def new_customer_order_modify_element(evt, args=[], vars={}):
         
     customer_order_element = db.movement[session.customer_order_element_id]
 
-    session.form = SQLFORM.factory(Field('concept_id', \
-    'reference concept', requires=IS_IN_SET(orderable_concepts()), \
-    default=customer_order_element.movement_id), \
-    Field('description', default=customer_order_element.description), \
-    Field('quantity', 'double', \
-    default = customer_order_element.quantity), \
+    session.form = SQLFORM(db.movement, customer_order_element.movement_id, \
+    deletable = True, fields = ["description", "concept_id", "quantity"], \
     _id="new_customer_order_modify_element_form")
 
     if evt is not None:
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
-            customer_order_element.update_record( \
-            description = session.form.vars.description, \
-            concept_id = session.form.vars.concept_id, \
-            quantity = session.form.vars.quantity)
-            
+            if session.form.vars.delete_this_record is not None:
+                # erase the db record if marked for deletion
+                print T("Erasing movement %(id)s") % dict(id=customer_order_element.movement_id)
+                db.movement[customer_order_element.movement_id].delete_record()
+            else:
+                customer_order_element.update_record(**session.form.vars)
+
             db.commit()
-            
             print T("Form accepted")
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="ria_new_customer_order"))
     else:
