@@ -946,7 +946,10 @@ def update_order_allocation(evt, args=[], vars={}):
     if len(args) > 1:
         session.operation_id = session.order_allocation_id = args[1]
 
-    session.form = SQLFORM(db.operation, session.order_allocation_id)
+    session.form = SQLFORM(db.operation, session.order_allocation_id, \
+    fields=["code", "description", "supplier_id", "customer_id", \
+    "subcustomer_id", "detail", "document_id", "branch", "voided"], \
+    )
     if evt is not None:
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             db.operation[session.order_allocation_id].update_record(**session.form.vars)
@@ -975,19 +978,26 @@ def packing_slip(evt, args=[], vars={}):
     operation.
     """
 
+    # packing slip fields
+    form_fields = ["code", "description", "customer_id", \
+    "subcustomer_id", "supplier_id", "document_id", "branch", "voided"]
+
     if evt is not None:
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             # web2py stores the created record id as "id"
             # instead of using the table field definition
             if session.packing_slip_id is not None:
-                db.operation[session.packing_slip_id].update(**session.form.vars)
+                db.operation[session.packing_slip_id].update_record(**session.form.vars)
+                
             else:
-                session.packing_slip_id = db.operation.insert(**session.form.vars)
+                # session.packing_slip_id = db.operation.insert(**session.form.vars)
+                raise HTTP(200, "No packing slip found to update")
 
             db.commit()
             print T("Form accepted")
 
-            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="operations", f="packing_slip"))
+            return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, \
+            c="operations", f="packing_slip"))
 
     else:
         session.document_id = db(db.document.packing_slips == True).select(\
@@ -1014,17 +1024,23 @@ def packing_slip(evt, args=[], vars={}):
                 value = m.value, concept_id = m.concept_id)
                 
             order_allocation.update_record(processed = True)
+            db.commit()
             
             # create the form
-            session.form = SQLFORM(db.operation, session.packing_slip_id)
-            db.commit()
+            session.form = SQLFORM(db.operation, session.packing_slip_id, fields=form_fields)
+
             print T("New packing slip: %(psid)s") % dict(psid=session.packing_slip_id)
 
         else:
             if session.get("packing_slip_id", None) is not None:
-                session.form = SQLFORM(db.operation, session.packing_slip_id)
+                session.form = SQLFORM(db.operation, session.packing_slip_id, fields=form_fields)
             else:
-                session.form = SQLFORM(db.operation)
+                # new packing slip
+                session.operation_id = session.packing_slip_id = db.operation.insert( \
+                document_id = session.document_id)
+                session.form = SQLFORM(db.operation, session.operation_id, fields=form_fields)
+                db.commit()
+
             session.form.vars.document_id = session.document_id
 
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, packing_slip)
@@ -1082,6 +1098,25 @@ def ria_product_billing(evt, args=[], vars={}):
     packing_slips_rows = list()
     checked_list = list()
     document_id = None
+    document_type = "S"
+
+    try:
+        payment_terms_id = db(db.payment_terms.code == \
+        db(db.option.name == "sales_payment_default_payment_terms_code").select().first().value \
+        ).select().first().payment_terms_id
+    except (AttributeError, KeyError), e:
+        print "Failed reading the default payment terms option"
+        payment_terms_id = None
+        pass
+
+    # get the default supplier option
+    try:
+        supplier_id = db(db.supplier.code == db( \
+        db.option.name=="default_supplier_code" \
+        ).select().first().value).select().first().supplier_id
+    except (AttributeError, KeyError), e:
+        print "Failed reading the default supplier option"
+        supplier_id = None
 
     customer_id = session.get("customer_id", None)
     subcustomer_id = session.get("subcustomer_id", None)
@@ -1134,7 +1169,10 @@ def ria_product_billing(evt, args=[], vars={}):
                 invoice_id = db.operation.insert( \
                 document_id = session.form.vars.document_id, \
                 customer_id = customer_id, \
-                subcustomer_id =  subcustomer_id)
+                subcustomer_id =  subcustomer_id, \
+                supplier_id = supplier_id, \
+                payment_terms_id = payment_terms_id, \
+                type = document_type)
                 
                 # fill the invoice
                 for packing_slip_id in bill_items:
@@ -1148,8 +1186,13 @@ def ria_product_billing(evt, args=[], vars={}):
                             # Calculate price
                             price = db((db.price.price_list_id == session.price_list_id \
                             ) & (db.price.concept_id == movement.concept_id)).select().first()
-                            value = price.value
-                            amount = price.value * movement.quantity
+
+                            if price is not None:
+                                value = price.value
+                                amount = price.value * movement.quantity
+                            else:
+                                print "No valid price record found"
+                                value = amount = 0
                             
                         db.movement.insert(operation_id = invoice_id, \
                         concept_id = movement.concept_id, \

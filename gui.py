@@ -263,6 +263,9 @@ def action(url):
     # get the address/parameters tuple
     url_data = get_function(url)
 
+    if config.VERBOSE:
+        print "Entered action", url
+
     # url decode encoded url slashes
     if len(url_data) >= 5:
         if "_next" in url_data[4]:

@@ -25,6 +25,9 @@ for arg in sys.argv:
             "No system user specified. Default is %s" % SYSTEM_USER_NAME
 
 
+# send debugging data to standard output
+VERBOSE = False
+
 # Gui app installation name
 # used for local URLs and titles
 WEB2PY_APP_NAME = "gestionlibre"

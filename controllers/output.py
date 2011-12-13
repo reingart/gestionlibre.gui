@@ -189,7 +189,11 @@ def operation(evt, args=[], vars={}):
             if k > page * (max_lines_per_page - 1):
                 break
             if it['amount']:
-                total += float(it['amount'])
+                try:
+                    total += float(it['amount'])
+                except (ValueError, TypeError), e:
+                    print "Total amount update failed: ", str(e)
+
             if k > (page - 1) * (max_lines_per_page - 1):
                 li += 1
                 if it['qty'] is not None:
@@ -200,9 +204,15 @@ def operation(evt, args=[], vars={}):
                     f['item_unit%02d' % li] = it['unit']
                 f['item_description%02d' % li] = it['ds']
                 if it['price'] is not None:
-                    f['item_price%02d' % li] = "%0.2f" % float(it['price'])
+                    try:
+                        f['item_price%02d' % li] = "%0.2f" % float(it['price'])
+                    except (TypeError, ValueError), e:
+                        print "Price field error: ", str(e) 
                 if it['amount'] is not None:
-                    f['item_amount%02d' % li] = "%0.2f" % float(it['amount'])
+                    try:
+                        f['item_amount%02d' % li] = "%0.2f" % float(it['amount'])
+                    except (TypeError, ValueError), e:
+                        print "Amount field error: ", str(e)
 
         if pages == page:
             f['net'] = "%0.2f" % (amountorzero(operation.amount) -vat_amount)

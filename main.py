@@ -1325,6 +1325,9 @@ if __name__ == "__main__":
         elif arg.upper().replace("-", "") in ("HELP", "?"):
             print HELP_TEXT
             exit(0)
+        elif arg.upper().replace("-", "") == "VERBOSE":
+            print "Verbose mode"
+            config.VERBOSE = True
 
     # load web2py package
     import gluon
@@ -1389,7 +1392,7 @@ if __name__ == "__main__":
         T.t = gluon.languages.read_dict(T.language_file)
 
     # create DAL connection (and create DB if it does not exists)
-    config.db = DAL(config.DB_URI, folder=config.DATABASES_FOLDER)
+    config.db = DAL(config.DB_URI, folder=config.DATABASES_FOLDER, pool_size = 10)
 
     # Connection example for PostgreSQL database (set this at installation as DB_URI)
     # or modify the value at [desktopapp]/config.ini and [web2pyapp]/webappconfig.ini
