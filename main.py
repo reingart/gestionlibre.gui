@@ -1300,6 +1300,28 @@ def configure_tree_pane(frame, T = lambda t: t):
     return None
 
 
+def on_db_timeout(evt):
+    # reset db object to prevent server connection closing
+    if "postgres" in config.DB_URI.lower():
+        if config.VERBOSE:
+            print "Database timeout triggered", datetime.datetime.now()
+            print "Database connection", "status", \
+            db["_adapter"].connection.status, "closed", \
+            db["_adapter"].connection.closed
+            print "Reset connection..."
+
+        # reset the connection to avoid timeout issues
+        db["_adapter"].connection.reset()
+
+    else:
+        stopped = evt.GetEventObject().Stop()
+        if config.VERBOSE:
+            print "Db timeout option not supported for this database"
+            print "Event stopped"
+
+    return
+
+
 if __name__ == "__main__":
     import config
 
@@ -1562,8 +1584,20 @@ if __name__ == "__main__":
 
     # Gui-based user authentication
     # (incomplete)
-    
-    # Add the html window
 
+    # re-connect periodically to database to prevent connection timeout issue
+    try:
+        db_timeout_milliseconds = int(config.DB_TIMEOUT)
+    except (ValueError, TypeError), e:
+        print "Error retrieving the db_timeout parameter ", str(e)
+        # no connection timeout by default
+        db_timeout_milliseconds = -1
+
+    if db_timeout_milliseconds > 0:
+        db_timeout = wx.Timer(config.html_frame)
+        config.html_frame.Bind(wx.EVT_TIMER, on_db_timeout, db_timeout)
+        db_timeout.Start(db_timeout_milliseconds)
+
+    # Add the html window
     GestionLibre.MainLoop()
 

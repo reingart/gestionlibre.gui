@@ -156,6 +156,7 @@ def set_values(web2py_path, gui2py_path, gui_based = GUI_BASED, client = CLIENT,
     PDF_TEMPLATES_FOLDER = os.path.join(cwd, "pdf_templates"),
     OUTPUT_FOLDER = os.path.join(cwd, "output"),
     DB_URI = r'sqlite://storage.sqlite',
+    DB_TIMEOUT = -1,
     HMAC_KEY = hmac_key,
     LEGACY_DB = legacy_db,
     LANGUAGE = "")
@@ -237,6 +238,10 @@ def set_values(web2py_path, gui2py_path, gui_based = GUI_BASED, client = CLIENT,
         else:
             # demo key
             ini_values["HMAC_KEY"] = demo_key
+
+    # Change db_timeout for postgres connections
+    if "postgres" in ini_values["DB_URI"].lower():
+        ini_values["DB_TIMEOUT"] = 120000
 
     # write config values to config.ini
     print "Writing config values to config.ini"
