@@ -311,7 +311,6 @@
 'Period': 'Ciclo/Período',
 'Plant': 'Plant',
 "Please insert your firm's tax id": 'Por favor ingrese la identificación tributaria de su empresa',
-'Please login as admin for setup options': 'Please login as admin for setup options',
 'Point of sale': 'Point of sale',
 'Points to order / invoice / packingslips': 'Apunta a pedidos / facturas / remitos',
 'Post register specify firm': 'Post register specify firm',

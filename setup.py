@@ -49,6 +49,7 @@ GUI_BASED = True
 CLIENT = False
 LEGACY_DB = False
 HMAC_KEY = None
+LANGUAGE = ""
 
 try:
     import wx
@@ -131,7 +132,9 @@ def create_hmac_key():
     return new_hmac_key
 
 
-def set_values(web2py_path, gui2py_path, gui_based = GUI_BASED, client = CLIENT, legacy_db = LEGACY_DB, hmac_key = HMAC_KEY):
+def set_values(web2py_path, gui2py_path, gui_based = GUI_BASED, \
+client = CLIENT, legacy_db = LEGACY_DB, hmac_key = HMAC_KEY, \
+language = LANGUAGE):
     cwd = os.getcwd()
     try:
         login = os.getlogin()
@@ -159,7 +162,7 @@ def set_values(web2py_path, gui2py_path, gui_based = GUI_BASED, client = CLIENT,
     DB_TIMEOUT = -1,
     HMAC_KEY = hmac_key,
     LEGACY_DB = legacy_db,
-    LANGUAGE = "")
+    LANGUAGE = language)
 
     # confirm db_uri or change it interactively
 
@@ -486,6 +489,9 @@ elif "INSTALL" in command_args:
 
         elif arg_name == "WEB2PY_APP_NAME":
             WEB2PY_APP_NAME = sys.argv[arg_counter]
+
+        elif arg_name == "LANGUAGE":
+            LANGUAGE = sys.argv[arg_counter]
 
         elif arg_name == "APP_NAME":
             APP_NAME = sys.argv[arg_counter]
