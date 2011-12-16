@@ -1334,20 +1334,26 @@ if __name__ == "__main__":
     login_string = None
     arg_counter = 0
     for arg in sys.argv:
+        name = arg.upper().replace("-", "")
         arg_counter += 1
-        if arg.upper().replace("-", "") == "USER":
+        if name == "USER":
             try:
                 login_string = sys.argv[arg_counter]
             except IndexError:
                 print "User login not specified."
 
-        elif arg.upper().replace("-", "") == "LEGACY_DB":
+        elif name == "LEGACY_DB":
             config.LEGACY_DB = True
 
-        elif arg.upper().replace("-", "") in ("HELP", "?"):
+        elif name == "DB_TIMEOUT":
+            # reset db connection timeout
+            # used for psycopg2 connection closed issue
+            config.DB_TIMEOUT = int(sys.argv[arg_counter])
+
+        elif name in ("HELP", "?"):
             print HELP_TEXT
             exit(0)
-        elif arg.upper().replace("-", "") == "VERBOSE":
+        elif name == "VERBOSE":
             print "Verbose mode"
             config.VERBOSE = True
 

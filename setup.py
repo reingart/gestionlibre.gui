@@ -241,7 +241,9 @@ def set_values(web2py_path, gui2py_path, gui_based = GUI_BASED, client = CLIENT,
 
     # Change db_timeout for postgres connections
     if "postgres" in ini_values["DB_URI"].lower():
-        ini_values["DB_TIMEOUT"] = 120000
+        # for remote db connection closed issue
+        # ini_values["DB_TIMEOUT"] = 120000
+        pass
 
     # write config values to config.ini
     print "Writing config values to config.ini"
