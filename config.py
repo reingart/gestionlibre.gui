@@ -41,7 +41,8 @@ DATABASES_FOLDER = r"/home/%s/gestionlibre_gui-hg/databases/" % SYSTEM_USER_NAME
 TEMPLATES_FOLDER = r"/home/%s/gestionlibre_gui-hg/views/" % SYSTEM_USER_NAME
 PDF_TEMPLATES_FOLDER = r"/home/%s/gestionlibre_gui-hg/pdf_templates/" % SYSTEM_USER_NAME
 OUTPUT_FOLDER = r"/home/%s/gestionlibre_gui-hg/output/" % SYSTEM_USER_NAME
-WEB2PY_APP_FOLDER = r"/home/%s/web2py/applications/%s/" % (SYSTEM_USER_NAME, WEB2PY_APP_NAME)
+# WEB2PY_APP_FOLDER = r"/home/%s/web2py/applications/%s/" % (SYSTEM_USER_NAME, WEB2PY_APP_NAME)
+WEB2PY_APP_FOLDER = ""
 LEGACY_DB=False
 DB_URI = r'sqlite://storage.sqlite'
 # Time in milliseconds to restart db connection (for connection timeout issues)
@@ -67,17 +68,24 @@ try:
             values = line.strip().split("=")
             if len(values) == 2:
                 locals()[values[0]] = values[1]
+
 except IOError, e:
     print "Error accessing config.ini: " + str(e)
 
 def write_values(data):
     with open(os.path.join(os.getcwd(), "config.ini"), "w") as config_file:
         for name, value in data.iteritems():
-            if isinstance(value, basestring) and name.isupper():
-                # static value
-                config_file.write(name + "=" + value + "\n")
-                
-    if WEB2PY_APP_FOLDER is not None:
+            if name.isupper():
+                if isinstance(value, basestring):
+                    # static value
+                    config_file.write(name + "=" + value + "\n")
+                elif value is None:
+                    config_file.write(name + "=" + "\n")
+                else:
+                    config_file.write(name + "=" + str(value) + "\n")
+
+    # write web2py app .ini file
+    if WEB2PY_APP_FOLDER != "":
         # Duplicated ini file for web2py app to know ini values
         # It is impossible to use this workaround on environments without access
         # to the file system so this would probably raise exceptions.
@@ -86,7 +94,6 @@ def write_values(data):
                 if isinstance(value, basestring) and name.isupper():
                     # static value
                     webapp_config_file.write(name + "=" + value + "\n")
-
 
 # import wx
 # import wx.html

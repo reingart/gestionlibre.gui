@@ -41,7 +41,7 @@ try:
 except ImportError:
     print "readline feature not supported for user input"
 
-no_web2py_app = False
+NO_WEB2PY_APP = False
 path_walk = None
 GUI2PY_PATH = None
 WEB2PY_PATH = None
@@ -134,7 +134,8 @@ def create_hmac_key():
 
 def set_values(web2py_path, gui2py_path, gui_based = GUI_BASED, \
 client = CLIENT, legacy_db = LEGACY_DB, hmac_key = HMAC_KEY, \
-language = LANGUAGE):
+language = LANGUAGE, no_web2py_app = NO_WEB2PY_APP):
+    
     cwd = os.getcwd()
     try:
         login = os.getlogin()
@@ -143,7 +144,13 @@ language = LANGUAGE):
 
     WEB2PY_PATH = web2py_path
     GUI2PY_PATH = gui2py_path
-    
+
+    if no_web2py_app:
+        web2py_app_folder = ""
+    else:
+        web2py_app_folder = os.path.join(WEB2PY_PATH, \
+        "applications", WEB2PY_APP_NAME)
+
     # set default paths (templates, example_db, ...)
 
     ini_values = dict(APP_NAME = APP_NAME,
@@ -153,7 +160,7 @@ language = LANGUAGE):
     WEB2PY_APP_NAME = WEB2PY_APP_NAME,
     WEB2PY_FOLDER = WEB2PY_PATH,
     GUI2PY_FOLDER = GUI2PY_PATH,
-    WEB2PY_APP_FOLDER = os.path.join(WEB2PY_PATH, "applications", WEB2PY_APP_NAME),
+    WEB2PY_APP_FOLDER = web2py_app_folder,
     DATABASES_FOLDER = os.path.join(cwd, "databases"),
     TEMPLATES_FOLDER = os.path.join(cwd, "views"),
     PDF_TEMPLATES_FOLDER = os.path.join(cwd, "pdf_templates"),
@@ -257,9 +264,9 @@ language = LANGUAGE):
 
     # write config values to webappconfig.ini
     # for path search purposes mostly
-    if not no_web2py_app:
+    if not NO_WEB2PY_APP:
         print "Writing config values to web2py app"
-        if ini_values["WEB2PY_APP_FOLDER"] is not None:
+        if ini_values["WEB2PY_APP_FOLDER"] != "":
             # TODO: and ...FOLDER has a valid path
             with open(os.path.join(ini_values["WEB2PY_APP_FOLDER"], "private", "webappconfig.ini"), "wb") as webappconfig:
                 for k, v in ini_values.iteritems():
@@ -377,7 +384,7 @@ def start_install(evt):
                 GestionLibreSetup.Exit()
                 exit(1)
 
-    if not no_web2py_app:
+    if not NO_WEB2PY_APP:
         if (WEB2PY_PATH is not None):
             dlg = wx.MessageDialog(None, \
             "Confirm web2py app installation at %s?" \
@@ -415,7 +422,8 @@ def start_install(evt):
             exit(1)
 
     create_dirs()
-    result = set_values(WEB2PY_PATH, GUI2PY_PATH, gui_based = GUI_BASED, client = CLIENT, legacy_db = LEGACY_DB)
+    result = set_values(WEB2PY_PATH, GUI2PY_PATH, gui_based = GUI_BASED, \
+    client = CLIENT, legacy_db = LEGACY_DB, no_web2py_app = NO_WEB2PY_APP)
 
     if result == True:
         starting_frame.gauge.SetValue(50)
@@ -478,7 +486,7 @@ elif "INSTALL" in command_args:
             print "No gui mode"
 
         elif arg_name == "NO_WEB2PY_APP":
-            no_web2py_app = True
+            NO_WEB2PY_APP = True
             print "web2py app installation disabled"
 
         elif arg_name == "WEB2PY_PATH":
@@ -578,7 +586,7 @@ elif "INSTALL" in command_args:
                     exit(1)
 
         # If web2py applications folder found, request write confirmation.
-        if not no_web2py_app:
+        if not NO_WEB2PY_APP:
             if raw_input(\
             "Please confirm GestionLibreApp installation at %s (y/n):" \
             % os.path.join(WEB2PY_PATH, "applications", WEB2PY_APP_NAME)) in ["y", "Y"]:
@@ -645,7 +653,8 @@ elif "INSTALL" in command_args:
                     exit(1)
                     
         create_dirs()
-        result = set_values(WEB2PY_PATH, GUI2PY_PATH, gui_based = GUI_BASED, client = CLIENT, legacy_db = LEGACY_DB)
+        result = set_values(WEB2PY_PATH, GUI2PY_PATH, gui_based = GUI_BASED, \
+        client = CLIENT, legacy_db = LEGACY_DB, no_web2py_app = NO_WEB2PY_APP)
         
         if result == True:
             exit(0)

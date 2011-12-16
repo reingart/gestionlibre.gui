@@ -442,6 +442,7 @@
 'Ventanas': 'Ventanas',
 'Ventas': 'Ventas',
 'Verify': 'Verificar',
+'WARNING: JOURNAL ENTRY IS UNBALANCED': 'WARNING: JOURNAL ENTRY IS UNBALANCED',
 'Warehouse': 'Depósito',
 'Welcome %s': 'Welcome %s',
 'Wiki': 'Wiki',

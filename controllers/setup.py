@@ -142,6 +142,7 @@ def set_language(evt, args=[], vars={}):
 
 
 def initialize():
+    # not used
     message = ""
     
     # general dictionary for db initial setup

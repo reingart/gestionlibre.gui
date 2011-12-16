@@ -1926,7 +1926,7 @@ def movements_list(evt, args = [], vars = {}):
     "operation.supplier_id": "Supplier", \
     "operation.document_id": "Document", \
     "operation.posted": "Posted"}
-    table = SQLTABLE(db(db.operation).select(), \
+    table = SQLTABLE(db(db.operation).select(orderby="operation_id"), \
     columns = columns, headers = headers, \
     linkto=URL(a=config.APP_NAME, c="operations", f="movements_select"))
     return dict(table = table)

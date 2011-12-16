@@ -1397,6 +1397,7 @@ if __name__ == "__main__":
         "languages", "%s.py" % config.LANGUAGE)
 
         """
+        # auto create language file (not used)
         if not ("%s.py" % config.LANGUAGE) in (os.listdir(os.path.join(config.WEB2PY_APP_FOLDER, "languages"))):
             if config.LANGUAGE != "en":
                 # create file
