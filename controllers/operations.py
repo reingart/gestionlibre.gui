@@ -77,7 +77,13 @@ def movements_taxes(operation_id):
             amount = None
 
         if (concept is not None) and (concept.taxed):
-            tax = db.concept[concept.tax_id]
+            if not concept.tax_id is None:
+                tax = db.concept[concept.tax_id]
+                config.verbose(("Movement concept", concept.description, "Tax concept:", tax.description))
+            else:
+                tax = None
+                print "Error: concept is taxed but no tax concept found"
+                
             # None taxes can occur if a
             # concept is taxed but has no
             # tax concept as reference
@@ -2028,6 +2034,8 @@ def movements_process(evt, args=[], vars={}):
             offset_concept_id = purchases_payment_terms_concept_id
         else:
             offset_concept_id = payment_terms.concept_id
+
+        config.verbose("Purchases offset concept: %s" % db.concept[offset_concept_id].description)
 
     # end of receipt documents movement and offset change
 

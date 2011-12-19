@@ -95,6 +95,12 @@ def write_values(data):
                     # static value
                     webapp_config_file.write(name + "=" + value + "\n")
 
+# send a message to output if verbose
+# mode is enabled
+def verbose(message):
+    if VERBOSE:
+        print message
+
 # import wx
 # import wx.html
 

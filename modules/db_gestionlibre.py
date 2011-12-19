@@ -822,7 +822,7 @@ def define_tables(db, auth, env, web2py = False, migrate = True, fake_migrate = 
         sequence_name = "concept_concept_id_Seq",
         migrate=migrate, fake_migrate=fake_migrate)
 
-    db.concept.tax_id.requires = IS_IN_DB(db(db.concept.tax == True), "concept.concept_id", "%(description)s")
+    db.concept.tax_id.requires = IS_EMPTY_OR(IS_IN_DB(db(db.concept.tax == True), "concept.concept_id", "%(description)s"))
 
     # db_06_financials
 
