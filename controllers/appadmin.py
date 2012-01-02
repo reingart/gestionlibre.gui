@@ -23,7 +23,7 @@ def index(evt, args=[], vars={}):
 
     # Add tables not listed in the static list
     # in common group
-    for table in db["tables"]:
+    for table in db.tables:
         if not str(table) in static_tables_list:
             table_name = str(table)
             if "common" in table_groups.keys():
