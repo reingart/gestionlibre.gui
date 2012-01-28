@@ -830,29 +830,34 @@ def order_allocation(evt, args=[], vars={}):
             except AttributeError:
                 stock = oldest = None
 
-            # update the stock value for the current customer/concept
-            session.movements_stack[customer][concept]["stock"] = stock
+            if stock is not None:
+                # update the stock value for the current customer/concept
+                session.movements_stack[customer][concept]["stock"] = stock
 
-            q = (db.movement.posted >= oldest) & (db.movement.concept_id == concept)
-            q &= db.movement.operation_id == db.operation.operation_id
-            q &= db.operation.document_id == db.document.document_id
-            q &= db.document.books == True
-            allocated_set = db(q)
+                q = (db.movement.concept_id == concept)
+                q &= db.movement.operation_id == db.operation.operation_id
+                q &= db.operation.document_id == db.document.document_id
+                q &= db.document.books == True
 
-            # set allocated amount
-            try:
-                session.movements_stack[customer][concept][\
-                "allocated"] = sum(\
-                [m.movement.quantity for m in allocated_set.select() \
-                if m.movement.quantity is not None], 0.00)
-            except KeyError:
-                session.movements_stack[customer][concept][\
-                "allocated"] = 0.00
-            # if allocated is equal to ordered for any order movement
-            # set item as completed
-            if session.movements_stack[customer][concept]["qty"] <= \
-            session.movements_stack[customer][concept]["allocated"]:
-                session.movements_stack[customer][concept]["pending"] = False
+                if oldest is not None:
+                    q &= (db.movement.posted >= oldest)
+
+                allocated_set = db(q)
+
+                # set allocated amount
+                try:
+                    session.movements_stack[customer][concept][\
+                    "allocated"] = sum(\
+                    [m.movement.quantity for m in allocated_set.select() \
+                    if m.movement.quantity is not None], 0.00)
+                except KeyError:
+                    session.movements_stack[customer][concept][\
+                    "allocated"] = 0.00
+                # if allocated is equal to ordered for any order movement
+                # set item as completed
+                if session.movements_stack[customer][concept]["qty"] <= \
+                session.movements_stack[customer][concept]["allocated"]:
+                    session.movements_stack[customer][concept]["pending"] = False
 
     # present a form-row to allocate from inventory
     # based on available stock value.

@@ -124,6 +124,7 @@
 'Customer starting date': 'Fecha de inicio del deudor',
 'Database': 'Base de datos',
 'Date': 'Date',
+'Date of entry': 'Date of entry',
 'Db to csv': 'Db to csv',
 'Deactivate access levels': 'Desactivar niveles de acceso',
 'Debugging': 'Debugging',
