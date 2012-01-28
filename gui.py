@@ -406,6 +406,11 @@ def action(url):
         absolute_path = os.path.join(config.TEMPLATES_FOLDER, "generic.html")
         xml = gluon.template.render(filename = absolute_path, path=config.TEMPLATES_FOLDER,  context = config.context)
 
+    tag = TAG(xml)
+    sumbits = tag.elemets("[type=submit"])
+    for el in submits:
+        el.attributes["_accesskey"] = "ctr-alt-a"
+    xml = tag.xml()
     return xml
 
 
