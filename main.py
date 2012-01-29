@@ -58,7 +58,7 @@ def action(url):
 
 def configure_main_menu():
     config.MAIN_MENU = {
-                "__rbac": { "requires": [] }, # "rbac.my_access_control"
+                "__rbac": { "requires": [] }, # "basic"
                 "file": {
                     "position": 0, "label": "File",
                     "visible": True, "enabled": True,
@@ -872,7 +872,7 @@ def configure_addresses():
     # the object level
     
     config.address = {
-        "__rbac": { "requires": ["rbac.my_access_control",] }, # special key for access control
+        "__rbac": { "requires": ["basic",] }, # special key for access control
         "appadmin": {
             "__rbac": { "requires": [] },
             "index": {"action": "controllers.appadmin.index",},
@@ -886,26 +886,26 @@ def configure_addresses():
             "index": {"action": "controllers.setup.index"},
             "options": {
                 "action": "controllers.setup.options",
-                "__rbac": { "requires": ["rbac.my_access_control",]},
+                "__rbac": { "requires": ["basic",]},
                 },
             "option": {"action": "controllers.setup.option"},
             "set_language": {
                 "action": "controllers.setup.set_language",
-                "__rbac": { "requires": ["rbac.my_access_control",]},
+                "__rbac": { "requires": ["basic",]},
                 },
             },
         "migration":{
             "import_csv_dir": {
                 "action": "controllers.migration.import_csv_dir",
-                "__rbac": { "requires": ["rbac.my_access_control",]},
+                "__rbac": { "requires": ["basic",]},
                 },
             "csv_to_db": {
                 "action": "controllers.migration.csv_to_db",
-                "__rbac": { "requires": ["rbac.my_access_control",]},
+                "__rbac": { "requires": ["basic",]},
                 },
             "db_to_csv": {
                 "action": "controllers.migration.db_to_csv",
-                "__rbac": { "requires": ["rbac.my_access_control",]},
+                "__rbac": { "requires": ["basic",]},
                 },
             },
         "file":{
@@ -1368,8 +1368,8 @@ if __name__ == "__main__":
     from gui2py.form import EVT_FORM_SUBMIT
 
     # import wx auto generated classes
-    from gestion_libre_wx import MyHTMLFrame, \
-    MyDialog, MyFrame, MyLoginDialog
+    # from gestion_libre_wx import MyHTMLFrame, \
+    # MyDialog, MyFrame, MyLoginDialog
 
     config.WX_HTML_STYLE = wx.html.HW_DEFAULT_STYLE | wx.TAB_TRAVERSAL
 
@@ -1471,15 +1471,15 @@ if __name__ == "__main__":
     GestionLibre = wx.PySimpleApp(0)
     wx.InitAllImageHandlers()
 
-    import gestion_libre_aui
-    config.html_frame = gestion_libre_aui.PyAUIFrame(None, -1, u"GestiónLibre")
+    import aui
+    config.html_frame = aui.PyAUIFrame(None, -1, u"GestiónLibre")
 
     config.html_frame.SetSize((800, 600))
 
     # app modules
     import gui
     import handlers
-    import rbac
+    # import rbac
 
     # import controller modules
     import controllers.default, controllers.operations, controllers.crm, \

@@ -16,11 +16,10 @@ session = config.session
 response = config.response
 auth = config.auth
 
-from url import get_function, create_address
 address = config.address
 import gluon.template
 
-from gestion_libre_wx import MyHTMLFrame, MyDialog, MyFrame, MyLoginDialog
+import aui
 
 T = config.env["T"]
 
@@ -54,30 +53,32 @@ class RBAC(object):
         self.htmlwindow = htmlwindow
         self.email = None
         self.password = None
-        
+
+        # A dictionary with function names and messages
+        _messages = {
+                     "basic" : T("This action requires authenticated users"),
+        }
+
         # load rbac module functions
         # for access control tests
 
         # Access control functions
         self.acf = dict(rbac = dict())
-        import rbac
+        # import rbac
 
-        for f in dir(rbac):
-            if not f.startswith("_"):
-                tmp_object = getattr(rbac, f)
+        for f in dir(self):
+            if f.startswith("_rbac_"):
+                tmp_object = getattr(self, f)
                 if callable(tmp_object):
-                    if tmp_object.__module__ == "rbac":
-                        # add function to the module
-                        # dict
-                        try:
-                            message = rbac._messages[f]
-                            if message != None:
-                                message = T(message)
+                    try:
+                        message = _messages[f.replace("_rbac_", "")]
+                        if message is not None:
+                            message = T(message)
 
-                        except KeyError:
-                            message = None
+                    except KeyError:
+                        message = None
 
-                        self.acf["rbac"][f] = dict(function = getattr(rbac, f), message = message)
+                    self.acf[f.replace("_rbac_", "")] = dict(function = tmp_object, message = message)
 
     def __call__(self, requires, times = None):
         # requires set must be
@@ -105,18 +106,17 @@ class RBAC(object):
                 for require in requires:
                     if requires_rights[require] != True:
                         # module, function as strings
-                        name_list = require.split(".")
-                        
-                        condition = self.acf[name_list[0]][name_list[1]]["function"]( \
+                        name = require
+                        condition = self.acf[name]["function"]( \
                         db = self.db, auth = self.auth, \
                         session = self.session, request = self.request)
                         
-                        message = self.acf[name_list[0]][name_list[1]]["message"]
+                        message = self.acf[name]["message"]
 
                         if condition is False:
                             authenticated = False
                             
-                            rbac_window = MyLoginDialog(self.frame)
+                            rbac_window = aui.MyLoginDialog(self.frame)
                             rbac_window.label_1.SetLabel(str(T(message)))
                             rbac_window.label_3.SetLabel(str(T("email")))
                             rbac_window.label_2.SetLabel(str(T("password")))
@@ -152,6 +152,16 @@ class RBAC(object):
         else:
             # return False with message
             return (rights, T("Errors on authentication"))
+
+    def _rbac_basic(self, **kwargs):
+        # rbac functions return boolean values. The return value
+        # is tested against authentication and access control
+        # queries
+        if auth.is_logged_in():
+            return True
+        else:
+            print T("This action requires authenticated users")
+            return False
 
 
     def validate_user(self, email, password):
@@ -220,7 +230,7 @@ class NewHtmlWindow(wx.html.HtmlWindow):
 
 
 def start_html_frame(starting_frame, url=None):
-    config.html_frame = MyHTMLFrame(starting_frame, -1, "")
+    config.html_frame = aui.MyHTMLFrame(starting_frame, -1, "")
     config.html_frame.window = NewHtmlWindow(config.html_frame, \
     style = config.WX_HTML_STYLE)
 
@@ -406,11 +416,50 @@ def action(url):
         absolute_path = os.path.join(config.TEMPLATES_FOLDER, "generic.html")
         xml = gluon.template.render(filename = absolute_path, path=config.TEMPLATES_FOLDER,  context = config.context)
 
+    xml = action_hotkeys(xml)
+
+    return xml
+
+def menu_hotkey(accesskey):
+    hotkey = None
+    accesskey = accesskey.replace("-", "+")
+    accesskeys = accesskey.split("+")
+    hotkey = "+".join([key.lower().capitalize() for key in accesskeys])
+    return hotkey
+
+def action_hotkeys(xml):
+    # get the translated Hot heys menu label
+    actions = str(T("&Actions"))
+    # get or create an actions menu
+    pos = config.html_frame.starting_menubar.FindMenu(actions)
+    if pos <= -1:
+        # create menu
+        action_menu = wx.Menu()
+        result = config.html_frame.starting_menubar.Append(action_menu, actions)
+    else:
+        action_menu = config.html_frame.starting_menubar.GetMenu(pos)
+        # print dir(action_menu)
+        # remove old items:
+        remove_list = []
+        for item in action_menu.GetMenuItems():
+            action_menu.DeleteItem(item)
+
     tag = TAG(xml)
-    sumbits = tag.elemets("[type=submit"])
-    for el in submits:
-        el.attributes["_accesskey"] = "ctr-alt-a"
-    xml = tag.xml()
+    tags = tag.elements("input, a, button")
+    
+    for action_tag in tags:
+        if action_tag.tag == "input" and action.attributes.get("_type") == "submit":
+            print "This is a submit button"
+            # TODO: set from customized keys
+            action_tag.attributes["_accesskey"] = "Ctrl+Alt+A"
+
+        key = action_tag.attributes.get("_accesskey")
+        if isinstance(key, basestring):
+            label = action_tag.flatten()
+            hotkey = menu_hotkey(key)
+            
+
+    result = action_menu.Append(wx.NewId(), 'Quit', 'Quit application')
     return xml
 
 
@@ -478,6 +527,75 @@ def load_actions():
                             # add function to the sub-module
                             # dict
                             config.actions["controllers"][ct][f] = getattr(tmp_module, f)
+
+
+# -*- coding: utf-8 -*-
+
+# syntax: {"controller": {"function": "controllers.name.function"}, ... }
+
+# function call: url.address[a][c][f](a, b, c=1)
+
+def get_function(url):
+    vars = {}
+    args = []
+
+    get_pos = url.find("?")
+
+    if  get_pos >= 0:
+        url_address = url[:get_pos]
+        get_vars = url[get_pos +1:]
+    else:
+        get_vars = ""
+        url_address = url
+
+    if url_address.startswith("/"):
+        url_address = url_address[1:]
+
+    tmp_args = url_address.split("/")
+
+    for i, arg in enumerate(tmp_args):
+        if i == 0:
+            a = arg
+        elif i == 1:
+            c = arg
+        elif i == 2:
+            # nevermind the extension
+            f = arg.split(".")[0]
+        elif i > 2:
+            args.append(arg)
+
+    if get_vars != "":
+        """
+        tmp_index = arg.find("?")
+        if tmp_index != 0:
+            args.append(arg[:tmp_index])
+            arg = arg[tmp_index:]
+        tmp_vars = arg.replace("?", "")
+        """
+        kv_str = get_vars.split("&")
+        for kv in kv_str:
+            tmp_kv = kv.split("=")
+            if len(tmp_kv) > 1:
+                vars[tmp_kv[0]] = tmp_kv[1]
+
+    return a, c, f, args, vars
+
+
+def create_address(data):
+    # returns a relative project
+    # url as a string from url
+    # data
+    url = None
+    if len(data) == 5:
+        address = [data[0], data[1], data[2]] + [arg for arg in data[3]]
+        url = "/".join(address)
+        if len(data[4]) > 0:
+            url += "?"
+            for k, v in data[4].iteritems():
+                url += k + "=" + v + "&"
+            url = url[:-1]
+
+    return url
 
 
 def OnNextClick(evt):
