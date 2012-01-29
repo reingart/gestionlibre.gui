@@ -54,16 +54,16 @@
 =DIV(
 SPAN(T("Active user: ") + user_mail),
 SPAN(" | "),
-SPAN(A(T("Register"), _href=URL(a=config.APP_NAME, c="default", f="user", args=["register", ],
+SPAN(A(T("Register"), _title="Register\tCtrl+Alt+1", _href=URL(a=config.APP_NAME, c="default", f="user", args=["register", ],
 vars={"_next": URL(a=config.APP_NAME, c="default", f="index", encode_embedded_slash=False)}, encode_embedded_slash=False ))),
 SPAN(" | "),
-SPAN(A(T("Specify firm") + " (" + str(firm) + ")", _href=URL(a=config.APP_NAME, c="registration", f="post_register_specify_firm"))),
+SPAN(A(T("Specify firm") + " (" + str(firm) + ")",  _title="Specify firm\tCtrl+Alt+2", _href=URL(a=config.APP_NAME, c="registration", f="post_register_specify_firm"))),
 SPAN(" | "),
-SPAN(A(T("Login"), _href=URL(a=config.APP_NAME, c="default", f="user", args=["login", ],
+SPAN(A(T("Login"),  _title="Login\tCtrl+Alt+3", _href=URL(a=config.APP_NAME, c="default", f="user", args=["login", ],
 vars={"_next": URL(a=config.APP_NAME, c="default", f="index", encode_embedded_slash=False)}, encode_embedded_slash=False 
 ))),
 SPAN(" | "),
-SPAN(A(T("Logout"), _href=URL(a=config.APP_NAME, c="default", f="user", args=["logout", ],
+SPAN(A(T("Logout"),  _title="Logout\tCtrl+Alt+4", _href=URL(a=config.APP_NAME, c="default", f="user", args=["logout", ],
 vars={"_next": URL(a=config.APP_NAME, c="default", f="index", encode_embedded_slash=False)}, encode_embedded_slash=False
 ))))
 }}

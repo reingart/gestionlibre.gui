@@ -5,24 +5,24 @@
 <table width="100%">
 <tr><th><h3>{{=T("Billing")}}</h3></th><th><h3>{{=T("Current accounts")}}</h3></th><th><h3>{{=T("Stock")}}</h3></th><th><h3>{{=T("Other")}}</h3></th></tr>
 <tr>
-<td>{{ =A(B(T("Movements panel")), _href=URL(a=config.APP_NAME, c='operations',f='index')) }}</td>
-<td>{{ =A(B(T("Customer control panel")), _href=URL(a=config.APP_NAME, c='crm',f='customer_panel')) }}</td>
-<td>{{ =A(B(T("RIA Stock")), _href=URL(a=config.APP_NAME, c='scm',f='ria_stock')) }}</td>
+<td>{{ =A(B(T("Movements panel")), _title="&Movements panel\tCtrl+Alt+M", _href=URL(a=config.APP_NAME, c='operations',f='index')) }}</td>
+<td>{{ =A(B(T("Customer control panel")), _title="C&ustomer control panel\tCtrl+Alt+U", _href=URL(a=config.APP_NAME, c='crm',f='customer_panel')) }}</td>
+<td>{{ =A(B(T("RIA Stock")), _title="&Stock\tCtrl+Alt+T", _href=URL(a=config.APP_NAME, c='scm',f='ria_stock')) }}</td>
 <td>{{=A(T("GestionLibre"), _href="http://code.google.com/p/gestionlibre/")}}</td>
 </tr>
 
 <tr>
-<td>{{ =A(B(T("Order allocation")), _href=URL(a=config.APP_NAME, c='operations',f='order_allocation')) }}</td>
-<td>{{ =A(B(T("Current account report")), _href=URL(a=config.APP_NAME, c='crm',f='current_account_report')) }}</td>
+<td>{{ =A(B(T("Order allocation")), _title="&Order allocation\tCtrl+Alt+O", _href=URL(a=config.APP_NAME, c='operations',f='order_allocation')) }}</td>
+<td>{{ =A(B(T("Current account report")), _title="&CC report\tCtrl+Alt+C", _href=URL(a=config.APP_NAME, c='crm',f='current_account_report')) }}</td>
 <td></td>
-<td>{{ =A(B(T("Journal entries")), _href=URL(a=config.APP_NAME, c='accounting',f='journal_entries')) }}</td>
+<td>{{ =A(B(T("Journal entries")), _title="Journal &Entries\tCtrl+Alt+E", _href=URL(a=config.APP_NAME, c='accounting',f='journal_entries')) }}</td>
 </tr>
 
 <tr>
 <td>{{ =A(B(T("Order allocation list")), _href=URL(a=config.APP_NAME, c='operations',f='list_order_allocations')) }}</td>
-<td>{{ =A(B(T("Current accounts payments")), _href=URL(a=config.APP_NAME, c='financials',f='current_accounts_type')) }}</td>
+<td>{{ =A(B(T("Current accounts payments")), _title="&Payments (CC)\tCtrl+Alt+P", _href=URL(a=config.APP_NAME, c='financials',f='current_accounts_type')) }}</td>
 <td></td>
-<td>{{ =A(B(T("CRUD")), _href=URL(a=config.APP_NAME, c='appadmin',f='index')) }}</td>
+<td>{{ =A(B(T("CRUD")), _title="&CRUD\tCtrl+Alt+D", _href=URL(a=config.APP_NAME, c='appadmin',f='index')) }}</td>
 </tr>
 
 <tr>
@@ -33,21 +33,21 @@
 </tr>
 
 <tr>
-<td>{{ =A(B(T("RIA Product billing")), _href=URL(a=config.APP_NAME, c='operations',f='ria_product_billing_start')) }}</td>
+<td>{{ =A(B(T("RIA Product billing")), _title="&Billing\tCtrl+Alt+B", _href=URL(a=config.APP_NAME, c='operations',f='ria_product_billing_start')) }}</td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
 
 <tr>
-<td>{{ =A(B(T("Movements list")), _href=URL(a=config.APP_NAME, c='operations',f='movements_list')) }}</td>
+<td>{{ =A(B(T("Movements list")), _title="Mo&vements list\tCtrl+Alt+V", _href=URL(a=config.APP_NAME, c='operations',f='movements_list')) }}</td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
 
 <tr>
-<td>{{ =A(B(T("New operation (movements form)")), _href=URL(a=config.APP_NAME, c='operations',f='movements_start')) }}</td>
+<td>{{ =A(B(T("New operation (movements form)")), _title="&New operation\tCtrl+Alt+N", _href=URL(a=config.APP_NAME, c='operations',f='movements_start')) }}</td>
 <td></td>
 <td></td>
 <td></td>

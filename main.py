@@ -60,12 +60,12 @@ def configure_main_menu():
     config.MAIN_MENU = {
                 "__rbac": { "requires": [] }, # "basic"
                 "file": {
-                    "position": 0, "label": "File",
+                    "position": 0, "label": "&File",
                     "visible": True, "enabled": True,
                     "action": None,
                     "submenu":{
                         "crud": {
-                            "position": 0, "label": "File CRUD",
+                            "position": 0, "label": "File &CRUD\tCtrl+D",
                             "visible": True, "enabled": True,
                             "action": URL(a=config.APP_NAME, c="appadmin", f="index"),
                             "submenu":{}
@@ -260,7 +260,7 @@ def configure_main_menu():
                             "action": None,
                             "submenu":{
                                 "formats": {
-                                    "position": 0, "label": "Options",
+                                    "position": 0, "label": "&Options\tCtrl+O",
                                     "visible": True, "enabled": True,
                                     "action": URL(a=config.APP_NAME, c="setup", f="index"),
                                     "submenu":{},
@@ -394,7 +394,7 @@ def configure_main_menu():
                             "separator": True
                             }, # db_update
                         "change_user": {
-                            "position": 9, "label": "Change user",
+                            "position": 9, "label": "&Change user\tCtrl+U",
                             "visible": True, "enabled": True,
                             "action": URL(a=config.APP_NAME, c="default", f="user", args=["login",]),
                             "submenu":{},
@@ -413,7 +413,7 @@ def configure_main_menu():
                             "separator": True
                             }, # security_policies
                         "quit": {
-                            "position": 12, "label": "Quit",
+                            "position": 12, "label": "&Quit\tCtrl+Q",
                             "visible": True, "enabled": True,
                             "action": "%s/file/quit" % config.APP_NAME,
                             "submenu":{},

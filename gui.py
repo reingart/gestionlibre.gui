@@ -23,6 +23,8 @@ import aui
 
 T = config.env["T"]
 
+import gui2py
+
 """ IMPORTANT:
 replace the normal response, session, ... in web2py views with
 
@@ -272,10 +274,9 @@ def test_or_create_html_frame():
 def action(url):
     # get the address/parameters tuple
     url_data = get_function(url)
-
     if config.VERBOSE:
         print "Entered action", url
-
+        
     # url decode encoded url slashes
     if len(url_data) >= 5:
         if "_next" in url_data[4]:
@@ -323,7 +324,7 @@ def action(url):
     except gluon.http.HTTP, e:
         # redirection for auth
         if e.status == 303:
-            print T("Redirection from"), url, T("to"), e.headers["Location"]
+            # print T("Redirection from"), url, T("to"), e.headers["Location"]
             # incomplete:
             new_url_data = get_function(e.headers["Location"])
 
@@ -351,7 +352,6 @@ def action(url):
             if e.status == 403:
                 # catch not authorized and other codes
                 return action(URL(a=config.APP_NAME, c="default", f="user", args=["not_authorized",]))
-
         raise
 
 
@@ -420,12 +420,24 @@ def action(url):
 
     return xml
 
-def menu_hotkey(accesskey):
-    hotkey = None
-    accesskey = accesskey.replace("-", "+")
-    accesskeys = accesskey.split("+")
+def menu_hotkeys(accesskey):
+    try:
+        label, combination = accesskey.split("\t")
+    except (IndexError, TypeError), e:
+        print e
+        return None, None
+    combination = combination.replace("-", "+")
+    accesskeys = combination.split("+")
     hotkey = "+".join([key.lower().capitalize() for key in accesskeys])
-    return hotkey
+    return label, hotkey
+
+def set_hotkey_link(item_id, href):
+    if session.get("_hotkey_links") is None:
+        session._hotkey_links = dict()
+    session._hotkey_links[item_id] = href
+
+def get_hotkey_link(item_id):
+    return session._hotkey_links[item_id]
 
 def action_hotkeys(xml):
     # get the translated Hot heys menu label
@@ -435,7 +447,8 @@ def action_hotkeys(xml):
     if pos <= -1:
         # create menu
         action_menu = wx.Menu()
-        result = config.html_frame.starting_menubar.Append(action_menu, actions)
+        result = config.html_frame.starting_menubar.Append(action_menu,
+                                                           actions)
     else:
         action_menu = config.html_frame.starting_menubar.GetMenu(pos)
         # print dir(action_menu)
@@ -448,20 +461,51 @@ def action_hotkeys(xml):
     tags = tag.elements("input, a, button")
     
     for action_tag in tags:
-        if action_tag.tag == "input" and action.attributes.get("_type") == "submit":
-            print "This is a submit button"
+        issubmit = False
+        islink = False
+        if "input" in action_tag.tag and \
+        action_tag.attributes.get("_type") == "submit":
+            issubmit = True
             # TODO: set from customized keys
-            action_tag.attributes["_accesskey"] = "Ctrl+Alt+A"
-
-        key = action_tag.attributes.get("_accesskey")
+            action_tag.attributes["_title"] = "%s\tCtrl+Alt+S" % \
+            str(T(action_tag.attributes.get("_value", "Submit")))
+        elif action_tag.tag == "a":
+            islink = True
+        key = action_tag.attributes.get("_title")
         if isinstance(key, basestring):
             label = action_tag.flatten()
-            hotkey = menu_hotkey(key)
-            
-
-    result = action_menu.Append(wx.NewId(), 'Quit', 'Quit application')
+            menulabel, hotkey = menu_hotkeys(key)
+            if hotkey is not None:
+                itemid = wx.NewId()
+                newitem = action_menu.Append(itemid, '%s\t%s' % \
+                (menulabel, hotkey), label)
+            # Handle hotkey binding in a tag type basis
+            if islink:
+                # store an event menu item -> link reference
+                set_hotkey_link(itemid, action_tag.attributes.get("_href"))
+                config.html_frame.Bind(wx.EVT_MENU, hotkeyOnLink, newitem)
+            elif issubmit:
+                config.html_frame.Bind(wx.EVT_MENU, hotkeyOnSubmit, newitem)
+            elif "input" in action_tag.tag:
+                print "Hot keys not supported for tag %s" % action_tag.tag
+            else:
+                print "Hot keys not supported for tag %s" % action_tag.tag
     return xml
 
+def hotkeyOnLink(event):
+    # Call OnLinkClick window method with the event link
+    config.html_frame.window.OnLinkClicked(get_hotkey_link(event.GetId()))
+
+def hotkeyOnSubmit(event):
+    submits = []
+    for child in config.html_frame.window.Children:
+        if type(child) == gui2py.input.SubmitButton:
+            submits.append(child)
+    # auto click on submit hotkey
+    if len(submits) == 1:
+        submits[0].OnClick(None)
+    else:
+        print "Multiple form submission is not supported."
 
 def set_url(url, kind=None):
     # called after link event ends
