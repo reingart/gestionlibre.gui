@@ -8,6 +8,7 @@ from gui2py.form import EVT_FORM_SUBMIT
 
 import config
 db = config.db
+imapdb = config.imapdb
 session = config.session
 auth = config.auth
 request = config.request
@@ -229,8 +230,23 @@ def call():
     session.forget()
     return service()
 
+def emails(evt, args = [], vars = {}):
+    if imapdb is not None:
+        messages = imapdb(imapdb.INBOX).select(imapdb.INBOX.id, imapdb.INBOX.created, imapdb.INBOX.sender, imapdb.INBOX.subject, limitby=(0,5))
+        messages = SQLTABLE(messages, linkto=URL(a=config.APP_NAME, c="default", f="message"))
+    else:
+        messages = None
+    return dict(messages = messages)
 
+def message(evt, args = [], vars = {}):
+    if imapdb is not None:
+        message = imapdb(imapdb.INBOX.id == args[1]).select().first()
+    else:
+        message = None
+    return dict(message = message)
 
 def new_function(evt, args = [], vars = {}):
     return dict(three_size_header = H3("A 3 size header"))
-    
+
+def mylinkto(r):
+    print "r", type(r), r

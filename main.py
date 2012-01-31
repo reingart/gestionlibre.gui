@@ -924,6 +924,8 @@ def configure_addresses():
             "user": {"action": "controllers.default.user", "__rbac":{"override": True}},
             "change_layout_colors": {"action": "controllers.default.change_layout_colors", "__rbac": { "requires": [] }},
             "set_default_layout_colors": {"action": "controllers.default.set_default_layout_colors"},
+            "emails": {"action": "controllers.default.emails"},
+            "message": {"action": "controllers.default.message"}
             },
         "scm":{
             "ria_stock": {"action": "controllers.scm.ria_stock"},
@@ -1422,6 +1424,13 @@ if __name__ == "__main__":
 
     # create DAL connection (and create DB if it does not exists)
     config.db = DAL(config.DB_URI, folder=config.DATABASES_FOLDER, pool_size = 10)
+
+    # EXPERIMENTAL (imap connection)
+    if config.IMAP_URI:
+        config.imapdb = DAL(config.IMAP_URI, pool_size = 1)
+        config.imapdb.define_tables()
+    else:
+        config.imapdb = None
 
     # Connection example for PostgreSQL database (set this at installation as DB_URI)
     # or modify the value at [desktopapp]/config.ini and [web2pyapp]/webappconfig.ini
