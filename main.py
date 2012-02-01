@@ -838,6 +838,34 @@ def configure_main_menu():
                         "visible": True, "enabled": False,
                         "action": None,
                         "submenu":{
+                                "treepane":{
+                                        "position": -1,
+                                        "label": "&Tree pane\tCtrl+T",
+                                        "visible": True, "enabled": True,
+                                        "handler": "handlers.treepane",
+                                        "submenu":{},
+                                }, # treepane
+                                "workspace":{
+                                        "position": -1,
+                                        "label": "&Work space\tCtrl+W",
+                                        "visible": True, "enabled": True,
+                                        "handler": "handlers.workspace",
+                                        "submenu":{},
+                                }, # workspace
+                                "switchpane":{
+                                        "position": -1,
+                                        "label": "&Switch pane\tCtrl+.",
+                                        "visible": True, "enabled": True,
+                                        "handler": "handlers.switch_pane",
+                                        "submenu":{},
+                                }, # workspace
+                                "switchpanebkwd":{
+                                        "position": -1,
+                                        "label": "&Switch pane backwards\tCtrl+,",
+                                        "visible": True, "enabled": True,
+                                        "handler": "handlers.switch_pane_backwards",
+                                        "submenu":{},
+                                }, # workspace
                             }, # windows submenu
                 }, # windows
 
@@ -1427,7 +1455,7 @@ if __name__ == "__main__":
 
     # EXPERIMENTAL (imap connection)
     if config.IMAP_URI:
-        config.imapdb = DAL(config.IMAP_URI, pool_size = 1)
+        config.imapdb = DAL(config.IMAP_URI)
         config.imapdb.define_tables()
     else:
         config.imapdb = None

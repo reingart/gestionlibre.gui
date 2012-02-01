@@ -29,7 +29,11 @@
 <td>{{ =A(B(T("Packing slip")), _href=URL(a=config.APP_NAME, c='operations',f='packing_slip')) }}</td>
 <td></td>
 <td></td>
-<td>{{ =A(B("Email"), _href=URL(a=config.APP_NAME, c='default',f='emails')) }}</td>
+<td>
+{{ if config.imapdb is not None: }}
+  {{ =A(B("Email"), _href=URL(a=config.APP_NAME, c='default',f='emails')) }}
+{{ pass }}
+</td>
 </tr>
 
 <tr>

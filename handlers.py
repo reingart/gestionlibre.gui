@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import config
 import gui
 URL = gui.URL
@@ -58,3 +57,60 @@ def user_index(evt):
 def user_setup(evt):
     # gui.test_or_create_html_frame()
     config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c='setup',f='index'))
+
+def treepane(evt):
+    config.html_frame.tree_pane.SetFocus()
+
+def workspace(evt):
+    config.html_frame.tree_pane.SetFocus()
+    config.html_frame.window.SetFocus()
+
+def switch_pane(evt):
+    panes = (config.html_frame.window, config.html_frame.tree_pane)
+    search_loop = True
+    first = 0
+    for i, pane in enumerate(panes):
+        focused = config.html_frame.FindFocus()
+        if focused is not None:
+            search_loop = True
+            while search_loop:
+                if focused is pane:
+                    # focused pane
+                    try:
+                        panes[i+1].SetFocus()
+                    except IndexError:
+                        panes[first].SetFocus()
+                    finally:
+                        return
+                elif focused is None:
+                    search_loop = False
+                else:
+                    focused = focused.GetParent()
+        else:
+            panes[0].SetFocus()
+            return
+
+def switch_pane_backwards(evt):
+    panes = (config.html_frame.window, config.html_frame.tree_pane)
+    search_loop = True
+    last = len(panes) -1
+    for i, pane in enumerate(panes):
+        focused = config.html_frame.FindFocus()
+        if focused is not None:
+            search_loop = True
+            while search_loop:
+                if focused is pane:
+                    # focused pane
+                    try:
+                        panes[i-1].SetFocus()
+                    except IndexError:
+                        panes[last].SetFocus()
+                    finally:
+                        return
+                elif focused is None:
+                    search_loop = False
+                else:
+                    focused = focused.GetParent()
+        else:
+            panes[0].SetFocus()
+            return
