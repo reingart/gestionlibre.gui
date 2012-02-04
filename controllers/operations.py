@@ -1925,22 +1925,40 @@ def movements_add_discount_surcharge(evt, args=[], vars={}):
 
 
 def movements_list(evt, args = [], vars = {}):
-    """ List of operations"""
-    columns = ["operation.operation_id", "operation.code", \
-    "operation.description", "operation.customer_id", \
-    "operation.subcustomer_id", "operation.supplier_id", \
-    "operation.document_id", "operation.posted"]
-    headers = {"operation.operation_id": "Edit", \
-    "operation.code": "Code", "operation.description": \
-    "Description", "operation.customer_id": "Customer", \
-    "operation.subcustomer_id": "Subcustomer", \
-    "operation.supplier_id": "Supplier", \
-    "operation.document_id": "Document", \
-    "operation.posted": "Posted"}
-    table = SQLTABLE(db(db.operation).select(orderby="operation_id"), \
-    columns = columns, headers = headers, \
-    linkto=URL(a=config.APP_NAME, c="operations", f="movements_select"))
-    return dict(table = table)
+
+    # filter rows
+    session.form = SQLFORM.factory(Field("customer_id", requires=IS_EMPTY_OR(IS_IN_DB(db, db.customer, "%(description)s")), label=T("customer")),
+                                   Field("subcustomer_id", requires=IS_EMPTY_OR(IS_IN_DB(db, db.subcustomer, "%(description)s")), label=T("subcustomer")),
+                                   Field("since", type="date", label=T("since")),
+                                   Field("to", type="date", label=T("to")),
+                                   Field("results", type="integer", label=T("results"), default=20))
+    limitby = (0,20)
+
+    if evt is not None:
+        if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
+            url = URL(a=config.APP_NAME, c="operations", f="movements_list", vars=session.form.vars)
+            return config.html_frame.window.OnLinkClicked(url)
+    else:
+        config.html_frame.window.Bind(EVT_FORM_SUBMIT, movements_list)
+
+    if vars:
+        query = db.operation.id > 0
+        if not vars["customer_id"] in (None, "", "None"):
+            query &= (db.operation.customer_id == vars["customer_id"])
+        if not vars["subcustomer_id"] in (None, "", "None"):
+            query &= (db.operation.subcustomer_id == vars["subcustomer_id"])
+        if not vars["since"] in (None, "", "None"):
+            query &= (db.operation.posted >= vars["since"])
+        if not vars["to"] in (None, "", "None"):
+            query &= (db.operation.posted <= vars["to"])
+        if not vars["results"] in (None, "", "None"):
+            limitby = (0, int(vars["results"]))
+    else:
+        query = db.operation
+
+    rows = db(query).select(orderby=~db.operation.operation_id, limitby=limitby)
+    
+    return dict(rows = rows, form = session.form)
 
 def movements_select(evt, args = [], vars = {}):
     """ Set operation id and open a detail view """
