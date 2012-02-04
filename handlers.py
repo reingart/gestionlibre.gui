@@ -66,7 +66,7 @@ def workspace(evt):
     config.html_frame.window.SetFocus()
 
 def switch_pane(evt):
-    panes = (config.html_frame.window, config.html_frame.tree_pane)
+    panes = (config.html_frame.window, config.html_frame.tree_pane, config.html_frame.text_pane)
     search_loop = True
     first = 0
     for i, pane in enumerate(panes):
@@ -91,7 +91,7 @@ def switch_pane(evt):
             return
 
 def switch_pane_backwards(evt):
-    panes = (config.html_frame.window, config.html_frame.tree_pane)
+    panes = (config.html_frame.window, config.html_frame.tree_pane, config.html_frame.text_pane)
     search_loop = True
     last = len(panes) -1
     for i, pane in enumerate(panes):
