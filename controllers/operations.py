@@ -916,7 +916,7 @@ def order_allocation(evt, args=[], vars={}):
                             # new operation
                             # TODO: order allocation document defined by user input/configuration
                             operation = db.operation.insert(customer_id = customer, \
-                            document_id = db(db.document.books == True).select().first())
+                            document_id = db(db.document.books == True).select().first().document_id)
                             order_allocations += 1
 
                         db.movement.insert(operation_id = operation, \

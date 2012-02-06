@@ -1219,12 +1219,9 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
                 route.pop()
 
                 if k.lower() == "file":
-                    # insert AUI default menus
-                    
-                    # frame.starting_menubar.Append(frame.view_menu, "View")
-                    
-                    frame.starting_menubar.Append(frame._perspectives_menu, "Perspectives")
-                    frame.starting_menubar.Append(frame.options_menu, "Options")
+                    # AUI options (defined at aui.py)
+                    config.html_frame.starting_menubar.Append(config.html_frame._perspectives_menu, T("Perspectives"))
+                    config.html_frame.starting_menubar.Append(config.html_frame.options_menu, T("Options"))
 
             else:
                 if v.has_key("submenu"):
@@ -1419,6 +1416,10 @@ if __name__ == "__main__":
 
     T = config.env["T"]
     T.folder = config.GUI2PY_APP_FOLDER
+    # Evaluate inmediately
+    # to avoid Type exceptions when
+    # instantiating wx objects
+    T.lazy = False
 
     # test if language file exists or create it (except for default "en" value)
     if not (config.LANGUAGE in (None, "", "en")):
@@ -1510,6 +1511,9 @@ if __name__ == "__main__":
 
     import aui
     config.html_frame = aui.PyAUIFrame(None, -1, u"GestiónLibre")
+
+    # allow active pane
+    config.html_frame._mgr.SetFlags(config.html_frame._mgr.GetFlags() ^ wx.aui.AUI_MGR_ALLOW_ACTIVE_PANE)
 
     config.html_frame.SetSize((800, 600))
 

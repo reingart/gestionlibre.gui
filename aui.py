@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import sys
-
 import datetime
-
 import wx
 import wx.grid
 import wx.html
-import wx.aui
-
 import cStringIO
 
+import wx.aui
 import config
+
 T = config.env["T"]
 
 from gui import NewHtmlWindow, RedirectText
@@ -119,43 +117,43 @@ class PyAUIFrame(wx.Frame):
         self.view_menu.Append(ID_HTMLContent, "Use an HTML Control for the Content Pane")
         self.view_menu.Append(ID_TreeContent, "Use a Tree Control for the Content Pane")
         self.view_menu.Append(ID_SizeReportContent, "Use a Size Reporter for the Content Pane")
-           
+
         self.options_menu = wx.Menu()
-        self.options_menu.AppendRadioItem(ID_TransparentHint, "Transparent Hint")
-        self.options_menu.AppendRadioItem(ID_VenetianBlindsHint, "Venetian Blinds Hint")
-        self.options_menu.AppendRadioItem(ID_RectangleHint, "Rectangle Hint")
-        self.options_menu.AppendRadioItem(ID_NoHint, "No Hint")
+        self.options_menu.AppendRadioItem(ID_TransparentHint, T("Transparent Hint"))
+        self.options_menu.AppendRadioItem(ID_VenetianBlindsHint, T("Venetian Blinds Hint"))
+        self.options_menu.AppendRadioItem(ID_RectangleHint, T("Rectangle Hint"))
+        self.options_menu.AppendRadioItem(ID_NoHint, T("No Hint"))
         self.options_menu.AppendSeparator();
-        self.options_menu.AppendCheckItem(ID_HintFade, "Hint Fade-in")
-        self.options_menu.AppendCheckItem(ID_AllowFloating, "Allow Floating")
-        self.options_menu.AppendCheckItem(ID_NoVenetianFade, "Disable Venetian Blinds Hint Fade-in")
-        self.options_menu.AppendCheckItem(ID_TransparentDrag, "Transparent Drag")
-        self.options_menu.AppendCheckItem(ID_AllowActivePane, "Allow Active Pane")
+        self.options_menu.AppendCheckItem(ID_HintFade, T("Hint Fade-in"))
+        self.options_menu.AppendCheckItem(ID_AllowFloating, T("Allow Floating"))
+        self.options_menu.AppendCheckItem(ID_NoVenetianFade, T("Disable Venetian Blinds Hint Fade-in"))
+        self.options_menu.AppendCheckItem(ID_TransparentDrag, T("Transparent Drag"))
+        self.options_menu.AppendCheckItem(ID_AllowActivePane, T("Allow Active Pane"))
         self.options_menu.AppendSeparator();
-        self.options_menu.AppendRadioItem(ID_NoGradient, "No Caption Gradient")
-        self.options_menu.AppendRadioItem(ID_VerticalGradient, "Vertical Caption Gradient")
-        self.options_menu.AppendRadioItem(ID_HorizontalGradient, "Horizontal Caption Gradient")
+        self.options_menu.AppendRadioItem(ID_NoGradient, T("No Caption Gradient"))
+        self.options_menu.AppendRadioItem(ID_VerticalGradient, T("Vertical Caption Gradient"))
+        self.options_menu.AppendRadioItem(ID_HorizontalGradient, T("Horizontal Caption Gradient"))
         self.options_menu.AppendSeparator();
-        self.options_menu.Append(ID_Settings, "Settings Pane")
+        self.options_menu.Append(ID_Settings, T("Settings Pane"))
 
         self._perspectives_menu = wx.Menu()
-        self._perspectives_menu.Append(ID_CreatePerspective, "Create Perspective")
-        self._perspectives_menu.Append(ID_CopyPerspective, "Copy Perspective Data To Clipboard")
+        self._perspectives_menu.Append(ID_CreatePerspective, T("Create Perspective"))
+        self._perspectives_menu.Append(ID_CopyPerspective, T("Copy Perspective Data To Clipboard"))
         self._perspectives_menu.AppendSeparator()
-        self._perspectives_menu.Append(ID_FirstPerspective+0, "Default Startup")
-        self._perspectives_menu.Append(ID_FirstPerspective+1, "All Panes")
-        self._perspectives_menu.Append(ID_FirstPerspective+2, "Vertical Toolbar")
+        self._perspectives_menu.Append(ID_FirstPerspective+0, T("Default Startup"))
+        self._perspectives_menu.Append(ID_FirstPerspective+1, T("All Panes"))
+        self._perspectives_menu.Append(ID_FirstPerspective+2, T("Vertical Toolbar"))
 
         # self.starting_menubar.Append(self.view_menu, "View")
-        # self.starting_menubar.Append(self._perspectives_menu, "Perspectives")
-        # self.starting_menubar.Append(self.options_menu, "Options")
+        # self.starting_menubar.Append(self._perspectives_menu, T("Perspectives"))
+        # self.starting_menubar.Append(self.options_menu, T("Options"))
 
         # self.SetMenuBar(self.starting_menubar)
 
         self.statusbar = self.CreateStatusBar(2, wx.ST_SIZEGRIP)
         self.statusbar.SetStatusWidths([-2, -3])
-        self.statusbar.SetStatusText("Ready", 0)
-        self.statusbar.SetStatusText("Welcome To GestiónLibre!", 1)
+        self.statusbar.SetStatusText(T("Ready"), 0)
+        self.statusbar.SetStatusText(T("Welcome To GestiónLibre!"), 1)
 
         # min size for the frame itself isn't completely done.
         # see the end up FrameManager::Update() for the test
@@ -984,7 +982,7 @@ class SettingsPanel(wx.Panel):
         s1 = wx.BoxSizer(wx.HORIZONTAL)
         self._border_size = wx.SpinCtrl(self, ID_PaneBorderSize, "", wx.DefaultPosition, wx.Size(50,20))
         s1.Add((1, 1), 1, wx.EXPAND)
-        s1.Add(wx.StaticText(self, -1, "Pane Border Size:"))
+        s1.Add(wx.StaticText(self, -1, T("Pane Border Size:")))
         s1.Add(self._border_size)
         s1.Add((1, 1), 1, wx.EXPAND)
         s1.SetItemMinSize(1, (180, 20))
@@ -993,7 +991,7 @@ class SettingsPanel(wx.Panel):
         s2 = wx.BoxSizer(wx.HORIZONTAL)
         self._sash_size = wx.SpinCtrl(self, ID_SashSize, "", wx.DefaultPosition, wx.Size(50,20))
         s2.Add((1, 1), 1, wx.EXPAND)
-        s2.Add(wx.StaticText(self, -1, "Sash Size:"))
+        s2.Add(wx.StaticText(self, -1, T("Sash Size:")))
         s2.Add(self._sash_size)
         s2.Add((1, 1), 1, wx.EXPAND)
         s2.SetItemMinSize(1, (180, 20))
@@ -1002,7 +1000,7 @@ class SettingsPanel(wx.Panel):
         s3 = wx.BoxSizer(wx.HORIZONTAL)
         self._caption_size = wx.SpinCtrl(self, ID_CaptionSize, "", wx.DefaultPosition, wx.Size(50,20))
         s3.Add((1, 1), 1, wx.EXPAND)
-        s3.Add(wx.StaticText(self, -1, "Caption Size:"))
+        s3.Add(wx.StaticText(self, -1, T("Caption Size:")))
         s3.Add(self._caption_size)
         s3.Add((1, 1), 1, wx.EXPAND)
         s3.SetItemMinSize(1, (180, 20))
@@ -1015,7 +1013,7 @@ class SettingsPanel(wx.Panel):
         s4 = wx.BoxSizer(wx.HORIZONTAL)
         self._background_color = wx.BitmapButton(self, ID_BackgroundColor, b, wx.DefaultPosition, wx.Size(50,25))
         s4.Add((1, 1), 1, wx.EXPAND)
-        s4.Add(wx.StaticText(self, -1, "Background Color:"))
+        s4.Add(wx.StaticText(self, -1, T("Background Color:")))
         s4.Add(self._background_color)
         s4.Add((1, 1), 1, wx.EXPAND)
         s4.SetItemMinSize(1, (180, 20))
@@ -1023,7 +1021,7 @@ class SettingsPanel(wx.Panel):
         s5 = wx.BoxSizer(wx.HORIZONTAL)
         self._sash_color = wx.BitmapButton(self, ID_SashColor, b, wx.DefaultPosition, wx.Size(50,25))
         s5.Add((1, 1), 1, wx.EXPAND)
-        s5.Add(wx.StaticText(self, -1, "Sash Color:"))
+        s5.Add(wx.StaticText(self, -1, T("Sash Color:")))
         s5.Add(self._sash_color)
         s5.Add((1, 1), 1, wx.EXPAND)
         s5.SetItemMinSize(1, (180, 20))
@@ -1032,7 +1030,7 @@ class SettingsPanel(wx.Panel):
         self._inactive_caption_color = wx.BitmapButton(self, ID_InactiveCaptionColor, b,
                                                        wx.DefaultPosition, wx.Size(50,25))
         s6.Add((1, 1), 1, wx.EXPAND)
-        s6.Add(wx.StaticText(self, -1, "Normal Caption:"))
+        s6.Add(wx.StaticText(self, -1, T("Normal Caption:")))
         s6.Add(self._inactive_caption_color)
         s6.Add((1, 1), 1, wx.EXPAND)
         s6.SetItemMinSize(1, (180, 20))
@@ -1041,7 +1039,7 @@ class SettingsPanel(wx.Panel):
         self._inactive_caption_gradient_color = wx.BitmapButton(self, ID_InactiveCaptionGradientColor,
                                                                 b, wx.DefaultPosition, wx.Size(50,25))
         s7.Add((1, 1), 1, wx.EXPAND)
-        s7.Add(wx.StaticText(self, -1, "Normal Caption Gradient:"))
+        s7.Add(wx.StaticText(self, -1, T("Normal Caption Gradient:")))
         s7.Add(self._inactive_caption_gradient_color)
         s7.Add((1, 1), 1, wx.EXPAND)
         s7.SetItemMinSize(1, (180, 20))
@@ -1050,7 +1048,7 @@ class SettingsPanel(wx.Panel):
         self._inactive_caption_text_color = wx.BitmapButton(self, ID_InactiveCaptionTextColor, b,
                                                             wx.DefaultPosition, wx.Size(50,25))
         s8.Add((1, 1), 1, wx.EXPAND)
-        s8.Add(wx.StaticText(self, -1, "Normal Caption Text:"))
+        s8.Add(wx.StaticText(self, -1, T("Normal Caption Text:")))
         s8.Add(self._inactive_caption_text_color)
         s8.Add((1, 1), 1, wx.EXPAND)
         s8.SetItemMinSize(1, (180, 20))
@@ -1059,7 +1057,7 @@ class SettingsPanel(wx.Panel):
         self._active_caption_color = wx.BitmapButton(self, ID_ActiveCaptionColor, b,
                                                      wx.DefaultPosition, wx.Size(50,25))
         s9.Add((1, 1), 1, wx.EXPAND)
-        s9.Add(wx.StaticText(self, -1, "Active Caption:"))
+        s9.Add(wx.StaticText(self, -1, T("Active Caption:")))
         s9.Add(self._active_caption_color)
         s9.Add((1, 1), 1, wx.EXPAND)
         s9.SetItemMinSize(1, (180, 20))
@@ -1068,7 +1066,7 @@ class SettingsPanel(wx.Panel):
         self._active_caption_gradient_color = wx.BitmapButton(self, ID_ActiveCaptionGradientColor,
                                                               b, wx.DefaultPosition, wx.Size(50,25))
         s10.Add((1, 1), 1, wx.EXPAND)
-        s10.Add(wx.StaticText(self, -1, "Active Caption Gradient:"))
+        s10.Add(wx.StaticText(self, -1, T("Active Caption Gradient:")))
         s10.Add(self._active_caption_gradient_color)
         s10.Add((1, 1), 1, wx.EXPAND)
         s10.SetItemMinSize(1, (180, 20))
@@ -1077,7 +1075,7 @@ class SettingsPanel(wx.Panel):
         self._active_caption_text_color = wx.BitmapButton(self, ID_ActiveCaptionTextColor,
                                                           b, wx.DefaultPosition, wx.Size(50,25))
         s11.Add((1, 1), 1, wx.EXPAND)
-        s11.Add(wx.StaticText(self, -1, "Active Caption Text:"))
+        s11.Add(wx.StaticText(self, -1, T("Active Caption Text:")))
         s11.Add(self._active_caption_text_color)
         s11.Add((1, 1), 1, wx.EXPAND)
         s11.SetItemMinSize(1, (180, 20))
@@ -1086,7 +1084,7 @@ class SettingsPanel(wx.Panel):
         self._border_color = wx.BitmapButton(self, ID_BorderColor, b, wx.DefaultPosition,
                                              wx.Size(50,25))
         s12.Add((1, 1), 1, wx.EXPAND)
-        s12.Add(wx.StaticText(self, -1, "Border Color:"))
+        s12.Add(wx.StaticText(self, -1, T("Border Color:")))
         s12.Add(self._border_color)
         s12.Add((1, 1), 1, wx.EXPAND)
         s12.SetItemMinSize(1, (180, 20))
@@ -1095,7 +1093,7 @@ class SettingsPanel(wx.Panel):
         self._gripper_color = wx.BitmapButton(self, ID_GripperColor, b, wx.DefaultPosition,
                                               wx.Size(50,25))
         s13.Add((1, 1), 1, wx.EXPAND)
-        s13.Add(wx.StaticText(self, -1, "Gripper Color:"))
+        s13.Add(wx.StaticText(self, -1, T("Gripper Color:")))
         s13.Add(self._gripper_color)
         s13.Add((1, 1), 1, wx.EXPAND)
         s13.SetItemMinSize(1, (180, 20))
