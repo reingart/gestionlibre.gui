@@ -1311,6 +1311,8 @@ class MyDialog(wx.Dialog):
         # begin wxGlade: MyDialog.__init__
         kwds["style"] = wx.DEFAULT_DIALOG_STYLE
         wx.Dialog.__init__(self, *args, **kwds)
+        
+        self.title = kwds.get("title", "Feedback")
 
         self.__set_properties()
         self.__do_layout()
@@ -1318,7 +1320,7 @@ class MyDialog(wx.Dialog):
 
     def __set_properties(self):
         # begin wxGlade: MyDialog.__set_properties
-        self.SetTitle("Feedback")
+        self.SetTitle(self.title)
         # end wxGlade
 
     def __do_layout(self):

@@ -25,6 +25,9 @@ T = config.env["T"]
 
 import gui2py
 
+# import custom form windows
+import widget
+
 """ IMPORTANT:
 replace the normal response, session, ... in web2py views with
 
