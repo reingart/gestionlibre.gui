@@ -236,8 +236,9 @@ class NewHtmlWindow(wx.html.HtmlWindow):
 
 def start_html_frame(starting_frame, url=None):
     config.html_frame = aui.MyHTMLFrame(starting_frame, -1, "")
-    config.html_frame.window = NewHtmlWindow(config.html_frame, \
-    style = config.WX_HTML_STYLE)
+    
+    # config.html_frame.window = NewHtmlWindow(config.html_frame, \
+    # style = config.WX_HTML_STYLE)
 
     # html frame layout:
     html_sizer_1 = wx.BoxSizer(wx.VERTICAL)

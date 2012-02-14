@@ -361,9 +361,10 @@ class PyAUIFrame(wx.Frame):
         self._mgr.AddPane(self.CreateTextCtrl(), wx.aui.AuiPaneInfo().Name("text_content").
                           CenterPane().Hide())
 
-        self._mgr.AddPane(self.CreateHTMLCtrl(), wx.aui.AuiPaneInfo().Name("html_content").
-                          CenterPane())
-                                
+        # changed to non-center for sharing workspace with the rest of the windows
+        self._mgr.AddPane(self.CreateHTMLCtrl(),
+                          wx.aui.AuiPaneInfo().Name("html_content").Caption("Work space").CloseButton(True).MaximizeButton(True))
+
         # add the toolbars to the manager
                         
         self._mgr.AddPane(self.tb1, wx.aui.AuiPaneInfo().
@@ -419,7 +420,7 @@ class PyAUIFrame(wx.Frame):
         self._mgr.GetPane("tb5").Hide()
         self._mgr.GetPane("test8").Show().Left().Layer(0).Row(0).Position(0)
         self._mgr.GetPane("test10").Show().Bottom().Layer(0).Row(0).Position(0)
-        self._mgr.GetPane("html_content").Show()
+        self._mgr.GetPane("html_content").Show().Center().Layer(0).Row(0).Position(0)
 
         perspective_default = self._mgr.SavePerspective()
 
@@ -433,7 +434,7 @@ class PyAUIFrame(wx.Frame):
         self._mgr.GetPane("grid_content").Show()
         self._mgr.GetPane("test8").Show().Left().Layer(0).Row(0).Position(0)
         self._mgr.GetPane("test10").Show().Bottom().Layer(0).Row(0).Position(0)
-        self._mgr.GetPane("html_content").Show()
+        self._mgr.GetPane("html_content").Show().Center().Layer(0).Row(0).Position(0)
 
         perspective_vert = self._mgr.SavePerspective()
         
