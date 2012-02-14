@@ -8,6 +8,7 @@ object tag
 """
 
 import datetime
+import os
 import wx
 import wx.html
 import wx.lib.masked.timectrl
@@ -59,9 +60,7 @@ class MyTextInput(gui2py.input.TextInput):
                     value = self.GetDate(self._attributes.get("_value"))
                     if value is not None:
                         wdt = wx.DateTime()
-                        wdt.SetYear(value.year)
-                        wdt.SetMonth(value.month)
-                        wdt.SetDay(value.day)
+                        wdt.Set(value.day, month=int(value.month) - 1, year=value.year)
                         self.mydatewidget.SetValue(wdt)
 
                     sizer = wx.BoxSizer(wx.VERTICAL)
@@ -82,12 +81,7 @@ class MyTextInput(gui2py.input.TextInput):
                     value = self.GetDate(self._attributes.get("_value"))
                     if value is not None:
                         wdt = wx.DateTime()
-                        wdt.SetYear(value.year)
-                        wdt.SetMonth(value.month)
-                        wdt.SetDay(value.day)
-                        wdt.SetHour(value.hour)
-                        wdt.SetMinute(value.minute)
-                        wdt.SetSecond(value.second)
+                        wdt.Set(value.day, month=int(value.month) -1, year=value.year, hour=value.hour, minute=value.minute, second=value.second)
                         self.mydatewidget.SetValue(wdt)
                         self.mytimewidget.SetValue(wdt)
 
@@ -100,6 +94,60 @@ class MyTextInput(gui2py.input.TextInput):
                     self.mydialog.Layout()
                     self.mydialog.Show()
                     self.mydialog.SetFocus()
+
+                elif self._attributes.get("_class") == "path":
+                    # path dialog
+                    default = self._attributes.get("_value", os.getcwd())
+                    message=self._attributes.get("_name").capitalize()
+                    if default is not None:
+                        self.path_dialog = wx.DirDialog(self, message=message,
+                                                        defaultPath=default)
+                    else:
+                        self.path_dialog = wx.DirDialog(self, message=message)
+                        
+                    if self.path_dialog.ShowModal() == wx.ID_OK:
+                        self.SetValue(self.path_dialog.GetPath())
+
+                elif self._attributes.get("_class") == "file":
+                    # file dialog
+                    default = self._attributes.get("_value")
+                    default_file = ""
+                    default_dir = os.getcwd()
+                    message = self._attributes.get("_name").capitalize()
+                    if default is not None:
+                        default_file = os.path.basename(default)
+                        default_dir = os.path.dirname(default)
+                        self.file_dialog = wx.FileDialog(self, message=message,
+                                                         defaultDir=default_dir,
+                                                         defaultFile=default_file,
+                                                         wildcard="*.*", style=0)
+                    else:
+                        self.file_dialog = wx.FileDialog(self, message=message, wildcard="*.*", style=0)
+
+                    if self.file_dialog.ShowModal() == wx.ID_OK:
+                        self.SetValue(os.path.basename(self.file_dialog.GetPath()))
+
+                elif self._attributes.get("_class") == "color":
+                    # color picker
+                    # set default color (read from cell)
+                    default = self._attributes.get("_value")
+                    if default is not None and len(default) == 7:
+                        data = wx.ColourData()
+                        red = int("0x" + default[1:3], 0)
+                        blue =  int("0x" + default[3:5], 0)
+                        green = int("0x" + default[5:], 0)
+                        default_color = wx.Colour(red, blue, green)
+                        data.SetColour(default_color)
+                        self.color_dialog = wx.ColourDialog(self, data)
+                    else:
+                        self.color_dialog = wx.ColourDialog(self)
+                        
+                    self.color_dialog.GetColourData().SetChooseFull(True)
+                    if self.color_dialog.ShowModal() == wx.ID_OK:
+                        # self.sketch.SetColor(self.color_dialog.GetColourData().GetColour())
+                        color = self.color_dialog.GetColourData().GetColour()
+                        a, b, c = tuple([hex(v)[2:].upper().zfill(2) for v in color.Get()])
+                        self.SetValue("#%(a)s%(b)s%(c)s" % dict(a=a, b=b ,c=c))
 
                 self._blocked = True
                 self._pop = False
@@ -130,7 +178,7 @@ class MyTextInput(gui2py.input.TextInput):
             hour, minute, second = time.GetHour(), time.GetMinute(), time.GetSecond()
         else:
             hour, minute, second = 0, 0, 0
-        values = datetime.datetime(date.GetYear(), date.GetMonth(), date.GetDay(),
+        values = datetime.datetime(date.GetYear(), date.GetMonth() +1, date.GetDay(),
               hour, minute, second)
         return values
 

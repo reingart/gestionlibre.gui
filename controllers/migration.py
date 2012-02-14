@@ -181,6 +181,8 @@ def import_csv_dir(evt, args=[], vars={}):
 
 def db_to_csv(evt, args=[], vars={}):
     session.form = SQLFORM.factory(Field("path", comment=T("Storage folder"), requires=IS_NOT_EMPTY()), Field("file", comment="File name"))
+    session.form.element("[name=file]").attributes["_class"] = "file"
+    session.form.element("[name=path]").attributes["_class"] = "path"
     if evt is not None:
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             f = open(os.path.join(session.form.vars.path, session.form.vars.file), "wb")
@@ -199,7 +201,8 @@ def csv_to_db(evt, args=[], vars={}):
     is_pg = False
     is_pg = ("postgres" in config.db["_uri"])
     session.form = SQLFORM.factory(Field("path", comment=T("Storage folder"), requires=IS_NOT_EMPTY()), Field("file", comment=T("File name")), Field("suspend_integrity_check", "boolean", comment=T("For PostgreSQL databases. Use this option with care. A superuser database conection is required")))
-    
+    session.form.element("[name=file]").attributes["_class"] = "file"
+    session.form.element("[name=path]").attributes["_class"] = "path"    
     if evt is not None:
         
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):

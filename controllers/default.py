@@ -46,7 +46,22 @@ def index(evt, args = [], vars = {}):
 def change_layout_colors(evt, args=[], vars={}):
     if session.get("layout_colors", None) is None:
         session.layout_colors = ["#" + color for color in config.COLORS]
-    session.form = SQLFORM.factory(Field("background"), Field("foreground"), Field("links"), Field("random", "boolean"))
+
+    if session.layout_colors_background is not None:
+        background = session.layout_colors_background
+    else:
+        background = ""
+    if session.layout_colors_background is not None:
+        foreground = session.layout_colors_foreground
+    else:
+        foreground = ""
+    if session.layout_colors_background is not None:
+        links = session.layout_colors_links
+    else:
+        links = ""
+
+    session.form = SQLFORM.factory(Field("background", default=background), Field("foreground", default=foreground), Field("links", default=links), Field("random", "boolean"))
+    
     if evt is not None:
         if session.form.accepts(evt.args, formname=None, keepvalues=False, dbio=False):
             if session.form.vars.random == True:
@@ -61,15 +76,10 @@ def change_layout_colors(evt, args=[], vars={}):
 
             return config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="default", f="change_layout_colors"))
     else:
-        if session.layout_colors_background is not None:
-            session.form.vars.background = session.layout_colors_background
-        if session.layout_colors_background is not None:
-            session.form.vars.foreground = session.layout_colors_foreground
-        if session.layout_colors_background is not None:
-            session.form.vars.links = session.layout_colors_links
-            
         config.html_frame.window.Bind(EVT_FORM_SUBMIT, change_layout_colors)
-    
+
+    for tag in session.form.elements("input [type=text]"):
+        tag.attributes["_class"] = "color"
     return dict(form = session.form)
 
 def set_default_layout_colors(evt, args=[], vars={}):
