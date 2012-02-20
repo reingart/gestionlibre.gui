@@ -52,6 +52,8 @@
 
 {{
 =DIV(
+SPAN(IMG(_src="images/gestionlibre-logo-100.png")),
+SPAN(XML("&nbsp;&nbsp;&nbsp;&nbsp;")),
 SPAN(T("Active user: ") + user_mail),
 SPAN(" | "),
 SPAN(A(T("Register"), _title="Register\tCtrl+Alt+1", _href=URL(a=config.APP_NAME, c="default", f="user", args=["register", ],
@@ -69,10 +71,6 @@ vars={"_next": URL(a=config.APP_NAME, c="default", f="index", encode_embedded_sl
 }}
 
 {{=menu}}
-<br />
-<br />
-<img src="images/gestionlibre-logo-blue-small.png" />
-<!-- img src="images/logo-2.jpg" / -->
 <br />
 <br />
 {{ include }}

@@ -167,7 +167,13 @@ def menu_event(evt):
     return None
 
 
-def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu_bar=False, route=[], T = lambda t: t):
+def main_menu_elements(frame,
+                       parent_menu,
+                       item_count = 0,
+                       submenu=None,
+                       is_menu_bar=False,
+                       route=[],
+                       T = lambda t: t):
     menu_item = None
 
     try:
@@ -176,7 +182,8 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
         parent_menu.menu_items = dict()
         menu_items = parent_menu.menu_items
 
-    ordered_items = [(v.get("position", None), k, v) for k,v in submenu.iteritems()]
+    ordered_items = [(v.get("position", None), k, v) for \
+                      k,v in submenu.iteritems()]
     ordered_items.sort()
 
     # loop replaced by list iteration
@@ -217,8 +224,10 @@ def main_menu_elements(frame, parent_menu, item_count = 0, submenu=None, is_menu
 
                 if k.lower() == "file":
                     # AUI options (defined at aui.py)
-                    config.html_frame.starting_menubar.Append(config.html_frame._perspectives_menu, T("Perspectives"))
-                    config.html_frame.starting_menubar.Append(config.html_frame.options_menu, T("Options"))
+                    config.html_frame.starting_menubar.Append(\
+                    config.html_frame._perspectives_menu, T("Perspectives"))
+                    config.html_frame.starting_menubar.Append(\
+                    config.html_frame.options_menu, T("Options"))
 
             else:
                 if v.has_key("submenu"):
@@ -293,8 +302,14 @@ def configure_tree_pane(frame, T = lambda t: t):
 
     imglist = wx.ImageList(16, 16, True, 2)
     
-    folder_icon_id = imglist.Add(wx.ArtProvider_GetBitmap(wx.ART_FOLDER, wx.ART_OTHER, wx.Size(16,16)))
-    default_icon_id = imglist.Add(wx.ArtProvider_GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, wx.Size(16,16)))
+    folder_icon_id = imglist.Add(\
+    wx.ArtProvider_GetBitmap(wx.ART_FOLDER,
+                             wx.ART_OTHER,
+                             wx.Size(16,16)))
+    default_icon_id = imglist.Add(\
+    wx.ArtProvider_GetBitmap(wx.ART_NORMAL_FILE,
+                             wx.ART_OTHER,
+                             wx.Size(16,16)))
     
     tree.AssignImageList(imglist)
 
@@ -313,10 +328,15 @@ def configure_tree_pane(frame, T = lambda t: t):
                     if "__icon" in w:
                         icon_id = imglist.Add(wx.Bitmap(w["__icon"]))
 
-                    sub_item = tree.AppendItem(the_item, str(T(j.replace("_", " ").capitalize())), icon_id)
+                    sub_item = tree.AppendItem(the_item,
+                                               str(T(j.replace("_",\
+                                               " ").capitalize())),
+                                               icon_id)
 
-                    tree.GetItemData(sub_item).SetData({"action": URL(a=config.APP_NAME, c=k, f=j)})
-                    frame.Bind(wx.EVT_TREE_ITEM_ACTIVATED, tree_pane_event, tree)
+                    tree.GetItemData(sub_item).SetData(\
+                    {"action": URL(a=config.APP_NAME, c=k, f=j)})
+                    frame.Bind(wx.EVT_TREE_ITEM_ACTIVATED,
+                               tree_pane_event, tree)
 
             item_counter += 1
     tree.Expand(root)
@@ -441,7 +461,8 @@ if __name__ == "__main__":
     # Connection example for PostgreSQL database (set this at installation as DB_URI)
     # or modify the value at [desktopapp]/config.ini and [web2pyapp]/webappconfig.ini
     # specify folder path as webapp path + "databases"
-    # config.db = DAL("postgres://gestionlibre:gestionlibre@localhost:5432/gestionlibre", folder=config.DATABASES_FOLDER)
+    # config.db = DAL("postgres://gestionlibre:gestionlibre@localhost:5432/gestionlibre",
+    #                 folder=config.DATABASES_FOLDER)
 
     db = config.db
 
@@ -474,7 +495,12 @@ if __name__ == "__main__":
         fake_migrate = True
 
     # custom db initialization for GestiónLibre
-    db_gestionlibre.define_tables(db, config.auth, config.env, web2py = False, fake_migrate = fake_migrate, T=T)
+    db_gestionlibre.define_tables(db,
+                                  config.auth,
+                                  config.env,
+                                  web2py = False,
+                                  fake_migrate = fake_migrate,
+                                  T=T)
 
     # crud (buggy: form submission and database transactions problems)
     config.crud = gluon.tools.Crud(config.env, db=db)
@@ -487,7 +513,8 @@ if __name__ == "__main__":
     config.html_frame = aui.PyAUIFrame(None, -1, u"GestiónLibre")
 
     # allow active pane
-    config.html_frame._mgr.SetFlags(config.html_frame._mgr.GetFlags() ^ wx.aui.AUI_MGR_ALLOW_ACTIVE_PANE)
+    config.html_frame._mgr.SetFlags(\
+    config.html_frame._mgr.GetFlags() ^ wx.aui.AUI_MGR_ALLOW_ACTIVE_PANE)
 
     config.html_frame.SetSize((800, 600))
 
@@ -536,9 +563,12 @@ if __name__ == "__main__":
     config.html_frame.menu_events = dict()
 
     # Previous and next button events
-    config.html_frame.Bind(wx.EVT_TOOL, gui.OnPreviousClick, config.html_frame.button_6)
-    config.html_frame.Bind(wx.EVT_TOOL, gui.OnNextClick, config.html_frame.button_7)
-    config.html_frame.Bind(wx.EVT_TOOL, gui.OnHomeClick, config.html_frame.button_9)
+    config.html_frame.Bind(wx.EVT_TOOL, gui.OnPreviousClick,
+                           config.html_frame.button_6)
+    config.html_frame.Bind(wx.EVT_TOOL, gui.OnNextClick,
+                           config.html_frame.button_7)
+    config.html_frame.Bind(wx.EVT_TOOL, gui.OnHomeClick,
+                           config.html_frame.button_9)
 
     # populate main menu
     import menu
@@ -564,10 +594,14 @@ if __name__ == "__main__":
 
     gui.load_actions()
 
-    config.access_control = gui.RBAC(config.db, config.auth, config.request, \
-    config.session, config.html_frame)
+    config.access_control = gui.RBAC(config.db,
+                                     config.auth,
+                                     config.request,
+                                     config.session,
+                                     config.html_frame)
 
-    if isinstance(login_string, basestring) and len(login_string.split(":")) == 2:
+    if isinstance(login_string, basestring) and \
+    len(login_string.split(":")) == 2:
         # TODO: move to an authentication function
         # straight login from command line.
         email, password = login_string.split(":")
@@ -577,7 +611,8 @@ if __name__ == "__main__":
         else:
             print T("Authentication failed")
 
-    elif isinstance(login_string, basestring) and len(login_string.split(":")) != 2:
+    elif isinstance(login_string, basestring) and \
+    len(login_string.split(":")) != 2:
         print T("Incorrect mail:password argument")
 
     # load system information in session
@@ -585,7 +620,8 @@ if __name__ == "__main__":
     config.session._info["version"] = info.version
 
     # gui.start_html_frame(config.html_frame)
-    config.html_frame.window.OnLinkClicked(URL(a=config.APP_NAME, c="default", f="index"))
+    config.html_frame.window.OnLinkClicked(\
+    URL(a=config.APP_NAME, c="default", f="index"))
 
     # re-connect periodically to database to prevent connection timeout issue
     try:

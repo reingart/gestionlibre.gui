@@ -68,7 +68,7 @@ class MyFrame(wx.Frame):
         self.starting_frame_statusbar = \
         self.CreateStatusBar(1, 0)
         self.bitmap_1 = wx.StaticBitmap(self, \
-        -1, wx.Bitmap("images/setup_logo.png", wx.BITMAP_TYPE_ANY))
+        -1, wx.Bitmap("images/gestionlibre-setup-background.png", wx.BITMAP_TYPE_ANY))
         self.button_start = wx.Button(self, -1, "Install")
         self.panel = wx.Panel(self, -1)
         self.count = 0

@@ -192,7 +192,7 @@ class MyTextInput(gui2py.input.TextInput):
     def OnKillFocus(self, event):
         pass
 
-    def OnEnter(self, event):
+    def DialogOnEnter(self, event):
         if self._attributes.get("_class") == "datetime":
             value = self.FormatDate(self.mydatewidget.GetValue(), self.mytimewidget.GetValue(True))
             self.SetValue(value.strftime(FORMATS["datetime"]))
@@ -210,6 +210,6 @@ class MyTextInput(gui2py.input.TextInput):
             # exit without changes
             event.GetEventObject().Close()
         elif event.GetKeyCode() == wx.WXK_RETURN:
-            self.OnEnter(event)
+            self.DialogOnEnter(event)
         event.Skip()
         

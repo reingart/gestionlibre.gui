@@ -98,7 +98,7 @@ class PyAUIFrame(wx.Frame):
         self.x = 0
 
         icon = wx.EmptyIcon()
-        icon.CopyFromBitmap(wx.Bitmap("images/iso-sa.png"))
+        icon.CopyFromBitmap(wx.Bitmap("images/gestionlibre-iso-sa.png"))
         
         self.SetIcon(icon)
 

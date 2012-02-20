@@ -645,6 +645,7 @@
 'The item specified was not found in the warehouse': 'The item specified was not found in the warehouse',
 'The item will be removed without confirmation': 'Se eliminará el ítem sin confirmación',
 'The links': 'Enlaces',
+'The operation %(operation)s was updated': 'The operation %(operation)s was updated',
 'The operation has current account movements: %(hccm)s': 'The operation has current account movements: %(hccm)s',
 'The operation has current account movements: %s': 'The operation has current account movements: %s',
 'The operation processing failed. Booking ok: %(rs)s. Stock ok: %(st)s': 'The operation processing failed. Booking ok: %(rs)s. Stock ok: %(st)s',
