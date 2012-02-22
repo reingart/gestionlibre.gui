@@ -1391,7 +1391,7 @@ class MyLoginDialog(wx.Dialog):
     def __init__(self, *args, **kwds):
         # begin wxGlade: MyLoginDialog.__init__
         wx.Dialog.__init__(self, *args, **kwds)
-        self.bitmap_2 = wx.StaticBitmap(self, -1, wx.Bitmap("images/gestionlibre-logo-blue-small.png", wx.BITMAP_TYPE_ANY))
+        self.bitmap_2 = wx.StaticBitmap(self, -1, wx.Bitmap("images/gestionlibre-logo-100.png", wx.BITMAP_TYPE_ANY))
         self.label_1 = wx.StaticText(self, -1, "label_1")
         self.label_3 = wx.StaticText(self, -1, "label_3")
         self.text_ctrl_1 = wx.TextCtrl(self, -1, "")

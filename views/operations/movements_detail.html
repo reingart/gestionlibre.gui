@@ -15,7 +15,7 @@
 {{except (ValueError, KeyError, TypeError, AttributeError):}}
 {{=T("Error trying to get the operation customer/supplier data from database")}}
 {{pass}}
-<h3>Price list:
+<h3>{{=T("Price list")}}:
 {{if price_list is not None:}}
 {{=price_list.description}}
 {{else:}}
