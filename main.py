@@ -48,6 +48,8 @@ import datetime
 # import wxPython:
 import wx
 import wx.html
+# fix windows weird characters in menus
+wx.SetDefaultPyEncoding("utf-8")
 
 # wx auto if __name ... code
 def action(url):

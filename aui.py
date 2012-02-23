@@ -144,10 +144,6 @@ class PyAUIFrame(wx.Frame):
         self._perspectives_menu.Append(ID_FirstPerspective+1, T("All Panes"))
         self._perspectives_menu.Append(ID_FirstPerspective+2, T("Vertical Toolbar"))
 
-        # self.starting_menubar.Append(self.view_menu, "View")
-        # self.starting_menubar.Append(self._perspectives_menu, T("Perspectives"))
-        # self.starting_menubar.Append(self.options_menu, T("Options"))
-
         # self.SetMenuBar(self.starting_menubar)
 
         self.statusbar = self.CreateStatusBar(2, wx.ST_SIZEGRIP)
@@ -184,25 +180,11 @@ class PyAUIFrame(wx.Frame):
         self.button_6 = self.tb2.AddLabelTool(10006, "Test", self.tb2_bmp1)
         self.button_7 = self.tb2.AddLabelTool(10007, "Test", self.tb2_bmp2)
         self.button_9 = self.tb2.AddLabelTool(10009, "Test", self.tb2_bmp3)
-        """
-        self.button_4 = self.tb2.AddLabelTool(10004, "Test", self.tb2_bmp1)
-        self.tb2.AddSeparator()
-        self.button_5 = self.tb2.AddLabelTool(10005, "Test", self.tb2_bmp1)
-        self.button_8 = self.tb2.AddLabelTool(10008, "Test", self.tb2_bmp1)
-        """
 
         # End of GestionLibre main shortcuts
 
-        """
-        self.tb2.AddSeparator()
-        self.tb2.AddLabelTool(101, "Test", self.tb2_bmp1)
-        self.tb2.AddLabelTool(101, "Test", self.tb2_bmp1)
-        self.tb2.AddLabelTool(101, "Test", self.tb2_bmp1)
-        self.tb2.AddLabelTool(101, "Test", self.tb2_bmp1)
-        """
-        
         self.tb2.Realize()
-       
+
         tb3 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
         tb3.SetToolBitmapSize(wx.Size(16,16))
@@ -374,7 +356,7 @@ class PyAUIFrame(wx.Frame):
 
         self._mgr.AddPane(self.tb2, wx.aui.AuiPaneInfo().
                           Name("tb2").Caption("Toolbar 2").
-                          ToolbarPane().Top().Row(2).Position(0).
+                          ToolbarPane().Top().Row(1).Position(0).
                           LeftDockable(False).RightDockable(False))
                       
         self._mgr.AddPane(tb3, wx.aui.AuiPaneInfo().
@@ -384,7 +366,7 @@ class PyAUIFrame(wx.Frame):
                       
         self._mgr.AddPane(tb4, wx.aui.AuiPaneInfo().
                           Name("tb4").Caption("Sample Bookmark Toolbar").
-                          ToolbarPane().Top().Row(1).Position(1).
+                          ToolbarPane().Top().Row(2).Position(0).
                           LeftDockable(False).RightDockable(False))
 
         self._mgr.AddPane(tb5, wx.aui.AuiPaneInfo().
@@ -396,13 +378,6 @@ class PyAUIFrame(wx.Frame):
                           wx.aui.AuiPaneInfo().Name("tb5").
                           ToolbarPane().Top().Row(2).Position(2).
                           LeftDockable(False).RightDockable(False))
-
-        """
-        self._mgr.AddPane(self.action_tool_bar,
-                          wx.aui.AuiPaneInfo().Name("Action tool bar").
-                          ToolbarPane().Top().Row(2).Position(1).LeftDockable(False).
-                          RightDockable(False))
-        """
 
         # make some default perspectives
 

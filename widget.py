@@ -28,132 +28,126 @@ class MyTextInput(gui2py.input.TextInput):
         # call the parent class __init__ method to initialize
         # common input properties
         gui2py.input.TextInput.__init__(self, parent, form, tag, parser, *args, **kwargs)
-        
-        # Control wether a popup widget should be
-        # opened or not
-        self._pop = True
-        self._blocked = False
+
 
         # Widget's output on dialog accept
         self.value = None
 
         # input events
-        self.Bind(wx.EVT_SET_FOCUS, self.OnSetFocus)
-        self.Bind(wx.EVT_KILL_FOCUS, self.OnKillFocus)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
+        self.Bind(wx.EVT_LEFT_UP, self.OnClick)
+        self.Bind(wx.EVT_KEY_UP, self.OnKeyUp)
 
-    def OnSetFocus(self, event):
+    def OnClick(self, event):
+        self.StartDialog(event)
+
+    def OnKeyUp(self, event):
+        """ Handles the wx.EVT_KEY_UP event for the widget. """
+        if event.GetKeyCode() == wx.WXK_F2:
+            self.StartDialog(event)
+        event.Skip()
+
+    def StartDialog(self, event):
         self.mydialog = None
-        if self._blocked:
-            # prevent recursive
-            # widget creation
-            self._blocked = False
-            self._pop = True
-            return
-        else:
-            if self._pop:
-                if self._attributes.get("_class") == "date":
-                    self.mydialog = aui.MyDialog(self, size=(150, 50), title=self._attributes.get("_name").capitalize())
-                    self.mydatewidget = wx.DatePickerCtrl(self.mydialog, size=(150, 50))
-                    self.mydatewidget.Bind(wx.EVT_DATE_CHANGED, self.OnDateChanged)
+        if self._attributes.get("_class") == "date":
+            self.mydialog = aui.MyDialog(self, size=(150, 50), title=self._attributes.get("_name").capitalize())
+            self.mydatewidget = wx.DatePickerCtrl(self.mydialog, size=(150, 50))
+            self.mydatewidget.Bind(wx.EVT_DATE_CHANGED, self.OnDateChanged)
 
-                    value = self.GetDate(self._attributes.get("_value"))
-                    if value is not None:
-                        wdt = wx.DateTime()
-                        wdt.Set(value.day, month=int(value.month) - 1, year=value.year)
-                        self.mydatewidget.SetValue(wdt)
+            value = self.GetDate(self._attributes.get("_value"))
+            if value is not None:
+                wdt = wx.DateTime()
+                wdt.Set(value.day, month=int(value.month) - 1, year=value.year)
+                self.mydatewidget.SetValue(wdt)
 
-                    sizer = wx.BoxSizer(wx.VERTICAL)
-                    sizer.Add(self.mydatewidget, 0, 0, 0)
-                    self.mydialog.SetSizer(sizer)
-                    sizer.Fit(self.mydialog)
-                    
-                    self.mydialog.Layout()
-                    self.mydialog.Show()
-                    self.mydialog.SetFocus()
+            sizer = wx.BoxSizer(wx.VERTICAL)
+            sizer.Add(self.mydatewidget, 0, 0, 0)
+            self.mydialog.SetSizer(sizer)
+            sizer.Fit(self.mydialog)
 
-                elif self._attributes.get("_class") == "datetime":
-                    self.mydialog = aui.MyDialog(self, size=(150, 100), title=self._attributes.get("_name").capitalize())
-                    self.mydatewidget = wx.DatePickerCtrl(self.mydialog, size=(150, 50))
-                    self.mydatewidget.Bind(wx.EVT_DATE_CHANGED, self.OnDateChanged)
-                    self.mytimewidget = wx.lib.masked.timectrl.TimeCtrl(self.mydialog, size=(150, 50))
+            self.mydialog.Layout()
+            self.mydialog.Show()
+            self.mydialog.SetFocus()
 
-                    value = self.GetDate(self._attributes.get("_value"))
-                    if value is not None:
-                        wdt = wx.DateTime()
-                        wdt.Set(value.day, month=int(value.month) -1, year=value.year, hour=value.hour, minute=value.minute, second=value.second)
-                        self.mydatewidget.SetValue(wdt)
-                        self.mytimewidget.SetValue(wdt)
+        elif self._attributes.get("_class") == "datetime":
+            self.mydialog = aui.MyDialog(self, size=(150, 100), title=self._attributes.get("_name").capitalize())
+            self.mydatewidget = wx.DatePickerCtrl(self.mydialog, size=(150, 50))
+            self.mydatewidget.Bind(wx.EVT_DATE_CHANGED, self.OnDateChanged)
+            self.mytimewidget = wx.lib.masked.timectrl.TimeCtrl(self.mydialog, size=(150, 50))
 
-                    sizer = wx.BoxSizer(wx.VERTICAL)
-                    sizer.Add(self.mytimewidget, 0, 0, 0)
-                    sizer.Add(self.mydatewidget, 0, 0, 0)
-                    self.mydialog.SetSizer(sizer)
-                    sizer.Fit(self.mydialog)
-                    
-                    self.mydialog.Layout()
-                    self.mydialog.Show()
-                    self.mydialog.SetFocus()
+            value = self.GetDate(self._attributes.get("_value"))
+            if value is not None:
+                wdt = wx.DateTime()
+                wdt.Set(value.day, month=int(value.month) -1, year=value.year, hour=value.hour, minute=value.minute, second=value.second)
+                self.mydatewidget.SetValue(wdt)
+                self.mytimewidget.SetValue(wdt)
 
-                elif self._attributes.get("_class") == "path":
-                    # path dialog
-                    default = self._attributes.get("_value", os.getcwd())
-                    message=self._attributes.get("_name").capitalize()
-                    if default is not None:
-                        self.path_dialog = wx.DirDialog(self, message=message,
-                                                        defaultPath=default)
-                    else:
-                        self.path_dialog = wx.DirDialog(self, message=message)
-                        
-                    if self.path_dialog.ShowModal() == wx.ID_OK:
-                        self.SetValue(self.path_dialog.GetPath())
+            sizer = wx.BoxSizer(wx.VERTICAL)
+            sizer.Add(self.mytimewidget, 0, 0, 0)
+            sizer.Add(self.mydatewidget, 0, 0, 0)
+            self.mydialog.SetSizer(sizer)
+            sizer.Fit(self.mydialog)
 
-                elif self._attributes.get("_class") == "file":
-                    # file dialog
-                    default = self._attributes.get("_value")
-                    default_file = ""
-                    default_dir = os.getcwd()
-                    message = self._attributes.get("_name").capitalize()
-                    if default is not None:
-                        default_file = os.path.basename(default)
-                        default_dir = os.path.dirname(default)
-                        self.file_dialog = wx.FileDialog(self, message=message,
-                                                         defaultDir=default_dir,
-                                                         defaultFile=default_file,
-                                                         wildcard="*.*", style=0)
-                    else:
-                        self.file_dialog = wx.FileDialog(self, message=message, wildcard="*.*", style=0)
+            self.mydialog.Layout()
+            self.mydialog.Show()
+            self.mydialog.SetFocus()
 
-                    if self.file_dialog.ShowModal() == wx.ID_OK:
-                        self.SetValue(os.path.basename(self.file_dialog.GetPath()))
+        elif self._attributes.get("_class") == "path":
+            # path dialog
+            default = self._attributes.get("_value", os.getcwd())
+            message=self._attributes.get("_name").capitalize()
+            if default is not None:
+                self.path_dialog = wx.DirDialog(self, message=message,
+                                                defaultPath=default)
+            else:
+                self.path_dialog = wx.DirDialog(self, message=message)
 
-                elif self._attributes.get("_class") == "color":
-                    # color picker
-                    # set default color (read from cell)
-                    default = self._attributes.get("_value")
-                    if default is not None and len(default) == 7:
-                        data = wx.ColourData()
-                        red = int("0x" + default[1:3], 0)
-                        blue =  int("0x" + default[3:5], 0)
-                        green = int("0x" + default[5:], 0)
-                        default_color = wx.Colour(red, blue, green)
-                        data.SetColour(default_color)
-                        self.color_dialog = wx.ColourDialog(self, data)
-                    else:
-                        self.color_dialog = wx.ColourDialog(self)
-                        
-                    self.color_dialog.GetColourData().SetChooseFull(True)
-                    if self.color_dialog.ShowModal() == wx.ID_OK:
-                        # self.sketch.SetColor(self.color_dialog.GetColourData().GetColour())
-                        color = self.color_dialog.GetColourData().GetColour()
-                        a, b, c = tuple([hex(v)[2:].upper().zfill(2) for v in color.Get()])
-                        self.SetValue("#%(a)s%(b)s%(c)s" % dict(a=a, b=b ,c=c))
+            if self.path_dialog.ShowModal() == wx.ID_OK:
+                self.SetValue(self.path_dialog.GetPath())
 
-                self._blocked = True
-                self._pop = False
-                
+        elif self._attributes.get("_class") == "file":
+            # file dialog
+            default = self._attributes.get("_value")
+            default_file = ""
+            default_dir = os.getcwd()
+            message = self._attributes.get("_name").capitalize()
+            if default is not None:
+                default_file = os.path.basename(default)
+                default_dir = os.path.dirname(default)
+                self.file_dialog = wx.FileDialog(self, message=message,
+                                                    defaultDir=default_dir,
+                                                    defaultFile=default_file,
+                                                    wildcard="*.*", style=0)
+            else:
+                self.file_dialog = wx.FileDialog(self, message=message, wildcard="*.*", style=0)
+
+            if self.file_dialog.ShowModal() == wx.ID_OK:
+                self.SetValue(os.path.basename(self.file_dialog.GetPath()))
+
+        elif self._attributes.get("_class") == "color":
+            # color picker
+            # set default color (read from cell)
+            default = self._attributes.get("_value")
+            if default is not None and len(default) == 7:
+                data = wx.ColourData()
+                red = int("0x" + default[1:3], 0)
+                blue =  int("0x" + default[3:5], 0)
+                green = int("0x" + default[5:], 0)
+                default_color = wx.Colour(red, blue, green)
+                data.SetColour(default_color)
+                self.color_dialog = wx.ColourDialog(self, data)
+            else:
+                self.color_dialog = wx.ColourDialog(self)
+
+            self.color_dialog.GetColourData().SetChooseFull(True)
+            if self.color_dialog.ShowModal() == wx.ID_OK:
+                # self.sketch.SetColor(self.color_dialog.GetColourData().GetColour())
+                color = self.color_dialog.GetColourData().GetColour()
+                a, b, c = tuple([hex(v)[2:].upper().zfill(2) for v in color.Get()])
+                self.SetValue("#%(a)s%(b)s%(c)s" % dict(a=a, b=b ,c=c))
+
         if self.mydialog is not None:
-            self.mydialog.Bind(wx.EVT_KEY_UP, self.OnKeyUp)
+            self.mydialog.Bind(wx.EVT_KEY_UP, self.DialogOnKeyUp)
 
     def GetDate(self, value):
         """ Retrieve cell date or datetime info
@@ -189,9 +183,6 @@ class MyTextInput(gui2py.input.TextInput):
         elif self._attributes.get("_class") == "date":
             self.value = values.strftime(FORMATS["date"])
 
-    def OnKillFocus(self, event):
-        pass
-
     def DialogOnEnter(self, event):
         if self._attributes.get("_class") == "datetime":
             value = self.FormatDate(self.mydatewidget.GetValue(), self.mytimewidget.GetValue(True))
@@ -204,7 +195,7 @@ class MyTextInput(gui2py.input.TextInput):
     def OnClose(self, event):
         event.GetEventObject().Close()
 
-    def OnKeyUp(self, event):
+    def DialogOnKeyUp(self, event):
         """ Handles the wx.EVT_KEY_UP event for CustomCheckBox. """
         if event.GetKeyCode() == wx.WXK_ESCAPE:
             # exit without changes
