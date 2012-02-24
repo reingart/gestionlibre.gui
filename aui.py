@@ -171,9 +171,9 @@ class PyAUIFrame(wx.Frame):
         self.tb2 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
         self.tb2.SetToolBitmapSize(wx.Size(16,16))
-        self.tb2_bmp1 = wx.ArtProvider_GetBitmap(wx.ART_GO_BACK, wx.ART_OTHER, wx.Size(32, 32))
-        self.tb2_bmp2 = wx.ArtProvider_GetBitmap(wx.ART_GO_FORWARD, wx.ART_OTHER, wx.Size(32, 32))
-        self.tb2_bmp3 = wx.ArtProvider_GetBitmap(wx.ART_GO_HOME, wx.ART_OTHER, wx.Size(32, 32))
+        self.tb2_bmp1 = wx.ArtProvider_GetBitmap(wx.ART_GO_BACK, wx.ART_OTHER, wx.Size(16, 16))
+        self.tb2_bmp2 = wx.ArtProvider_GetBitmap(wx.ART_GO_FORWARD, wx.ART_OTHER, wx.Size(16, 16))
+        self.tb2_bmp3 = wx.ArtProvider_GetBitmap(wx.ART_GO_HOME, wx.ART_OTHER, wx.Size(16, 16))
         
         # GestionLibre main shortcuts
         

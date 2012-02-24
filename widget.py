@@ -39,7 +39,9 @@ class MyTextInput(gui2py.input.TextInput):
         self.Bind(wx.EVT_KEY_UP, self.OnKeyUp)
 
     def OnClick(self, event):
-        self.StartDialog(event)
+        if self.FindFocus() == self:
+            self.StartDialog(event)
+        event.Skip()
 
     def OnKeyUp(self, event):
         """ Handles the wx.EVT_KEY_UP event for the widget. """
@@ -60,6 +62,7 @@ class MyTextInput(gui2py.input.TextInput):
                 wdt.Set(value.day, month=int(value.month) - 1, year=value.year)
                 self.mydatewidget.SetValue(wdt)
 
+            self.mydatewidget.Bind(wx.EVT_KEY_UP, self.DateOnKeyUp)
             sizer = wx.BoxSizer(wx.VERTICAL)
             sizer.Add(self.mydatewidget, 0, 0, 0)
             self.mydialog.SetSizer(sizer)
@@ -82,6 +85,8 @@ class MyTextInput(gui2py.input.TextInput):
                 self.mydatewidget.SetValue(wdt)
                 self.mytimewidget.SetValue(wdt)
 
+            self.mydatewidget.Bind(wx.EVT_KEY_UP, self.DateOnKeyUp)
+            self.mytimewidget.Bind(wx.EVT_KEY_UP, self.DateOnKeyUp)
             sizer = wx.BoxSizer(wx.VERTICAL)
             sizer.Add(self.mytimewidget, 0, 0, 0)
             sizer.Add(self.mydatewidget, 0, 0, 0)
@@ -146,8 +151,8 @@ class MyTextInput(gui2py.input.TextInput):
                 a, b, c = tuple([hex(v)[2:].upper().zfill(2) for v in color.Get()])
                 self.SetValue("#%(a)s%(b)s%(c)s" % dict(a=a, b=b ,c=c))
 
-        if self.mydialog is not None:
-            self.mydialog.Bind(wx.EVT_KEY_UP, self.DialogOnKeyUp)
+        # if self.mydialog is not None:
+        #    self.mydialog.Bind(wx.EVT_KEY_UP, self.DialogOnKeyUp)
 
     def GetDate(self, value):
         """ Retrieve cell date or datetime info
@@ -192,15 +197,22 @@ class MyTextInput(gui2py.input.TextInput):
             self.SetValue(value.strftime(FORMATS["date"]))
         self.OnClose(event)
 
+    def DateOnKeyUp(self, event):
+        if event.GetKeyCode() in (wx.WXK_ESCAPE, wx.WXK_RETURN):
+            self.DialogOnKeyUp(event)
+        event.Skip()
+
     def OnClose(self, event):
-        event.GetEventObject().Close()
+        # event.GetEventObject().Close()
+        self.mydialog.Close()
 
     def DialogOnKeyUp(self, event):
         """ Handles the wx.EVT_KEY_UP event for CustomCheckBox. """
         if event.GetKeyCode() == wx.WXK_ESCAPE:
             # exit without changes
-            event.GetEventObject().Close()
+            # event.GetEventObject().Close()
+            self.mydialog.Close()
         elif event.GetKeyCode() == wx.WXK_RETURN:
             self.DialogOnEnter(event)
-        event.Skip()
-        
+        else:
+            event.Skip()
