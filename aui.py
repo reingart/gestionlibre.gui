@@ -157,16 +157,6 @@ class PyAUIFrame(wx.Frame):
         self.SetMinSize(wx.Size(400, 300))
 
         # create some toolbars
-        self.tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
-                         wx.TB_FLAT | wx.TB_NODIVIDER)
-        self.tb1.SetToolBitmapSize(wx.Size(48,48))
-        self.tb1.AddLabelTool(101, "Test", wx.ArtProvider_GetBitmap(wx.ART_ERROR))
-        self.tb1.AddSeparator()
-        self.tb1.AddLabelTool(102, "Test", wx.ArtProvider_GetBitmap(wx.ART_QUESTION))
-        self.tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
-        self.tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_WARNING))
-        self.tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
-        self.tb1.Realize()
 
         self.tb2 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
@@ -185,89 +175,69 @@ class PyAUIFrame(wx.Frame):
 
         self.tb2.Realize()
 
-        tb3 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
+        self.tb3 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
-        tb3.SetToolBitmapSize(wx.Size(16,16))
+        self.tb3.SetToolBitmapSize(wx.Size(16,16))
 
         # Fugue Icons by Yusuke Kamiyamane
 
         # login
-        tb3_bmp10 = wx.Bitmap("images/user.png")
+        self.tb3_bmp10 = wx.Bitmap("images/user.png")
         # logout
-        tb3_bmp11 = wx.Bitmap("images/user--arrow.png")
+        self.tb3_bmp11 = wx.Bitmap("images/user--arrow.png")
         # register
-        tb3_bmp12 = wx.Bitmap("images/user--plus.png")
+        self.tb3_bmp12 = wx.Bitmap("images/user--plus.png")
         # specify firm's tin
-        tb3_bmp13 = wx.Bitmap("images/address-book--pencil.png")
+        self.tb3_bmp13 = wx.Bitmap("images/address-book--pencil.png")
         # index
-        tb3_bmp14 = wx.Bitmap("images/application-home.png")
+        self.tb3_bmp14 = wx.Bitmap("images/application-home.png")
         # setup
-        tb3_bmp15 = wx.Bitmap("images/property.png")
+        self.tb3_bmp15 = wx.Bitmap("images/property.png")
 
 
         # Other GestiónLibre shortcuts
         
-        self.button_10 = tb3.AddLabelTool(10010, "Test", tb3_bmp10)
-        self.button_11 = tb3.AddLabelTool(10011, "Test", tb3_bmp11)
-        self.button_12 = tb3.AddLabelTool(10012, "Test", tb3_bmp12)
-        self.button_13 = tb3.AddLabelTool(10013, "Test", tb3_bmp13)
-        tb3.AddSeparator()
-        self.button_14 = tb3.AddLabelTool(10014, "Test", tb3_bmp14)
-        self.button_15 = tb3.AddLabelTool(10015, "Test", tb3_bmp15)
+        self.button_10 = self.tb3.AddLabelTool(10010, "Test", self.tb3_bmp10)
+        self.button_11 = self.tb3.AddLabelTool(10011, "Test", self.tb3_bmp11)
+        self.button_12 = self.tb3.AddLabelTool(10012, "Test", self.tb3_bmp12)
+        self.button_13 = self.tb3.AddLabelTool(10013, "Test", self.tb3_bmp13)
+        self.tb3.AddSeparator()
+        self.button_14 = self.tb3.AddLabelTool(10014, "Test", self.tb3_bmp14)
+        self.button_15 = self.tb3.AddLabelTool(10015, "Test", self.tb3_bmp15)
 
         # End of Other GestiónLibre shortcuts
         
-        tb3.Realize()
+        self.tb3.Realize()
 
-        tb4 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
+        self.tb4 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER | wx.TB_HORZ_TEXT)
-        tb4.SetToolBitmapSize(wx.Size(16,16))
+        self.tb4.SetToolBitmapSize(wx.Size(16,16))
         
-        tb4_bmp1 = wx.Bitmap("images/blue-documents-stack.png")
-        tb4_bmp2 = wx.Bitmap("images/report.png")
-        tb4_bmp3 = wx.Bitmap("images/arrow-skip.png")
-        tb4_bmp4 = wx.Bitmap("images/box-search-result.png")
-        tb4_bmp5 = wx.Bitmap("images/edit-rule.png")
-        tb4_bmp8 = wx.Bitmap("images/document--pencil.png")
+        self.tb4_bmp1 = wx.Bitmap("images/blue-documents-stack.png")
+        self.tb4_bmp2 = wx.Bitmap("images/report.png")
+        self.tb4_bmp3 = wx.Bitmap("images/arrow-skip.png")
+        self.tb4_bmp4 = wx.Bitmap("images/box-search-result.png")
+        self.tb4_bmp5 = wx.Bitmap("images/edit-rule.png")
+        self.tb4_bmp8 = wx.Bitmap("images/document--pencil.png")
         
         # GestiónLibre html window buttons (home, previous, next)
 
-        self.button_1 = tb4.AddLabelTool(10001, str(T("Billing")), tb4_bmp1)
-        self.button_2 = tb4.AddLabelTool(10002, str(T("CA")), tb4_bmp2)
-        self.button_3 = tb4.AddLabelTool(10003, str(T("Movements")), tb4_bmp3)
+        self.button_1 = self.tb4.AddLabelTool(10001, str(T("Billing")), self.tb4_bmp1)
+        self.button_2 = self.tb4.AddLabelTool(10002, str(T("CA")), self.tb4_bmp2)
+        self.button_3 = self.tb4.AddLabelTool(10003, str(T("Movements")), self.tb4_bmp3)
 
         # End of GestiónLibre html window buttons (home, previous, next)
         
-        self.button_4 = tb4.AddLabelTool(10004, str(T("Articles")), tb4_bmp4)
-        tb4.AddSeparator()
-        self.button_5 = tb4.AddLabelTool(10005, str(T("Queries")), tb4_bmp5)
-        self.button_8 = tb4.AddLabelTool(10008, str(T("Operations")), tb4_bmp8)
-        tb4.Realize()
-
-
-        tb5 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
-                         wx.TB_FLAT | wx.TB_NODIVIDER | wx.TB_VERTICAL)
-        tb5.SetToolBitmapSize(wx.Size(48, 48))
-        tb5.AddLabelTool(101, "Test", wx.ArtProvider_GetBitmap(wx.ART_ERROR)) 
-        tb5.AddSeparator()
-        tb5.AddLabelTool(102, "Test", wx.ArtProvider_GetBitmap(wx.ART_QUESTION))
-        tb5.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
-        tb5.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_WARNING))
-        tb5.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
-        tb5.Realize()
-
-        # auto completed action toolbar
-        self.action_tool_bar = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
-                         wx.TB_FLAT | wx.TB_NODIVIDER | wx.TB_HORZ_TEXT)
-        self.action_tool_bar.SetToolBitmapSize(wx.Size(16, 16))
-        self.action_tool_bar.Realize()
-
+        self.button_4 = self.tb4.AddLabelTool(10004, str(T("Articles")), self.tb4_bmp4)
+        self.tb4.AddSeparator()
+        self.button_5 = self.tb4.AddLabelTool(10005, str(T("Queries")), self.tb4_bmp5)
+        self.button_8 = self.tb4.AddLabelTool(10008, str(T("Operations")), self.tb4_bmp8)
+        self.tb4.Realize()
 
         self.text_pane = self.CreateTextCtrl(default_text = "")
         
         self.tree_pane = wx.TreeCtrl(self, -1, wx.Point(0, 0), wx.Size(160, 250), \
         wx.TR_DEFAULT_STYLE | wx.NO_BORDER)
-
 
         # add a bunch of panes
         self._mgr.AddPane(self.CreateSizeReportCtrl(), wx.aui.AuiPaneInfo().
@@ -348,51 +318,31 @@ class PyAUIFrame(wx.Frame):
                           wx.aui.AuiPaneInfo().Name("html_content").Caption("Work space").CloseButton(True).MaximizeButton(True))
 
         # add the toolbars to the manager
-                        
-        self._mgr.AddPane(self.tb1, wx.aui.AuiPaneInfo().
-                          Name("tb1").Caption("Big Toolbar").
-                          ToolbarPane().Top().
-                          LeftDockable(False).RightDockable(False))
 
         self._mgr.AddPane(self.tb2, wx.aui.AuiPaneInfo().
                           Name("tb2").Caption("Toolbar 2").
-                          ToolbarPane().Top().Row(1).Position(0).
+                          ToolbarPane().Top().Row(0).Position(0).
                           LeftDockable(False).RightDockable(False))
                       
-        self._mgr.AddPane(tb3, wx.aui.AuiPaneInfo().
+        self._mgr.AddPane(self.tb3, wx.aui.AuiPaneInfo().
                           Name("tb3").Caption("Toolbar 3").
-                          ToolbarPane().Top().Row(1).Position(0).
+                          ToolbarPane().Top().Row(0).Position(1).
                           LeftDockable(False).RightDockable(False))
                       
-        self._mgr.AddPane(tb4, wx.aui.AuiPaneInfo().
+        self._mgr.AddPane(self.tb4, wx.aui.AuiPaneInfo().
                           Name("tb4").Caption("Sample Bookmark Toolbar").
                           ToolbarPane().Top().Row(2).Position(0).
                           LeftDockable(False).RightDockable(False))
 
-        self._mgr.AddPane(tb5, wx.aui.AuiPaneInfo().
-                          Name("tbvert").Caption("Sample Vertical Toolbar").
-                          ToolbarPane().Left().GripperTop().
-                          TopDockable(False).BottomDockable(False))
-
-        self._mgr.AddPane(wx.Button(self, -1, "Test Button"),
-                          wx.aui.AuiPaneInfo().Name("tb5").
-                          ToolbarPane().Top().Row(2).Position(2).
-                          LeftDockable(False).RightDockable(False))
-
         # make some default perspectives
 
-        self._mgr.GetPane("tbvert").Hide()
-        
         perspective_all = self._mgr.SavePerspective()
-        
         all_panes = self._mgr.GetAllPanes()
         
         for ii in xrange(len(all_panes)):
             if not all_panes[ii].IsToolbar():
                 all_panes[ii].Hide()
                 
-        self._mgr.GetPane("tb1").Hide()
-        self._mgr.GetPane("tb5").Hide()
         self._mgr.GetPane("test8").Show().Left().Layer(0).Row(0).Position(0)
         self._mgr.GetPane("test10").Show().Bottom().Layer(0).Row(0).Position(0)
         self._mgr.GetPane("html_content").Show().Center().Layer(0).Row(0).Position(0)
@@ -403,9 +353,6 @@ class PyAUIFrame(wx.Frame):
             if not all_panes[ii].IsToolbar():
                 all_panes[ii].Hide()
 
-        self._mgr.GetPane("tb1").Hide()
-        self._mgr.GetPane("tb5").Hide()
-        self._mgr.GetPane("tbvert").Show()
         self._mgr.GetPane("grid_content").Show()
         self._mgr.GetPane("test8").Show().Left().Layer(0).Row(0).Position(0)
         self._mgr.GetPane("test10").Show().Bottom().Layer(0).Row(0).Position(0)
@@ -417,7 +364,6 @@ class PyAUIFrame(wx.Frame):
         self._perspectives.append(perspective_all)
         self._perspectives.append(perspective_vert)
 
-        self._mgr.GetPane("tbvert").Hide()
         self._mgr.GetPane("grid_content").Hide()
 
         # "commit" all changes made to FrameManager   
@@ -634,31 +580,46 @@ class PyAUIFrame(wx.Frame):
     def SetActionTools(self, links):
         # erease and re-complete the action tools pane
         # links to other actions
-
+        
         # auto completed action toolbar
+
+        # This method is disabled
+        # It has issues on toolbar render on ms windows
+        
+        # auto completed action toolbar
+        """
+        self.tb5 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
+                         wx.TB_FLAT | wx.TB_NODIVIDER | wx.TB_HORZ_TEXT)
+        self.tb5.SetToolBitmapSize(wx.Size(16, 16))
+
+        self.tb5_bmp16 = wx.ArtProvider_GetBitmap(wx.ART_LIST_VIEW, wx.ART_OTHER, wx.Size(16, 16))
+        
+        self.button_16 = self.tb5.AddLabelTool(10016, "Actions", self.tb5_bmp16)
+        self.tb5.Realize()
+
+        self._mgr.AddPane(self.tb5, wx.aui.AuiPaneInfo().
+                          Name("tb5").Caption("Action toolbar").
+                          ToolbarPane().Top().Row(2).Position(1).
+                          LeftDockable(False).RightDockable(False))
+        """
+        return
 
         if not type(links) in (list, set, tuple):
             print T("Liks object is not a sequence.")
             return
             
         elif len(links) == 0:
-            self.action_tool_bar.ClearTools()
-            self.action_tool_bar.SetSize((-1, -1))
+            print "SetActionTools: no links"
+            self.tb5.ClearTools()
             return
 
-        # This closes the frame with a wx error ("segment violation")
-        # self.action_tool_bar.Destroy()
-        
-        if hasattr(self, "action_tool_bar"):
-            if self.action_tool_bar is not None:
+        if hasattr(self, "tb5"):
+            if self.tb5 is not None:
                 # remove old action buttons
-                self.action_tool_bar.ClearTools()
+                self.tb5.ClearTools()
         else:
-            # first time toolbar creation
-            self.action_tool_bar = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
-                            wx.TB_FLAT | wx.TB_NODIVIDER | wx.TB_HORZ_TEXT)
-                            
-            self.action_tool_bar.SetToolBitmapSize(wx.Size(32,32))
+            print "Action tool bar not found"
+            return
 
         for link in links:
             # search bitmap in directory or assign a default icon
@@ -671,7 +632,7 @@ class PyAUIFrame(wx.Frame):
                     the_bitmap = wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE)
 
                 # create new action with label from link data and the icon
-                the_action_tool = self.action_tool_bar.AddLabelTool(wx.NewId(), str(link.flatten()), the_bitmap)
+                the_action_tool = self.tb5.AddLabelTool(wx.NewId(), str(link.flatten()), the_bitmap)
 
                 # append url reference to the tool
                 the_action_tool.SetClientData(link.attributes["_href"])
@@ -679,15 +640,7 @@ class PyAUIFrame(wx.Frame):
                 # bind tool activation with the event handler
                 self.Bind(wx.EVT_TOOL, self.OnActionToolLink, the_action_tool)
 
-        # Create a new AUI dockable pane for the action links if it was not added
-        if not hasattr(self, "the_action_pane"):
-            self.the_action_pane = self._mgr.AddPane(self.action_tool_bar, wx.aui.AuiPaneInfo().
-                            Name("action tool bar").Caption(T("Action tool bar")).
-                            ToolbarPane().Top().Row(2).Position(1).
-                            LeftDockable(False).RightDockable(False))
-
         # update the AUI manager and widget
-        self.action_tool_bar.Realize()
         self._mgr.Update()
         return
 
@@ -695,11 +648,8 @@ class PyAUIFrame(wx.Frame):
     def OnActionToolLink(self, evt):
         # retrieve url from event data
         action_tool_id = evt.GetId()
-
-        # print str(self.action_tool_bar.GetToolClientData())
-        self.window.OnLinkClicked(self.action_tool_bar.GetToolClientData(action_tool_id))
+        self.window.OnLinkClicked(self.tb5.GetToolClientData(action_tool_id))
         return
-
 
     def OnCreatePerspective(self, event):
 
