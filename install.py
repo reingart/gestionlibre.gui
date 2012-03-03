@@ -1,3 +1,4 @@
+#! /usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -26,16 +27,17 @@ __copyright__ = "Copyright (C) 2012 Sistemas Ágiles"
 __license__ = "AGPLv3"
 
 
-# from gluon import *
-import config
-T = config.env["T"]
-
-def quit(evt, args=[], vars={}):
-    # close all windows
-    print T("Session closed by user input")
-    config.html_frame.Close()
-    # send a _no_render key/value
-    # to avoid template render after
-    # closing windows
-    return dict(_no_render=True)
-
+if __name__ == "__main__":
+    import sys
+    import os
+    print "##############################################"
+    print "For installation options type:"
+    print "]$setup.py --help"
+    print "from the unzipped GestiónLibre folder"
+    print "##############################################"
+    print
+    print "Changing the cwd to %s" % sys.path[0]
+    os.chdir(sys.path[0])
+    sys.argv.append("--install")
+    import setup
+    sys.exit(0)

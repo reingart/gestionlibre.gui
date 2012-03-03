@@ -1,14 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Desktop app prototype for GestionLibre.
+# Main module of wxPython desktop app for GestionLibre.
 
 """
     This is a Python open source project for migration of modules
     and functions from GestionPyme and other ERP products from Sistemas
     Ágiles.
 
-    Copyright (C) 2011 Sistemas Ágiles.
+    Copyright (C) 2012 Sistemas Ágiles.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@
 """
 
 __author__ = "Alan Etkin <spametki@gmail.com>"
-__copyright__ = "Copyright (C) 2011 Sistemas Ágiles"
+__copyright__ = "Copyright (C) 2012 Sistemas Ágiles"
 __license__ = "AGPLv3"
 
 HELP_TEXT = """

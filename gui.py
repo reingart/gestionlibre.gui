@@ -1,5 +1,49 @@
 # -*- coding: utf-8 -*-
 
+"""
+    This is a Python open source project for migration of modules
+    and functions from GestionPyme and other ERP products from Sistemas
+    Ágiles.
+
+    Copyright (C) 2012 Sistemas Ágiles.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+Starting module for GestiónLibre Application.
+
+Here is where the web2py and gui2py services initialize and
+application core objects and data are configured. It starts
+menu/window/addresses/DAL/internationalization and implements
+all objects defined by aui and widget modules. The MVC data for
+specific implementations is defined following the web2py
+convention (there are controller and view folders), but the
+model definition is placed in a file inside the app's modules
+folder. In order to be detected by the app, controllers and
+functions must be configured at the addresses module
+
+IMPORTANT:
+replace the normal response, session, ... in web2py views with
+
+config.session, config.response, config.session, ...
+
+"""
+
+__author__ = "Alan Etkin <spametki@gmail.com>"
+__copyright__ = "Copyright (C) 2012 Sistemas Ágiles"
+__license__ = "AGPLv3"
+
 import wx
 import wx.html
 
@@ -28,11 +72,6 @@ import gui2py
 # import custom form windows
 import widget
 
-""" IMPORTANT:
-replace the normal response, session, ... in web2py views with
-
-config.session, config.response, config.session, ...
-"""
 
 # This output redirection code was taken from
 # Mouse vs. Python blog (Mike Driscoll)
