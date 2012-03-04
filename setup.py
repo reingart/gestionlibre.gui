@@ -214,7 +214,7 @@ language = LANGUAGE, no_web2py_app = NO_WEB2PY_APP):
     
     try:
         login = os.getlogin()
-    except AttributeError:
+    except (AttributeError, OSError):
         login = ""
 
     WEB2PY_PATH = web2py_path

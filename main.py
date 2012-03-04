@@ -43,6 +43,9 @@ HELP_TEXT = """
 import sys, os
 import datetime
 
+# Make the file folder the cwd
+os.chdir(sys.path[0])
+
 # import wxPython:
 import wx
 import wx.html
