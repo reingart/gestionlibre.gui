@@ -1,2 +1,2 @@
 # -*- coding: utf-8 -*-
-version = "Prealpha v4"
+version = "1.0.0 alpha"

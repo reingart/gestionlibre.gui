@@ -1,33 +1,58 @@
 # INSTALLATION INSTRUCTIONS
 
+The simplest way to install GestiónLibre is as following:
+
+Note: You must have the Python interpreter and the wxPython library
+installed on your operating system before you can run install.py
+(see "Application dependencies" below).
+
+-Unzip the gestionlibre.zip installer into the target folder from where
+you want to run the application. You can get the installer from
+http://code.google.com/p/gestionlibre/downloads/list
+
+If you have ms-windows or a KDE desktop:
+Double-click the file install.py in the unzipped folder
+
+Otherwise, If your system is a GNU/Linux distribution, open a console,
+and type this two commands:
+
+cd <unzipped folder path>
+./install.py
+
+if GestiónLibre is being installed in
+a client machine, type this instead:
+./install_client.py
+
+
 # Application dependencies
+
 You must have the following software installed in order to
 install GestiónLibre:
 
-web2py - http://www.web2py.com
+Python >= 2.5 (you can get it from http://python.org/getit/)
 wxPython (wx for short) for the desktop interface - http://sourceforge.net/projects/wxpython/
-gui2py -http://code.google.com/p/gui2py/
+web2py - http://www.web2py.com *
+gui2py -http://code.google.com/p/gui2py/ *
 
-# Installation with .zip archive
+* Both web2py and gui2py are bundled with the .zip installation and they will
+automatically install unless --no_dep is passed when running the install script.
+If setup.py is run with the --no_dep argument, the installation
+script will ask for pre-installed web2py and gui2py folders
+(they can be specified with --web2py_path <path> and --gui2py_path <path>.)
 
-1 Unzip archive in your system user home folder
-2 Open a terminal in your system (run -> cmd for win)
-3 From the new extracted application folder
-  run this command:
-
->python setup.py --install
-
-If there are no errors in console output, you have now a working copy of GestiónLibre in your system
 
 # Installation from the mercurial repository
-1 make a clone of the project "gestionlibre_gui" in your system
-  From a terminal run:
+(Install dependencies first. See instructions above)
+
+-Make a clone of the project "gestionlibre_gui" in your system.
+From a terminal run:
 
 >hg clone https://code.google.com/p/gestionlibre.gui/ ./gestionlibre
 
-2 Inside the new created folder run:
+-Inside the new created folder run:
 
 >python setup.py --install
+
 
 # Alternative no_gui installation
 

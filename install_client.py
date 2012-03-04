@@ -24,7 +24,6 @@ __author__ = "Alan Etkin <spametki@gmail.com>"
 __copyright__ = "Copyright (C) 2012 Sistemas Ágiles"
 __license__ = "AGPLv3"
 
-
 if __name__ == "__main__":
     import sys
     import os
@@ -37,5 +36,6 @@ if __name__ == "__main__":
     print "Changing the cwd to %s" % sys.path[0]
     os.chdir(sys.path[0])
     sys.argv.append("--install")
+    sys.argv.append("--client")
     import setup
     sys.exit(0)
