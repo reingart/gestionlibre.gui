@@ -2,17 +2,15 @@
 
 import sys
 import datetime
+
 import wx
 import wx.grid
 import wx.html
+import wx.aui
+
 import cStringIO
 
-import wx.aui
 import config
-
-T = config.env["T"]
-
-from gui import NewHtmlWindow, RedirectText
 
 #    This is a Python open source project for migration of modules
 #    and functions from GestionPyme and other ERP products from Sistemas
@@ -104,13 +102,26 @@ class PyAUIFrame(wx.Frame):
                  size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE |
                                             wx.SUNKEN_BORDER |
                                             wx.CLIP_CHILDREN):
-
         wx.Frame.__init__(self, parent, id, title, pos, size, style)
-        
-        # tell FrameManager to manage this frame        
+
+        # tell FrameManager to manage this frame
         self._mgr = wx.aui.AuiManager()
         self._mgr.SetManagedWindow(self)
-        
+
+        # Attributes
+        bmp = wx.Bitmap('images/gestionlibre-screen.png', wx.BITMAP_TYPE_PNG)
+        self.splash = wx.SplashScreen(bmp,
+                                           wx.SPLASH_CENTRE_ON_SCREEN|\
+                                           wx.SPLASH_NO_TIMEOUT, -1, self)
+        self.splash.Show()
+
+
+    def start_manager(self):
+
+        # post-init code
+        # web2py internationalization support
+        T = config.env["T"]
+
         self._perspectives = []
         self.n = 0
         self.x = 0
@@ -305,9 +316,11 @@ class PyAUIFrame(wx.Frame):
         # The source Licence is L-GPL
 
         # redirect text here
+        """
+        from gui import RedirectText
         self.redir=RedirectText(self.text_pane)
         sys.stdout=self.redir
-
+        """
 
         self._mgr.AddPane(self.CreateSizeReportCtrl(), wx.aui.AuiPaneInfo().
                           Name("test11").Caption("Fixed Pane").
@@ -441,6 +454,7 @@ class PyAUIFrame(wx.Frame):
         self.Bind(wx.EVT_MENU_RANGE, self.OnRestorePerspective, id=ID_FirstPerspective,
                   id2=ID_FirstPerspective+1000)
 
+        # end of post-init code
 
     def OnPaneClose(self, event):
 
@@ -820,6 +834,7 @@ class PyAUIFrame(wx.Frame):
 
 
     def CreateHTMLCtrl(self):
+        from gui import NewHtmlWindow
         self.window = NewHtmlWindow(self, -1, wx.DefaultPosition, wx.Size(400, 300), style = config.WX_HTML_STYLE)
         if "gtk2" in wx.PlatformInfo:
             self.window.SetStandardFonts()
@@ -919,8 +934,9 @@ class SettingsPanel(wx.Panel):
         wx.Panel.__init__(self, parent, wx.ID_ANY, wx.DefaultPosition,
                           wx.DefaultSize)
 
+        T = config.env["T"]
         self._frame = frame
-        
+
         vert = wx.BoxSizer(wx.VERTICAL)
 
         s1 = wx.BoxSizer(wx.HORIZONTAL)

@@ -40,8 +40,11 @@ HELP_TEXT = """
 
 # constants and common memmory storage
 
-import sys, os
+import sys
+import os
 import datetime
+import threading
+import time
 
 # Make the file folder the cwd
 os.chdir(sys.path[0])
@@ -177,6 +180,7 @@ def main_menu_elements(frame,
                        is_menu_bar=False,
                        route=[],
                        T = lambda t: t):
+    import handlers
     menu_item = None
 
     try:
@@ -221,8 +225,8 @@ def main_menu_elements(frame,
                          item_count = main_menu_elements(frame, \
                          parent_menu.menu_items[k], \
                          submenu=v["submenu"], \
-                         item_count = item_count, \
-                         route = route, T = T)
+                         item_count=item_count, \
+                         route=route, T=T)
                 route.pop()
 
                 if k.lower() == "file":
@@ -240,10 +244,10 @@ def main_menu_elements(frame,
                         parent_menu.menu_items[k] = wx.Menu()
                         parent_menu.AppendMenu(item_count, \
                         text_label, parent_menu.menu_items[k])
-                        item_count = main_menu_elements(frame, \
+                        item_count=main_menu_elements(frame, \
                         parent_menu.menu_items[k], \
                         submenu=v["submenu"], \
-                        item_count = item_count, route = route, T = T)
+                        item_count=item_count, route=route, T=T)
                         route.pop()
 
                     else:
@@ -284,7 +288,7 @@ def main_menu_elements(frame,
                 if menu_item is not None:
                     if v["handler"] is not None:
                         handler_list = v["handler"].split(".")
-                        the_obj = globals()[handler_list[0]]
+                        the_obj = locals()[handler_list[0]]
                         for x in range(len(handler_list)):
                             if x > 0:
                                 the_obj = getattr(the_obj, \
@@ -297,8 +301,8 @@ def main_menu_elements(frame,
     return item_count
 
 
-def configure_tree_pane(frame, T = lambda t: t):
-
+def configure_tree_pane(frame, T=lambda t: t):
+    from gluon.html import URL
     tree = frame.tree_pane
     root = tree.AddRoot(str(T("Actions")))
     items = []
@@ -369,16 +373,9 @@ def on_db_timeout(evt):
     return
 
 
-if __name__ == "__main__":
-    import config
+def config_setup():
+    # print "Configuring config"
 
-    # import gui2py support -wxHTML FORM handling- (change the path!)
-    sys.path.append(config.GUI2PY_FOLDER)
-
-    # import web2py (change the path!)
-    sys.path.append(config.WEB2PY_FOLDER)
-
-    login_string = None
     arg_counter = 0
     for arg in sys.argv:
         name = arg.upper().replace("-", "")
@@ -404,240 +401,319 @@ if __name__ == "__main__":
             print "Verbose mode"
             config.VERBOSE = True
 
-    # load web2py package
-    import gluon
-    import gluon.template
-    import gluon.shell
-    import gluon.tools
-    from gluon import *
 
-    config.WX_HTML_STYLE = wx.html.HW_DEFAULT_STYLE | wx.TAB_TRAVERSAL
-
-    # load web2py app env object for GestionLibre
-    config.env = gluon.shell.env(config.WEB2PY_APP_NAME, \
-    dir=config.WEB2PY_FOLDER)
-    config.current = config.env
-    config.request  = config.env["request"]
-    config.response  = config.env["response"]
-    config.response._vars = gluon.storage.Storage()
-    config.session  = config.env["session"]
-    config.context = gluon.storage.Storage()
-
-    # set translation options
-    # language configuration values are forced
-    # because of the non web2py execution environment
-
-    T = config.env["T"]
-    T.folder = config.GUI2PY_APP_FOLDER
-    # Evaluate inmediately
-    # to avoid Type exceptions when
-    # instantiating wx objects
-    T.lazy = False
-
-    # test if language file exists or create it (except for default "en" value)
-    if not (config.LANGUAGE in (None, "", "en")):
-        language_file_path = os.path.join( \
-        config.GUI2PY_APP_FOLDER, \
-        "languages", "%s.py" % config.LANGUAGE)
-
-        # config.env["T"].set_current_languages([config.LANGUAGE,])
+class GestionLibreApp(wx.PySimpleApp):
+    
+    def AfterInit(self):
         
-        T.language_file = language_file_path
-        T.accepted_language = config.LANGUAGE
-        T.http_accept_language = [config.LANGUAGE,]
-        T.requested_languages = [config.LANGUAGE,]
+        # print "Importing web2py gluon"
+        # from gluon import *
+        import gluon
+        from gluon.html import URL
+        from gluon.html import MENU
+        from gluon.dal import DAL
+        import gluon
+        import gluon.template
+        import gluon.shell
+        import gluon.tools
 
-        # force t dictionary load (otherwise translator would overwrite
-        # the language file)
-        T.t = gluon.languages.read_dict(T.language_file)
+        # frame initialization
 
-    # create DAL connection (and create DB if it does not exists)
-    config.db = DAL(config.DB_URI, folder=config.DATABASES_FOLDER, pool_size = 10)
+        # print "More config setup"
 
-    # EXPERIMENTAL (imap connection)
-    if config.IMAP_URI:
-        config.imapdb = DAL(config.IMAP_URI)
-        config.imapdb.define_tables()
-    else:
-        config.imapdb = None
+        # load web2py app env object for GestionLibre
+        config.env = gluon.shell.env(config.WEB2PY_APP_NAME, \
+        dir=config.WEB2PY_FOLDER)
+        config.current = config.env
+        config.request  = config.env["request"]
+        config.response  = config.env["response"]
+        config.response._vars = gluon.storage.Storage()
+        config.session  = config.env["session"]
+        config.context = gluon.storage.Storage()
 
-    # Connection example for PostgreSQL database (set this at installation as DB_URI)
-    # or modify the value at [desktopapp]/config.ini and [web2pyapp]/webappconfig.ini
-    # specify folder path as webapp path + "databases"
-    # config.db = DAL("postgres://gestionlibre:gestionlibre@localhost:5432/gestionlibre",
-    #                 folder=config.DATABASES_FOLDER)
+        # set translation options
+        # language configuration values are forced
+        # because of the non web2py execution environment
 
-    db = config.db
+        # print "Internationalization"
 
-    # TODO: Authenticate with wx widgets.
-    # A series of hack imports (with shell) and bindings are needed
-    # for using auth and crud.
+        T = config.env["T"]
+        T.folder = config.GUI2PY_APP_FOLDER
+        # Evaluate inmediately
+        # to avoid Type exceptions when
+        # instantiating wx objects
+        T.lazy = False
 
-    # auth (buggy: has redirection and form submission problems)
-    config.auth = gluon.tools.Auth(db=db, hmac_key=config.HMAC_KEY)
+        # test if language file exists or create it (except for default "en" value)
+        if not (config.LANGUAGE in (None, "", "en")):
+            language_file_path = os.path.join( \
+            config.GUI2PY_APP_FOLDER, \
+            "languages", "%s.py" % config.LANGUAGE)
 
-    # import all the table definitions and options in web app's model
-    # model module
+            # config.env["T"].set_current_languages([config.LANGUAGE,])
 
-    # custom auth_user definition is required to prevent the "auth_user not
-    # found" error
-    # import applications.gestionlibre.modules.db_gestionlibre as db_gestionlibre
+            T.language_file = language_file_path
+            T.accepted_language = config.LANGUAGE
+            T.http_accept_language = [config.LANGUAGE,]
+            T.requested_languages = [config.LANGUAGE,]
 
-    from modules import db_gestionlibre, info
+            # force t dictionary load (otherwise translator would overwrite
+            # the language file)
+            T.t = gluon.languages.read_dict(T.language_file)
 
-    # define the database tables
-    # web2py = False forces db.define_table("auth_user"..)
+        # AUI Notebook initial configuration
+        self.frame.start_manager()
 
-    # define the auth tables (this goes after app tables definition)
-    config.auth.settings.hmac_key = config.HMAC_KEY       # before define_tables()
+        # print "Creating DAL connection"
 
-    # activate web2py fake_migrate for client installations
-    fake_migrate = False
-    if (config.GUI2PY_APP_CLIENT.upper() in ("TRUE", "YES", "1")) \
-    or (str(config.LEGACY_DB).upper() in ("TRUE", "YES", "1")):
-        fake_migrate = True
+        # create DAL connection (and create DB if it does not exists)
+        config.db = DAL(config.DB_URI, folder=config.DATABASES_FOLDER, pool_size = 10)
 
-    # custom db initialization for GestiónLibre
-    db_gestionlibre.define_tables(db,
-                                  config.auth,
-                                  config.env,
-                                  web2py = False,
-                                  fake_migrate = fake_migrate,
-                                  T=T)
-
-    # crud (buggy: form submission and database transactions problems)
-    config.crud = gluon.tools.Crud(config.env, db=db)
-
-
-    GestionLibre = wx.PySimpleApp(0)
-    wx.InitAllImageHandlers()
-
-    import aui
-    config.html_frame = aui.PyAUIFrame(None, -1, u"GestiónLibre")
-
-    # allow active pane
-    config.html_frame._mgr.SetFlags(\
-    config.html_frame._mgr.GetFlags() ^ wx.aui.AUI_MGR_ALLOW_ACTIVE_PANE)
-
-    config.html_frame.SetSize((800, 600))
-
-    # app modules
-    import gui
-    import handlers
-    # import rbac
-
-    # import controller modules
-    import controllers.default, controllers.operations, controllers.crm, \
-    controllers.registration, controllers.fees, \
-    controllers.scm, controllers.accounting, controllers.financials, \
-    controllers.setup, controllers.file, controllers.migration, \
-    controllers.appadmin, controllers.output
-
-    # Main window button events
-    # use lambda event: handle_event(event, function)
-    # for rbac
-    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
-    handlers.billing_button_click), config.html_frame.button_1)
-    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
-    handlers.current_accounts_button_click), config.html_frame.button_2)
-    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
-    handlers.customers_button_click), config.html_frame.button_3)
-    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
-    handlers.articles_button_click), config.html_frame.button_4)
-    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
-    handlers.queries_button_click), config.html_frame.button_5)
-    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
-    handlers.movements_button_click), config.html_frame.button_8)
-
-    # user tab events
-    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
-    handlers.user_login), config.html_frame.button_10)
-    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
-    handlers.user_logout), config.html_frame.button_11)
-    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
-    handlers.user_register), config.html_frame.button_12)
-    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
-    handlers.user_specify_tin), config.html_frame.button_13)
-    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
-    handlers.user_index), config.html_frame.button_14)
-    config.html_frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
-    handlers.user_setup), config.html_frame.button_15)
-
-    config.html_frame.menu_events = dict()
-
-    # Previous and next button events
-    config.html_frame.Bind(wx.EVT_TOOL, gui.OnPreviousClick,
-                           config.html_frame.button_6)
-    config.html_frame.Bind(wx.EVT_TOOL, gui.OnNextClick,
-                           config.html_frame.button_7)
-    config.html_frame.Bind(wx.EVT_TOOL, gui.OnHomeClick,
-                           config.html_frame.button_9)
-
-    # populate main menu
-    import menu
-    menu.configure_main_menu(URL)
-
-    # populate html layout menu
-    menu.configure_layout_menu(MENU, URL, T = T)
-    GestionLibre.SetTopWindow(config.html_frame)
-    main_menu_elements(config.html_frame, config.html_frame.starting_menubar, \
-    submenu=config.MAIN_MENU, is_menu_bar = True, T = T)
-    config.html_frame.SetMenuBar(config.html_frame.starting_menubar)
-    config.html_frame.SetStatusText("")
-    config.html_frame.Show()
-
-    # bind web2py like actions to module functions
-    import address
-
-    # add items to the action tree pane
-    configure_tree_pane(config.html_frame, T = T)
-
-    # set the event handler options
-    configure_event_handlers()
-
-    gui.load_actions()
-
-    config.access_control = gui.RBAC(config.db,
-                                     config.auth,
-                                     config.request,
-                                     config.session,
-                                     config.html_frame)
-
-    if isinstance(login_string, basestring) and \
-    len(login_string.split(":")) == 2:
-        # TODO: move to an authentication function
-        # straight login from command line.
-        email, password = login_string.split(":")
-
-        if config.access_control.validate_user(email, password):
-            print T("Welcome %s") % email
+        # EXPERIMENTAL (imap connection)
+        if config.IMAP_URI:
+            config.imapdb = DAL(config.IMAP_URI)
+            config.imapdb.define_tables()
         else:
-            print T("Authentication failed")
+            config.imapdb = None
 
-    elif isinstance(login_string, basestring) and \
-    len(login_string.split(":")) != 2:
-        print T("Incorrect mail:password argument")
+        # Connection example for PostgreSQL database (set this at installation as DB_URI)
+        # or modify the value at [desktopapp]/config.ini and [web2pyapp]/webappconfig.ini
+        # specify folder path as webapp path + "databases"
+        # config.db = DAL("postgres://gestionlibre:gestionlibre@localhost:5432/gestionlibre",
+        #                 folder=config.DATABASES_FOLDER)
 
-    # load system information in session
-    config.session._info = dict()
-    config.session._info["version"] = info.version
+        db = config.db
 
-    # gui.start_html_frame(config.html_frame)
-    config.html_frame.window.OnLinkClicked(\
-    URL(a=config.APP_NAME, c="default", f="index"))
+        # TODO: Authenticate with wx widgets.
+        # A series of hack imports (with shell) and bindings are needed
+        # for using auth and crud.
 
-    # re-connect periodically to database to prevent connection timeout issue
-    try:
-        db_timeout_milliseconds = int(config.DB_TIMEOUT)
-    except (ValueError, TypeError), e:
-        print "Error retrieving the db_timeout parameter ", str(e)
-        # no connection timeout by default
-        db_timeout_milliseconds = -1
+        # print "Creating auth"
 
-    if db_timeout_milliseconds > 0:
-        db_timeout = wx.Timer(config.html_frame)
-        config.html_frame.Bind(wx.EVT_TIMER, on_db_timeout, db_timeout)
-        db_timeout.Start(db_timeout_milliseconds)
+        # auth (buggy: has redirection and form submission problems)
+        config.auth = gluon.tools.Auth(db=db, hmac_key=config.HMAC_KEY)
 
-    # Add the html window
-    GestionLibre.MainLoop()
+        # import all the table definitions and options in web app's model
+        # model module
+
+        # custom auth_user definition is required to prevent the "auth_user not
+        # found" error
+        # import applications.gestionlibre.modules.db_gestionlibre as db_gestionlibre
+
+        # print "Table definitions"
+
+        from modules import db_gestionlibre, info
+
+        # define the database tables
+        # web2py = False forces db.define_table("auth_user"..)
+
+        # define the auth tables (this goes after app tables definition)
+        config.auth.settings.hmac_key = config.HMAC_KEY       # before define_tables()
+
+        # activate web2py fake_migrate for client installations
+        fake_migrate = False
+        if (config.GUI2PY_APP_CLIENT.upper() in ("TRUE", "YES", "1")) \
+        or (str(config.LEGACY_DB).upper() in ("TRUE", "YES", "1")):
+            fake_migrate = True
+
+        # custom db initialization for GestiónLibre
+        db_gestionlibre.define_tables(db,
+                                    config.auth,
+                                    config.env,
+                                    web2py = False,
+                                    fake_migrate = fake_migrate,
+                                    T=T)
+
+        # print "Creating crud"
+
+        # crud (buggy: form submission and database transactions problems)
+        config.crud = gluon.tools.Crud(config.env, db=db)
+
+        # print "Frame manager setup"
+
+        # print "Application and custom modules"
+
+        # app modules
+        import gui
+        import handlers
+
+        # import controller modules
+        import controllers.default, controllers.operations, controllers.crm, \
+        controllers.registration, controllers.fees, \
+        controllers.scm, controllers.accounting, controllers.financials, \
+        controllers.setup, controllers.file, controllers.migration, \
+        controllers.appadmin, controllers.output
+
+        # print "Main window events"
+
+        # Main window button events
+        # use lambda event: handle_event(event, function)
+        # for rbac
+        self.frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+        handlers.billing_button_click), self.frame.button_1)
+        self.frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+        handlers.current_accounts_button_click), self.frame.button_2)
+        self.frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+        handlers.customers_button_click), self.frame.button_3)
+        self.frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+        handlers.articles_button_click), self.frame.button_4)
+        self.frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+        handlers.queries_button_click), self.frame.button_5)
+        self.frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+        handlers.movements_button_click), self.frame.button_8)
+
+        # user tab events
+        self.frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+        handlers.user_login), self.frame.button_10)
+        self.frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+        handlers.user_logout), self.frame.button_11)
+        self.frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+        handlers.user_register), self.frame.button_12)
+        self.frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+        handlers.user_specify_tin), self.frame.button_13)
+        self.frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+        handlers.user_index), self.frame.button_14)
+        self.frame.Bind(wx.EVT_TOOL, lambda event: handle_event(event, \
+        handlers.user_setup), self.frame.button_15)
+
+        self.frame.menu_events = dict()
+
+        # Previous and next button events
+        self.frame.Bind(wx.EVT_TOOL, gui.OnPreviousClick,
+                            self.frame.button_6)
+        self.frame.Bind(wx.EVT_TOOL, gui.OnNextClick,
+                            self.frame.button_7)
+        self.frame.Bind(wx.EVT_TOOL, gui.OnHomeClick,
+                            self.frame.button_9)
+
+        # print "Populate main menu"
+
+        # populate main menu
+        import menu
+        menu.configure_main_menu(URL)
+
+        # print  "Populate html layout"
+
+        # populate html layout menu
+        menu.configure_layout_menu(MENU, URL, T=T)
+
+        main_menu_elements(self.frame, self.frame.starting_menubar, \
+        submenu=config.MAIN_MENU, is_menu_bar=True, T=T)
+
+        self.frame.SetMenuBar(self.frame.starting_menubar)
+        self.frame.SetStatusText("")
+
+        # print "Action binding"
+
+        # bind web2py like actions to module functions
+        import address
+
+        # print "Configure tree panes"
+
+        # add items to the action tree pane
+        configure_tree_pane(self.frame, T=T)
+
+        # set the event handler options
+        configure_event_handlers()
+
+        gui.load_actions()
+
+        # print "Access control setup"
+
+        config.access_control = gui.RBAC(config.db,
+                                        config.auth,
+                                        config.request,
+                                        config.session,
+                                        self.frame)
+
+        if isinstance(login_string, basestring) and \
+        len(login_string.split(":")) == 2:
+            # TODO: move to an authentication function
+            # straight login from command line.
+            email, password = login_string.split(":")
+
+            if config.access_control.validate_user(email, password):
+                print T("Welcome %s") % email
+            else:
+                print T("Authentication failed")
+
+        elif isinstance(login_string, basestring) and \
+        len(login_string.split(":")) != 2:
+            print T("Incorrect mail:password argument")
+
+        # load system information in session
+        config.session._info = dict()
+        config.session._info["version"] = info.version
+
+        # print "Starting action"
+
+        # gui.start_html_frame(self.frame)
+        self.frame.window.OnLinkClicked(\
+        URL(a=config.APP_NAME, c="default", f="index"))
+
+        # re-connect periodically to database to prevent connection timeout issue
+        try:
+            db_timeout_milliseconds = int(config.DB_TIMEOUT)
+        except (ValueError, TypeError), e:
+            print "Error retrieving the db_timeout parameter ", str(e)
+            # no connection timeout by default
+            db_timeout_milliseconds = -1
+
+        if db_timeout_milliseconds > 0:
+            db_timeout = wx.Timer(self.frame)
+            self.frame.Bind(wx.EVT_TIMER, on_db_timeout, db_timeout)
+            db_timeout.Start(db_timeout_milliseconds)
+
+        # print "App initialization complete"
+
+
+    def OnInit(self):
+        import aui
+        wx.InitAllImageHandlers()
+
+        # Add the main window
+        # print "Creating the app and frame objects"
+        config.html_frame = aui.PyAUIFrame(None, -1, u"GestiónLibre")
+
+        # bind the frame to the app object
+        self.frame = config.html_frame
+
+        config.WX_HTML_STYLE = wx.html.HW_DEFAULT_STYLE | wx.TAB_TRAVERSAL
+
+        # allow active pane
+        self.frame._mgr.SetFlags(\
+        self.frame._mgr.GetFlags() ^ wx.aui.AUI_MGR_ALLOW_ACTIVE_PANE)
+
+        self.frame.SetSize((800, 600))
+
+        # send the frame to the top
+        self.SetTopWindow(self.frame)
+
+        # app initialization
+        self.AfterInit()
+
+        # show the main window
+        self.frame.Show()
+
+        self.frame.splash.Close()
+        
+        return True
+
+
+if __name__ == "__main__":
+    # setup for the app-wide config module
+    login_string = None
+    
+    import config
+    config_setup()
+
+    # import gui2py support -wxHTML FORM handling- (change the path!)
+    sys.path.append(config.GUI2PY_FOLDER)
+
+    # import web2py (change the path!)
+    sys.path.append(config.WEB2PY_FOLDER)
+
+    # app initialization
+    app = GestionLibreApp(0)
+
+    app.MainLoop()

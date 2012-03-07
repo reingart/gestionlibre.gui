@@ -150,7 +150,6 @@ env = None
 crud = None
 auth = None
 menu = None
-address = None
 response = None
 request = None
 session = None
