@@ -38,6 +38,8 @@ HELP_TEXT = """
     * --user [email:password]: Login with specified credentials on startup
 """
 
+LOGIN_STRING = None
+
 # constants and common memmory storage
 
 import sys
@@ -375,14 +377,14 @@ def on_db_timeout(evt):
 
 def config_setup():
     # print "Configuring config"
-
+    global LOGIN_STRING
     arg_counter = 0
     for arg in sys.argv:
         name = arg.upper().replace("-", "")
         arg_counter += 1
         if name == "USER":
             try:
-                login_string = sys.argv[arg_counter]
+                LOGIN_STRING = sys.argv[arg_counter]
             except IndexError:
                 print "User login not specified."
 
@@ -409,8 +411,7 @@ class GestionLibreApp(wx.PySimpleApp):
 
 if __name__ == "__main__":
     # setup for the app-wide config module
-    login_string = None
-    
+
     import config
     config_setup()
 
@@ -664,19 +665,19 @@ if __name__ == "__main__":
                                     config.session,
                                     config.html_frame)
 
-    if isinstance(login_string, basestring) and \
-    len(login_string.split(":")) == 2:
+    if isinstance(LOGIN_STRING, basestring) and \
+    len(LOGIN_STRING.split(":")) == 2:
         # TODO: move to an authentication function
         # straight login from command line.
-        email, password = login_string.split(":")
+        email, password = LOGIN_STRING.split(":")
 
         if config.access_control.validate_user(email, password):
             print T("Welcome %s") % email
         else:
             print T("Authentication failed")
 
-    elif isinstance(login_string, basestring) and \
-    len(login_string.split(":")) != 2:
+    elif isinstance(LOGIN_STRING, basestring) and \
+    len(LOGIN_STRING.split(":")) != 2:
         print T("Incorrect mail:password argument")
 
     # load system information in session
