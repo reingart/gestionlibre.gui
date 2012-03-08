@@ -8,3 +8,6 @@ From gestionlibre (desktop application) path run:
 
 By default the web2py app is installed as "gestionlibre" in your web2py applications folder
 Some web2py implementations need to restart the web server to detect the new installed application.
+
+For more info please visit the project page:
+http://code.google.com/p/gestionlibre
