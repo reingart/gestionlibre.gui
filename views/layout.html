@@ -43,8 +43,8 @@
     {{ firm = db(db.contact.contact_id == contact).select().first().description }}
   {{pass}}
 {{except (AttributeError, KeyError, ValueError), e:}}
-  {{ =P(T("Could not load the firm contact information")) }}
-  {{ print "An error occurred while retrieving user or contact data:", str(e) }}
+  {{ =P(T("Could not load the firm contact information. "), T("You may need to specify your user account firm (specify firm)")) }}
+  {{ # print "An error occurred while retrieving user or contact data: " + str(e) }}
   {{ user = None }}
   {{ user_mail = T("not logged in") }}
   {{ firm = None }}

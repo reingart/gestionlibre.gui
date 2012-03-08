@@ -379,6 +379,8 @@ def start_install(evt):
             web2py_target = ddlg_web2py_target.GetPath()
 
             if not web2py_target in ["", None]:
+                starting_frame.SetStatusText( \
+                "now copying web2py")
                 extract(WEB2PY_INSTALLER, web2py_target)
                 WEB2PY_PATH = os.path.join(web2py_target, "web2py")
             else:
@@ -494,6 +496,9 @@ def start_install(evt):
                         exit(1)
 
     if not NO_WEB2PY_APP:
+        starting_frame.SetStatusText( \
+        "web2py app installation")
+        
         if (WEB2PY_PATH is not None):
             dlg = wx.MessageDialog(None, \
             "Confirm web2py app installation at %s?" \
@@ -514,6 +519,8 @@ def start_install(evt):
                 exit(1)
 
             print "Writing web2py app to disk"
+            starting_frame.SetStatusText( \
+            "now copying the web2py app")
 
             extract("web2py.app.gestionlibre.w2p", os.path.join(\
             WEB2PY_PATH, "applications", WEB2PY_APP_NAME))

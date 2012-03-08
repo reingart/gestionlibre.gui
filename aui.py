@@ -104,19 +104,15 @@ class PyAUIFrame(wx.Frame):
                                             wx.CLIP_CHILDREN):
         wx.Frame.__init__(self, parent, id, title, pos, size, style)
 
+
+    def start_manager(self):
         # tell FrameManager to manage this frame
         self._mgr = wx.aui.AuiManager()
         self._mgr.SetManagedWindow(self)
 
-        # Attributes
-        bmp = wx.Bitmap('images/gestionlibre-screen.png', wx.BITMAP_TYPE_PNG)
-        self.splash = wx.SplashScreen(bmp,
-                                           wx.SPLASH_CENTRE_ON_SCREEN|\
-                                           wx.SPLASH_NO_TIMEOUT, -1, self)
-        self.splash.Show()
-
-
-    def start_manager(self):
+        # allow active pane
+        self._mgr.SetFlags(\
+        self._mgr.GetFlags() ^ wx.aui.AUI_MGR_ALLOW_ACTIVE_PANE)
 
         # post-init code
         # web2py internationalization support
@@ -316,11 +312,9 @@ class PyAUIFrame(wx.Frame):
         # The source Licence is L-GPL
 
         # redirect text here
-        """
         from gui import RedirectText
         self.redir=RedirectText(self.text_pane)
         sys.stdout=self.redir
-        """
 
         self._mgr.AddPane(self.CreateSizeReportCtrl(), wx.aui.AuiPaneInfo().
                           Name("test11").Caption("Fixed Pane").

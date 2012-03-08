@@ -57,7 +57,6 @@ db = config.db
 session = config.session
 response = config.response
 auth = config.auth
-
 address = config.address
 import gluon.template
 
